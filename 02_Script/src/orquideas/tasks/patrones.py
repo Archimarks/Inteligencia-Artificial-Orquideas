@@ -453,6 +453,24 @@ def ejecutar(cfg: dict[str, Any], salida: dict[str, Path], log: logging.Logger) 
                 "especies": int(m["ID_ESPECIE"].nunique())})
     log.info(f"{len(c)} unidades, {m['ID_ARTICULO'].nunique()} articulos")
     guardar_tabla(c.assign(**{k: m[k] for k in UNIDAD}).reset_index(drop=True), salida["tablas"] / "perfil_unidades_superclase.csv")
+    # auditoria de los datos de este modelo
+    da = salida["auditoria"]
+    upa = m.groupby("ID_ARTICULO").agg(unidades=("ID_ESPECIE", "size"), especies=("ID_ESPECIE", "nunique"),
+                                       muestras=("N_MUESTRAS", "sum"), metabolitos_identificados=("N_IDENTIFICADOS", "sum"))
+    guardar_tabla(upa.reset_index(), da / "unidades_por_articulo.csv")
+    desc = c.describe().T
+    desc.index = [_nombre_cat(i) for i in desc.index]
+    guardar_tabla(desc.reset_index(names="superclase"), da / "descripcion_perfil_superclase.csv")
+    guardar_json({"unidades": int(len(c)), "articulos": int(m["ID_ARTICULO"].nunique()),
+                  "especies": int(m["ID_ESPECIE"].nunique()), "muestras": int(m["N_MUESTRAS"].sum()),
+                  "categorias_superclase": int(c.shape[1]), "min_metabolitos_por_unidad": pc.get("min_metabolitos", 20)},
+                 da / "resumen_datos.json")
+    (da / "auditoria_datos.md").write_text(
+        f"# Auditoria de datos - {cfg['id']}\n\nUnidades especie x articulo x parte: {len(c)} de "
+        f"{m['ID_ARTICULO'].nunique()} articulos y {m['ID_ESPECIE'].nunique()} especies ({int(m['N_MUESTRAS'].sum())} muestras "
+        f"biologicas). Perfil = numero de metabolitos identificados por superclase ({c.shape[1]} categorias).\n\n"
+        "Archivos: `unidades_por_articulo.csv`, `descripcion_perfil_superclase.csv`, `resumen_datos.json`.\n",
+        encoding="utf-8")
     a = pc.get("analisis", ["enriquecimiento", "coocurrencia", "reglas", "agrupamiento", "varianza", "atipicos",
                             "actividades", "orquideas"])
     if "enriquecimiento" in a:

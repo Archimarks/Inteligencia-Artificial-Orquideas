@@ -1,6 +1,6 @@
 """Auditoria exhaustiva de los CSV de 01_Datos/Base.
 
-Genera en 04_Resultados/auditoria_datos/<run_id>/:
+Genera en 03_Resultados/Global/auditoria_datos/<run_id>/:
   tablas/   perfiles por archivo, claves foraneas, cardinalidades, distribuciones, calidad
   graficas/ visualizaciones de cobertura, distribuciones y desbalance
   informe_auditoria.md  informe de diagnostico con respuestas a las preguntas del proyecto
@@ -20,7 +20,7 @@ from ..data.dataset import cargar_dataset, identificados, muestras_biologicas, v
 from ..utils.es import guardar_json, guardar_tabla
 from ..utils.huella import huellas_datos
 from ..utils.registro import cerrar_archivos, obtener_logger
-from ..utils.rutas import asegurar_dir, ruta
+from ..utils.rutas import asegurar_dir, ruta, ruta_global
 from ..visualization import graficas as G
 
 
@@ -66,7 +66,7 @@ def _calidad_catalogos() -> pd.DataFrame:
 
 def ejecutar_auditoria(run_id: str | None = None) -> Path:
     run_id = run_id or datetime.now().strftime("%Y%m%d_%H%M%S")
-    out = asegurar_dir(ruta("salidas", "auditoria") / run_id)
+    out = asegurar_dir(ruta_global("auditoria_datos") / run_id)
     tab, fig = asegurar_dir(out / "tablas"), asegurar_dir(out / "graficas")
     log = obtener_logger("auditoria", out / "auditoria.log")
     log.info("Auditoria %s -> %s", run_id, out)

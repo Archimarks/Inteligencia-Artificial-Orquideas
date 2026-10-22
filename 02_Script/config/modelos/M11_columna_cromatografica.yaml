@@ -27,6 +27,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: 'Este modelo mide el efecto de plataforma: si la columna se predice bien, los perfiles reflejan

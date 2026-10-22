@@ -8,13 +8,15 @@ datos:
   dataset: 01_Datos/Base/Dataset.csv
   catalogos: 01_Datos/Base
 
+# Todos los resultados quedan en 03_Resultados:
+#   Global/                 auditoria general de datos, resumen ejecutivo, informe cientifico, comparacion de modelos
+#   Models/<Modelo>/        una carpeta por modelo con auditoria_datos, ejecuciones, metricas, graficas,
+#                           predicciones, informes y modelo_entrenado
 salidas:
-  modelos: 03_Modelos_Entrenados
-  resultados: 04_Resultados
-  auditoria: 04_Resultados/auditoria_datos
-  ejecuciones: 04_Resultados/ejecuciones
-  cache: 04_Resultados/cache
-  resumen: 04_Resultados/informes
+  resultados: 03_Resultados
+  global: 03_Resultados/Global
+  modelos: 03_Resultados/Models
+  cache: 03_Resultados/_cache
   documentacion: 05_Documentacion
 
 configuracion:

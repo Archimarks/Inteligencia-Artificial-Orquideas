@@ -28,6 +28,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: Liliopsida esta representada por pocos articulos; una prediccion correcta podria reflejar la plataforma

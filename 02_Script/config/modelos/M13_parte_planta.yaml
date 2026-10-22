@@ -28,6 +28,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: Comparar con M18 (varianza intra-articulo por parte) para separar quimica del organo y efecto del

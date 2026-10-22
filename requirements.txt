@@ -9,7 +9,7 @@
 #
 # Convenciones:
 #   - Todas las dependencias tienen una versión exacta (==X.Y.Z), la misma con
-#     la que se ejecutaron y validaron los experimentos de 04_Resultados.
+#     la que se ejecutaron y validaron los experimentos de 03_Resultados.
 #   - Solo se incluyen librerías que el código importa realmente.
 #   - Las dependencias se agrupan según su responsabilidad funcional.
 #
@@ -17,9 +17,12 @@
 #   python -m pip install -r requirements.txt
 #
 # Cambios respecto a la versión anterior:
-#   - Se eliminan torch, xgboost, catboost, shap, PySide6 y psutil: el sistema
-#     no los usa (no hay redes neuronales ni interfaz gráfica; los modelos de
-#     boosting se cubren con LightGBM y HistGradientBoosting de scikit-learn).
+#   - Se eliminan torch, shap, PySide6 y psutil: el sistema no los usa (no hay
+#     redes neuronales ni interfaz gráfica; las GPU se detectan con nvidia-smi,
+#     que viene con el controlador NVIDIA, sin necesidad de torch).
+#   - Se mantienen xgboost y catboost para entrenar en GPU: el sistema detecta
+#     todas las GPU NVIDIA y, si hay varias (p. ej. dos), las usa todas
+#     (ver sección 03 y `python main.py hardware`).
 #   - Se añaden scipy, statsmodels, networkx, seaborn, PyYAML, pyarrow y pytest,
 #     que sí se usan (estadística, redes, gráficas, configuración, caché y pruebas).
 #   - numpy pasa de 2.5.2 a 2.5.3 (versión validada).
@@ -56,7 +59,28 @@ joblib==1.5.3
 
 
 # -----------------------------------------------------------------------------
-# 03. ESTADÍSTICA, ASOCIACIÓN Y REDES
+# 03. MACHINE LEARNING — GPU (BOOSTING)
+# -----------------------------------------------------------------------------
+# Requisito: controlador NVIDIA instalado (nvidia-smi en el PATH). Sin GPU,
+# ambos modelos se entrenan en CPU con el mismo código.
+#
+# xgboost:
+#   Gradient Boosting en GPU (device="cuda:i"). Se fija la 2.1.x: el wheel de
+#   la 3.x solo trae binarios de GPU para tarjetas Volta o más nuevas (compute
+#   capability >= 7.0) y deja fuera las Pascal (GTX 10xx). La 2.1.4 soporta GPU
+#   desde compute 6.0. Una GPU por modelo: las particiones de la validación
+#   cruzada se reparten entre todas las GPU y se entrenan en paralelo.
+#
+# catboost:
+#   Gradient Boosting con soporte robusto para variables categóricas. El wheel
+#   de pip trae soporte de GPU y entrena cada modelo con todas las GPU a la vez
+#   (devices="0:1").
+xgboost==2.1.4
+catboost==1.2.10
+
+
+# -----------------------------------------------------------------------------
+# 04. ESTADÍSTICA, ASOCIACIÓN Y REDES
 # -----------------------------------------------------------------------------
 # scipy:       pruebas de Fisher y Mann-Whitney.
 # statsmodels: corrección por comparaciones múltiples (Benjamini-Hochberg).
@@ -71,14 +95,14 @@ umap-learn==0.5.12
 
 
 # -----------------------------------------------------------------------------
-# 04. VISUALIZACIÓN
+# 05. VISUALIZACIÓN
 # -----------------------------------------------------------------------------
 matplotlib==3.11.1
 seaborn==0.13.2
 
 
 # -----------------------------------------------------------------------------
-# 05. CONFIGURACIÓN Y PRUEBAS
+# 06. CONFIGURACIÓN Y PRUEBAS
 # -----------------------------------------------------------------------------
 # PyYAML: lectura de config/*.yaml.
 # pytest: suite de pruebas (02_Script/tests).

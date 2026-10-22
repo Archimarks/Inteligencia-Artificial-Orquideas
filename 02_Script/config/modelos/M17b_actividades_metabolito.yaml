@@ -24,6 +24,8 @@ modelos:
     n_estimators: 300
     class_weight: null
 - nombre: knn
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 50
   confounding_control: false

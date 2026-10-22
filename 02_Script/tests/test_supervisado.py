@@ -19,7 +19,7 @@ def _cfg():
 
 
 def _salida(tmp_path):
-    d = {k: tmp_path / k for k in ["metricas", "predicciones", "graficas", "modelo", "tablas"]}
+    d = {k: tmp_path / k for k in ["metricas", "predicciones", "graficas", "modelo", "tablas", "auditoria", "informes"]}
     for v in d.values():
         v.mkdir()
     return d

@@ -2,8 +2,8 @@
 
 ## 1. Principios
 
-1. **Los datos originales no se modifican.** `01_Datos/Base` solo se lee; toda salida va a `03_Modelos_Entrenados` y
-   `04_Resultados`. Dataset.csv se cachea en Parquet (`04_Resultados/cache/dataset_<huella>.parquet`), con el nombre
+1. **Los datos originales no se modifican.** `01_Datos/Base` solo se lee; toda salida va a `03_Resultados`
+   (`Global` y `Models/<Modelo>`). Dataset.csv se cachea en Parquet (`03_Resultados/_cache/dataset_<huella>.parquet`), con el nombre
    indexado por su SHA-256: si el CSV cambia, se regenera la cache.
 2. **Configuracion, no codigo.** Cada experimento es un YAML en `02_Script/config/modelos/` y se valida antes de
    ejecutarse: claves obligatorias, modelos existentes, baseline obligatorio, validacion agrupada obligatoria y
@@ -28,7 +28,7 @@ Inteligencia Artificial Orquideas/
 │   │   ├── config_global.yaml     # semilla, niveles MSI aceptados, defaults de split/evaluacion/salidas
 │   │   └── modelos/M01..M18.yaml  # un archivo por experimento
 │   ├── src/orquideas/
-│   │   ├── utils/                 # rutas, registro (logging), huellas SHA-256, E/S
+│   │   ├── utils/                 # rutas, registro (logging), huellas SHA-256, E/S, deteccion de GPU
 │   │   ├── data/                  # catalogos (PK/FK), dataset (cache, vista sin replicas), relaciones (integridad)
 │   │   ├── audit/                 # auditoria completa e informe de diagnostico
 │   │   ├── features/              # quimica (formula -> descriptores), perfiles (composicion CLR), conjuntos (unidades)
@@ -39,14 +39,10 @@ Inteligencia Artificial Orquideas/
 │   │   ├── pipeline/              # ejecutor (run id, manifiesto) e interpretacion (informes, resumen)
 │   │   └── visualization/         # graficas con titulo, ejes, leyenda y nota interpretativa
 │   └── tests/                     # pytest: unitarias, flujo sintetico de extremo a extremo e integridad de datos
-├── 03_Modelos_Entrenados/<id>/<run_id>/modelo.joblib
-├── 04_Resultados/
-│   ├── auditoria_datos/<run>/     # tablas, graficas, informe_auditoria.md
-│   ├── ejecuciones/<run_id>/      # config_resuelta.yaml, manifiesto.json, resultado.json, informe.md, tablas/, log
-│   ├── metricas/<run_id>/         # metricas por modelo, por particion, por clase, importancias, permutaciones
-│   ├── predicciones/<run_id>/     # predicciones fuera de particion (OOF) con identificadores
-│   ├── graficas/<run_id>/
-│   └── informes/                  # resumen_ejecutivo.md/.csv e informe_cientifico.md
+├── 03_Resultados/
+│   ├── Global/                    # auditoria general, resumen ejecutivo, informe cientifico, comparacion global
+│   └── Models/<Modelo>/           # p. ej. M01_Modo_Ionizacion: auditoria_datos/, ejecuciones/, metricas/,
+│                                  #   graficas/, predicciones/, informes/, modelo_entrenado/  (una subcarpeta <run_id>)
 └── 05_Documentacion/              # este documento y el resto de manuales
 ```
 
@@ -76,8 +72,9 @@ Registo_Actividades_biologicas.csv ─► etiquetas de actividad                
    y el propio objetivo.
 4. `tasks/supervisado.py`:
    1. filtra las clases evaluables (>= N grupos y >= M unidades) y genera las particiones agrupadas;
-   2. entrena cada modelo dentro de un `Pipeline` (imputacion, varianza, escalado y seleccion opcional se ajustan
-      solo en entrenamiento);
+   2. audita los datos del modelo (`auditoria_datos/<run_id>`) y entrena cada modelo dentro de un `Pipeline`
+      (imputacion, varianza, escalado y seleccion opcional se ajustan solo en entrenamiento). XGBoost reparte las
+      particiones entre todas las GPU y CatBoost usa todas las GPU en cada ajuste;
    3. calcula predicciones OOF y metricas;
    4. elige el mejor modelo por la metrica principal y corre la evaluacion optimista, el control instrumental y las
       permutaciones;
@@ -97,3 +94,5 @@ Registo_Actividades_biologicas.csv ─► etiquetas de actividad                
 | Unidad agregada en M16-M18 | Las replicas de un extracto no son evidencia independiente. |
 | Reino | Constante (Plantae): no se modela; se usa solo como control de integridad. |
 | Niveles MSI | I-III = identificado (entra en perfiles y modelos de compuesto); IV = senal sin identificar (excluida de todo analisis que requiere identidad). El nivel no se usa como predictor. |
+| GPU | `utils/gpu.py` detecta todas las GPU NVIDIA con nvidia-smi. XGBoost (una GPU por particion, particiones en paralelo) y CatBoost (todas las GPU por modelo) las usan; sin GPU todo funciona en CPU. |
+| Resultados por modelo | Cada modelo concentra en `03_Resultados/Models/<Modelo>` su auditoria de datos, ejecuciones, metricas, graficas, predicciones, informes y modelo entrenado. |

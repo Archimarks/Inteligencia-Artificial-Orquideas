@@ -38,3 +38,24 @@ def ruta(seccion: str, clave: str) -> Path:
 def asegurar_dir(p: Path) -> Path:
     p.mkdir(parents=True, exist_ok=True)
     return p
+
+
+# Subcarpetas de cada modelo en 03_Resultados/Models/<Modelo>/
+SUBCARPETAS_MODELO = ["auditoria_datos", "ejecuciones", "metricas", "graficas", "predicciones", "informes",
+                      "modelo_entrenado"]
+
+
+def carpeta_modelo(id_experimento: str) -> str:
+    """'M01_modo_ionizacion' -> 'M01_Modo_Ionizacion' (nombre de la carpeta del modelo)."""
+    prefijo, *resto = id_experimento.split("_")
+    return "_".join([prefijo] + [p[:1].upper() + p[1:] for p in resto])
+
+
+def ruta_modelo(id_experimento: str, subcarpeta: str | None = None) -> Path:
+    base = ruta("salidas", "modelos") / carpeta_modelo(id_experimento)
+    return base / subcarpeta if subcarpeta else base
+
+
+def ruta_global(subcarpeta: str | None = None) -> Path:
+    base = ruta("salidas", "global")
+    return base / subcarpeta if subcarpeta else base

@@ -44,3 +44,10 @@ def test_deteccion_fuga():
     with pytest.raises(ErrorConfiguracion, match="Fuga"):
         verificar_fuga(c, ["RELACION_MASA_CARGA"])
     verificar_fuga(c, ["clase_1", "clase_otras"])
+
+
+def test_carpetas_por_modelo():
+    from orquideas.utils.rutas import carpeta_modelo, ruta_global, ruta_modelo
+    assert carpeta_modelo("M01_modo_ionizacion") == "M01_Modo_Ionizacion"
+    assert ruta_modelo("M01_modo_ionizacion", "metricas").parts[-3:] == ("Models", "M01_Modo_Ionizacion", "metricas")
+    assert ruta_global().parts[-2:] == ("03_Resultados", "Global")

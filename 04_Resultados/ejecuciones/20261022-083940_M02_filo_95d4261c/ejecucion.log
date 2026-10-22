@@ -1,3 +1,0 @@
-2026-10-22 08:39:40,615 | INFO    | orquideas.20261022-083940_M02_filo_95d4261c | Ejecucion 20261022-083940_M02_filo_95d4261c | Filo a partir del perfil quimico
-2026-10-22 08:39:48,469 | WARNING | orquideas.20261022-083940_M02_filo_95d4261c | Tras exigir >= 2 grupos y >= 10 unidades por clase quedan 1 clases y 48 grupos; no es posible una evaluacion agrupada honesta.
-2026-10-22 08:39:48,470 | INFO    | orquideas.20261022-083940_M02_filo_95d4261c | Estado: no_viable (7.8 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-083940_M02_filo_95d4261c/informe.md

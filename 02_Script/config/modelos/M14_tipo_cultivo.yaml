@@ -28,6 +28,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: El tipo de cultivo suele ser constante dentro de un estudio; la senal puede deberse al estudio.

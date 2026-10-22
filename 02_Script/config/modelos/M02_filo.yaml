@@ -27,6 +27,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: Solo Magnoliophyta tiene muestras en >= 2 articulos; se espera 'no viable'. El reino (Plantae) es

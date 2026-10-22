@@ -35,3 +35,12 @@ graficas:
   formato: png
   dpi: 200
   estilo: whitegrid
+
+# Aceleracion por GPU (NVIDIA). Se detectan todas las GPU con nvidia-smi.
+#   usar_gpu: auto -> usa todas las GPU detectadas; si no hay, CPU | si -> exige GPU | no -> solo CPU
+#   gpus: todas | [0, 1]  (indices a usar)
+# XGBoost reparte las particiones de la validacion cruzada entre las GPU (una por GPU, en paralelo);
+# CatBoost entrena cada modelo con todas las GPU a la vez. Ver `python main.py hardware`.
+hardware:
+  usar_gpu: auto
+  gpus: todas

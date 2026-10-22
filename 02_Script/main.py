@@ -3,6 +3,7 @@
 Uso (desde la carpeta 02_Script):
     python main.py auditoria                 # auditoria completa de 01_Datos/Base
     python main.py listar                    # experimentos configurados
+    python main.py hardware                  # CPU y GPU detectadas y GPU que se usaran
     python main.py validar [ID ...]          # valida configuraciones YAML sin ejecutar
     python main.py ejecutar M12 [M13 ...]    # ejecuta uno o varios experimentos
     python main.py ejecutar-todos            # ejecuta todos (M01..M18)
@@ -27,6 +28,17 @@ def cmd_auditoria(a: argparse.Namespace) -> None:
     from orquideas.audit.auditoria import ejecutar_auditoria
     run = a.etiqueta or datetime.now().strftime("%Y%m%d-%H%M%S")
     print(ejecutar_auditoria(run))
+
+
+def cmd_hardware(_: argparse.Namespace) -> None:
+    from orquideas.utils.gpu import resumen_hardware
+    hw = resumen_hardware()
+    print(f"Nucleos CPU: {hw['cpu_nucleos']}")
+    print(f"GPU detectadas: {len(hw['gpus'])}")
+    for g in hw["gpus"]:
+        print(f"  GPU {g['indice']}: {g['nombre']} | {g['memoria_mb']} MB | compute {g.get('compute_capability')} | "
+              f"driver {g.get('driver')}")
+    print(f"GPU que se usaran para entrenar (XGBoost/CatBoost): {hw['gpus_usadas'] or 'ninguna (CPU)'}")
 
 
 def cmd_listar(_: argparse.Namespace) -> None:
@@ -84,7 +96,7 @@ def cmd_reinformar(_: argparse.Namespace) -> None:
     from orquideas.pipeline.interpretacion import completar, escribir_informe
     from orquideas.utils.es import guardar_json, leer_json
     from orquideas.utils.rutas import ruta
-    for d in sorted(ruta("salidas", "ejecuciones").glob("*/resultado.json")):
+    for d in sorted(ruta("salidas", "modelos").glob("*/ejecuciones/*/resultado.json")):
         r, man = completar(leer_json(d), d.parent), leer_json(d.parent / "manifiesto.json")
         cfg = cargar_config(P(man["archivo_config"]))
         cfg["_huella"] = man["huella_config"]
@@ -99,7 +111,7 @@ def cmd_predecir(a: argparse.Namespace) -> None:
     import pandas as pd
 
     from orquideas.utils.rutas import ruta
-    cand = list(ruta("salidas", "modelos").glob(f"*/{a.run_id}/modelo.joblib"))
+    cand = list(ruta("salidas", "modelos").glob(f"*/modelo_entrenado/{a.run_id}/modelo.joblib"))
     if not cand:
         sys.exit(f"No se encontro modelo para la ejecucion {a.run_id}")
     paq = joblib.load(cand[0])
@@ -111,10 +123,11 @@ def cmd_predecir(a: argparse.Namespace) -> None:
     Xn = X[paq["columnas"]].to_numpy(float)
     out = X.copy()
     if paq["tipo"] == "multiclase":
-        pred = pipe.predict(Xn)
+        proba = pipe.predict_proba(Xn)
+        pred = pipe.classes_[proba.argmax(1)].astype(int)
         out["prediccion"] = paq["codificador"].inverse_transform(pred)
         out["prediccion_nombre"] = [paq["nombres_clases"][i] for i in pred]
-        out["probabilidad"] = pipe.predict_proba(Xn).max(1)
+        out["probabilidad"] = proba.max(1)
     else:
         pred = pipe.predict(Xn)
         for j, n in enumerate(paq["nombres_clases"]):
@@ -129,6 +142,7 @@ def main() -> None:
     sub = ap.add_subparsers(dest="comando", required=True)
     s = sub.add_parser("auditoria"); s.add_argument("--etiqueta"); s.set_defaults(f=cmd_auditoria)
     s = sub.add_parser("listar"); s.set_defaults(f=cmd_listar)
+    s = sub.add_parser("hardware"); s.set_defaults(f=cmd_hardware)
     s = sub.add_parser("validar"); s.add_argument("ids", nargs="*"); s.set_defaults(f=cmd_validar)
     s = sub.add_parser("ejecutar"); s.add_argument("ids", nargs="+"); s.add_argument("--etiqueta")
     s.set_defaults(f=cmd_ejecutar)
