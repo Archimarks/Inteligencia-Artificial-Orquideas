@@ -1,0 +1,33 @@
+id: M10_aducto
+nombre: Tipo de aducto a partir de la quimica del compuesto y el modo
+tarea: supervisado
+prioridad: normal
+pregunta_cientifica: ¿La formula, la superclase y el modo de ionizacion permiten anticipar que aducto se informara
+  para un metabolito en un estudio no visto?
+descripcion: Unidad = (articulo, metabolito, aducto) con aducto informado (15 aductos mas frecuentes entre articulos).
+  X = descriptores de formula + modo + superclase. m/z excluida (m/z - masa = masa del aducto). Grupos = articulo.
+  Control instrumental = solo el modo.
+conjunto:
+  nombre: metabolito_aducto
+  parametros:
+    max_clases: 15
+    incluir_superclase: true
+split:
+  n_splits: 5
+  min_groups_per_class: 2
+  min_samples_per_class: 20
+modelos:
+- nombre: baseline_mayoritaria
+- nombre: baseline_estratificada
+- nombre: logistica
+- nombre: random_forest
+  hiperparametros:
+    n_estimators: 200
+    min_samples_leaf: 5
+- nombre: lightgbm
+evaluation:
+  n_permutations: 20
+interpretacion: El modo determina la polaridad del aducto ([M+H]+ vs [M-H]-); el valor de la quimica se mide como
+  la mejora sobre el control que solo usa el modo.
+seleccion_variables:
+  metodo: ninguna

@@ -1,0 +1,11 @@
+2026-10-22 08:39:48,474 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 | Ejecucion 20261022-083948_M03_clase_taxonomica_ef8707f2 | Clase taxonomica a partir del perfil quimico
+2026-10-22 08:39:49,622 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 | 909 unidades, 48 grupos, 2 clases, 5 particiones (group_kfold)
+2026-10-22 08:39:49,686 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   baseline_mayoritaria: balanced_accuracy=0.500 (0.1 s)
+2026-10-22 08:39:49,748 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   baseline_estratificada: balanced_accuracy=0.521 (0.1 s)
+2026-10-22 08:39:49,843 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   logistica: balanced_accuracy=0.486 (0.1 s)
+2026-10-22 08:40:00,839 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   random_forest: balanced_accuracy=0.459 (11.0 s)
+2026-10-22 08:40:02,307 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   lightgbm: balanced_accuracy=0.468 (1.5 s)
+2026-10-22 08:40:02,853 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 08:40:02,940 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   Control instrumental: balanced_accuracy=0.389
+2026-10-22 08:40:08,617 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 |   Permutacion: p=0.806
+2026-10-22 08:40:09,051 | INFO    | orquideas.20261022-083948_M03_clase_taxonomica_ef8707f2 | Estado: completado (20.5 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-083948_M03_clase_taxonomica_ef8707f2/informe.md

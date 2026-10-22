@@ -1,0 +1,241 @@
+{
+  "run_id": "oficial",
+  "fecha": "2026-10-22T08:31:49",
+  "huellas": {
+    "01_Catalogo_Nucleo/01_Articulos.csv": "9e80bd4cdd088711892764c08ee9460774fc30acfdd901820ae75a5a8e2d50b6",
+    "01_Catalogo_Nucleo/02_Batches.csv": "187bad9d48085b46b74484d15907584008a5798a2b595a74555f260b058bd203",
+    "01_Catalogo_Nucleo/03_Modo_ionizacion.csv": "b4703794eab864e749527d1a55f004320cb700e75bf74050219be882d6e3da0a",
+    "01_Catalogo_Nucleo/04_Actividades_biologicas.csv": "6347644d89d6213c4709f5a129cf550c1248c493fe4a189748622cee884ecb9f",
+    "02_Catalogo_Especie/01_Reinos.csv": "fc1a17a1744f78a8794cfcf568c3ab7369338ef48fd128d354e03a68bdee2109",
+    "02_Catalogo_Especie/02_Filos.csv": "d4f78d11fcf06f809313bf62784f1cc40a3c17a27e0e8d55348a74665bbcc271",
+    "02_Catalogo_Especie/03_Clases_taxonomicas.csv": "bd2255fd83758544df414d141f9682eb8228cd54865fad3834f3087aa79799be",
+    "02_Catalogo_Especie/04_Ordenes.csv": "64b9dd72d6d08a8b423c110e4cdba2082c7b25b04b47fd80a690eadec4794445",
+    "02_Catalogo_Especie/05_Familias.csv": "60ba0c2e799406eeb6c0868f99e057ff5238b78969fec441be82f5bf61ad1b62",
+    "02_Catalogo_Especie/06_Generos.csv": "0f8e2121a2fbbfaad6a130769b882e816481765a69275e9e5dff8fcbc3ad99cc",
+    "02_Catalogo_Especie/07_Especies.csv": "fd81e7f3829cd5158effa308bf1e2f806f09fdf4290de9b8a210dcf750dbb73a",
+    "03_Catalogo_Metabolito/01_Niveles_identificacion.csv": "416114fc5106d564bf3d336ea6793d5d5d6d2a1e5b9866aff236fbf240cfc6aa",
+    "03_Catalogo_Metabolito/02_Superclases_quimicas.csv": "ac3869f07ef2af9c769cf761d614acc09241624bcafd6062ff591dc8f77aaccd",
+    "03_Catalogo_Metabolito/03_Clases_quimicas.csv": "986b222be526bab2bc4a437552fbe454055f12819c4a0ba3d15059ecad8a3c57",
+    "03_Catalogo_Metabolito/04_Aductos.csv": "66669536932e7dde7482b7453b9b84d1291619113c7f2373f9ae1acc9940c9be",
+    "03_Catalogo_Metabolito/05_Metabolitos.csv": "05d890b8327d4c059381765c33fc041a6d5ae2b59bb8e7cb6d86ebe07e51e540",
+    "04_Catalogo_Muestra/01_Columnas_cromatograficas.csv": "1126b0153c8f9832eb300c4f55c9e731e62bb0df70d1dccfa85abc33446364cb",
+    "04_Catalogo_Muestra/02_Tipos_muestra.csv": "5e9ffb6dd272b23e76ebaa31300fa42577120c6c43509578c30ef4bd78cdd68f",
+    "04_Catalogo_Muestra/03_Partes_planta_estudiadas.csv": "705c1fb63769e8d7e2685559e15aeb892252c4691093b8660d5b8d3200b5e5da",
+    "04_Catalogo_Muestra/04_Tipos_cultivo.csv": "370668556696f369f74aff4b51cb749de41814b6f455261c467fa4e936b76550",
+    "04_Catalogo_Muestra/05_Metodos_extraccion.csv": "e5c744acd71fc4fe6b6afa9ce01baa55c3a529851648497db6a0d1ccd1942eda",
+    "04_Catalogo_Muestra/06_Muestras_Batch.csv": "4f30a7146644c0fb2958682bca6aaf16245efadfa90fde33c9d4b61c91c3962b",
+    "05_Pivotes/Registo_Actividades_biologicas.csv": "8fcd0e2cce272a1c468b29b183ea75ae504648c219b6eb5085a8560fc2dfba4e",
+    "Dataset.csv": "6453459d80def68dada721917440be78b8bc916e94da9ee03ece022544bffca6"
+  },
+  "fk_huerfanos_total": 0,
+  "filas_dataset": 6116075,
+  "filas_replicadas_por_actividad": 317797,
+  "observaciones_quimicas": 5798278,
+  "observaciones_muestras_biologicas": 5124156,
+  "observaciones_identificadas": 1311831,
+  "pct_identificadas": 25.6,
+  "articulos_con_datos": 52,
+  "articulos_catalogo": 53,
+  "lotes": 57,
+  "muestras_total": 1773,
+  "muestras_biologicas": 1478,
+  "muestras_qc_blanco": 295,
+  "especies_con_datos": 71,
+  "metabolitos_identificados_distintos": 45842,
+  "registros_actividad": 972,
+  "cardinalidades": {
+    "lotes_por_articulo": {
+      "count": 53.0,
+      "mean": 1.0754716981132075,
+      "std": 0.2666787612158108,
+      "min": 1.0,
+      "25%": 1.0,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 2.0
+    },
+    "muestras_por_lote": {
+      "count": 57.0,
+      "mean": 31.105263157894736,
+      "std": 42.081843815918624,
+      "min": 3.0,
+      "25%": 12.0,
+      "50%": 15.0,
+      "75%": 24.0,
+      "max": 201.0
+    },
+    "especies_por_articulo": {
+      "count": 52.0,
+      "mean": 1.4038461538461537,
+      "std": 0.9550611392936258,
+      "min": 1.0,
+      "25%": 1.0,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 5.0
+    },
+    "articulos_por_especie": {
+      "count": 71.0,
+      "mean": 1.028169014084507,
+      "std": 0.16663312875171465,
+      "min": 1.0,
+      "25%": 1.0,
+      "50%": 1.0,
+      "75%": 1.0,
+      "max": 2.0
+    },
+    "metabolitos_identificados_por_lote": {
+      "count": 53.0,
+      "mean": 1512.9811320754718,
+      "std": 1669.3308596164886,
+      "min": 3.0,
+      "25%": 429.0,
+      "50%": 988.0,
+      "75%": 1909.0,
+      "max": 7702.0
+    },
+    "lotes_por_metabolito": {
+      "count": 45842.0,
+      "mean": 1.7492256009772698,
+      "std": 1.96737807849925,
+      "min": 1.0,
+      "25%": 1.0,
+      "50%": 1.0,
+      "75%": 2.0,
+      "max": 30.0
+    }
+  },
+  "variables_categoricas": [
+    {
+      "variable": "familia",
+      "categorias_no_vacias": 34,
+      "categorias_con_>=2_articulos": 10,
+      "categorias_con_>=3_articulos": 6,
+      "razon_desbalance_max_min": 87.8,
+      "pct_registros_categoria_0": 0.0
+    },
+    {
+      "variable": "orden",
+      "categorias_no_vacias": 23,
+      "categorias_con_>=2_articulos": 10,
+      "categorias_con_>=3_articulos": 8,
+      "razon_desbalance_max_min": 75.2,
+      "pct_registros_categoria_0": 0.0
+    },
+    {
+      "variable": "clase_taxonomica",
+      "categorias_no_vacias": 4,
+      "categorias_con_>=2_articulos": 2,
+      "categorias_con_>=3_articulos": 2,
+      "razon_desbalance_max_min": 110.2,
+      "pct_registros_categoria_0": 0.0
+    },
+    {
+      "variable": "filo",
+      "categorias_no_vacias": 3,
+      "categorias_con_>=2_articulos": 1,
+      "categorias_con_>=3_articulos": 1,
+      "razon_desbalance_max_min": 120.4,
+      "pct_registros_categoria_0": 0.0
+    },
+    {
+      "variable": "genero",
+      "categorias_no_vacias": 50,
+      "categorias_con_>=2_articulos": 3,
+      "categorias_con_>=3_articulos": 1,
+      "razon_desbalance_max_min": 40.0,
+      "pct_registros_categoria_0": 26.66
+    },
+    {
+      "variable": "especie",
+      "categorias_no_vacias": 71,
+      "categorias_con_>=2_articulos": 2,
+      "categorias_con_>=3_articulos": 0,
+      "razon_desbalance_max_min": 36.0,
+      "pct_registros_categoria_0": 26.66
+    },
+    {
+      "variable": "parte",
+      "categorias_no_vacias": 29,
+      "categorias_con_>=2_articulos": 10,
+      "categorias_con_>=3_articulos": 8,
+      "razon_desbalance_max_min": 354.0,
+      "pct_registros_categoria_0": 27.47
+    },
+    {
+      "variable": "tipo_muestra",
+      "categorias_no_vacias": 9,
+      "categorias_con_>=2_articulos": 3,
+      "categorias_con_>=3_articulos": 2,
+      "razon_desbalance_max_min": 259.0,
+      "pct_registros_categoria_0": 0.27
+    },
+    {
+      "variable": "cultivo",
+      "categorias_no_vacias": 9,
+      "categorias_con_>=2_articulos": 5,
+      "categorias_con_>=3_articulos": 4,
+      "razon_desbalance_max_min": 162.3,
+      "pct_registros_categoria_0": 2.44
+    },
+    {
+      "variable": "metodo",
+      "categorias_no_vacias": 30,
+      "categorias_con_>=2_articulos": 6,
+      "categorias_con_>=3_articulos": 4,
+      "razon_desbalance_max_min": 131.3,
+      "pct_registros_categoria_0": 3.04
+    },
+    {
+      "variable": "columna",
+      "categorias_no_vacias": 17,
+      "categorias_con_>=2_articulos": 5,
+      "categorias_con_>=3_articulos": 3,
+      "razon_desbalance_max_min": 131.3,
+      "pct_registros_categoria_0": 5.62
+    },
+    {
+      "variable": "modo",
+      "categorias_no_vacias": 3,
+      "categorias_con_>=2_articulos": 3,
+      "categorias_con_>=3_articulos": 3,
+      "razon_desbalance_max_min": 327.4,
+      "pct_registros_categoria_0": 0.7
+    },
+    {
+      "variable": "nivel",
+      "categorias_no_vacias": 4,
+      "categorias_con_>=2_articulos": 4,
+      "categorias_con_>=3_articulos": 4,
+      "razon_desbalance_max_min": 21.8,
+      "pct_registros_categoria_0": 0.0
+    },
+    {
+      "variable": "superclase",
+      "categorias_no_vacias": 21,
+      "categorias_con_>=2_articulos": 19,
+      "categorias_con_>=3_articulos": 19,
+      "razon_desbalance_max_min": 21811.8,
+      "pct_registros_categoria_0": 20.1
+    },
+    {
+      "variable": "aducto",
+      "categorias_no_vacias": 81,
+      "categorias_con_>=2_articulos": 40,
+      "categorias_con_>=3_articulos": 37,
+      "razon_desbalance_max_min": 185269.3,
+      "pct_registros_categoria_0": 66.29
+    }
+  ],
+  "rango_medianas_log10_intensidad_lotes": [
+    -1.07,
+    7.61
+  ],
+  "tipo_evidencia": {
+    "Literatura citada en el articulo": 786,
+    "Ensayo experimental (valor por grupo de muestra)": 174,
+    "Ensayo experimental (no vinculado a muestras del batch)": 12
+  },
+  "detecciones_repetidas_mismo_metabolito_muestra_modo": 8100,
+  "filas_en_detecciones_repetidas": 17667
+}

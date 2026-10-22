@@ -1,0 +1,11 @@
+2026-10-22 09:19:24,450 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 | Ejecucion 20261022-091924_M15_metodo_extraccion_7e92a798 | Metodo de extraccion a partir del perfil quimico
+2026-10-22 09:19:25,934 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 | 541 unidades, 32 grupos, 6 clases, 5 particiones (group_kfold)
+2026-10-22 09:19:26,016 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   baseline_mayoritaria: balanced_accuracy=0.167 (0.1 s)
+2026-10-22 09:19:26,096 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   baseline_estratificada: balanced_accuracy=0.136 (0.1 s)
+2026-10-22 09:19:26,240 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   logistica: balanced_accuracy=0.515 (0.1 s)
+2026-10-22 09:19:33,922 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   random_forest: balanced_accuracy=0.349 (7.7 s)
+2026-10-22 09:19:36,320 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   lightgbm: balanced_accuracy=0.468 (2.4 s)
+2026-10-22 09:19:36,943 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 09:19:37,069 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   Control instrumental: balanced_accuracy=0.543
+2026-10-22 09:19:45,668 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 |   Permutacion: p=0.032
+2026-10-22 09:19:46,018 | INFO    | orquideas.20261022-091924_M15_metodo_extraccion_7e92a798 | Estado: completado (21.5 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-091924_M15_metodo_extraccion_7e92a798/informe.md

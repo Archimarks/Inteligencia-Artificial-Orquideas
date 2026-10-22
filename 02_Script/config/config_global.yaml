@@ -1,0 +1,37 @@
+# Configuracion global compartida por todos los experimentos.
+# Cada experimento (config/modelos/*.yaml) puede sobreescribir cualquier clave de `defaults`.
+proyecto: "IA para el descubrimiento de patrones quimicos en orquideas y plantas medicinales"
+semilla: 42
+n_jobs: -1                    # -1 = todos los nucleos
+
+datos:
+  separador: ";"
+  codificacion_catalogos: "utf-8-sig"
+  # Niveles MSI aceptados como "metabolito identificado" (1=I, 2=II, 3=III). El 4 (IV) es senal sin identificar.
+  niveles_identificados: [1, 2, 3]
+  # Tipos de muestra excluidos de los analisis biologicos (QC y blancos)
+  tipos_muestra_excluidos: [9, 10]
+
+defaults:
+  split:
+    strategy: group_kfold     # group_kfold | leave_one_group_out | stratified_kfold | within_group_loo
+    n_splits: 5
+    group_column: ID_ARTICULO
+    min_groups_per_class: 2   # una clase debe aparecer en al menos este numero de grupos para ser evaluable
+    min_samples_per_class: 10
+  evaluation:
+    permutation_test: true
+    n_permutations: 100
+    confounding_control: true # entrena un modelo solo con variables instrumentales para medir confusion
+    evaluacion_optimista: true # repite la validacion sin agrupar (solo como referencia de la inflacion)
+  outputs:
+    save_model: true
+    save_predictions: true
+    save_plots: true
+    dpi: 200
+    overwrite: false          # nunca sobrescribe ejecuciones previas salvo que se indique
+
+graficas:
+  formato: png
+  dpi: 200
+  estilo: whitegrid

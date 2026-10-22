@@ -1,0 +1,11 @@
+2026-10-22 09:08:51,439 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc | Ejecucion 20261022-090851_M11_columna_cromatografica_b5aeecbc | Columna cromatografica a partir del perfil quimico
+2026-10-22 09:08:52,983 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc | 649 unidades, 38 grupos, 5 clases, 5 particiones (group_kfold)
+2026-10-22 09:08:53,087 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   baseline_mayoritaria: balanced_accuracy=0.200 (0.1 s)
+2026-10-22 09:08:53,193 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   baseline_estratificada: balanced_accuracy=0.191 (0.1 s)
+2026-10-22 09:08:53,385 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   logistica: balanced_accuracy=0.401 (0.2 s)
+2026-10-22 09:09:03,526 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   random_forest: balanced_accuracy=0.392 (10.1 s)
+2026-10-22 09:09:06,155 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   lightgbm: balanced_accuracy=0.355 (2.6 s)
+2026-10-22 09:09:06,762 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 09:09:06,888 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   Control instrumental: balanced_accuracy=0.096
+2026-10-22 09:09:16,830 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc |   Permutacion: p=0.032
+2026-10-22 09:09:17,181 | INFO    | orquideas.20261022-090851_M11_columna_cromatografica_b5aeecbc | Estado: completado (25.7 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-090851_M11_columna_cromatografica_b5aeecbc/informe.md

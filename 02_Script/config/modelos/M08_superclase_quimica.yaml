@@ -1,0 +1,30 @@
+id: M08_superclase_quimica
+nombre: Superclase quimica a partir de la formula molecular
+tarea: supervisado
+prioridad: normal
+pregunta_cientifica: ¿La composicion elemental de un metabolito (solo su formula) permite asignar su superclase
+  quimica, incluso para formulas no vistas?
+descripcion: Unidad = metabolito identificado con formula interpretable y clase conocida. X = 24 descriptores elementales.
+  Grupos = formula molecular (los isomeros nunca se reparten entre entrenamiento y prueba).
+conjunto:
+  nombre: metabolito_quimica
+  parametros:
+    objetivo: ID_SUPERCLASE_QUIMICA
+split:
+  n_splits: 5
+  min_groups_per_class: 5
+  min_samples_per_class: 30
+modelos:
+- nombre: baseline_mayoritaria
+- nombre: baseline_estratificada
+- nombre: logistica
+- nombre: random_forest
+  hiperparametros:
+    n_estimators: 200
+- nombre: lightgbm
+evaluation:
+  n_permutations: 20
+interpretacion: 'La formula restringe la clase (p. ej. N para alcaloides, O/C alto para glicosidos), pero muchos
+  isomeros pertenecen a clases distintas: hay un techo de rendimiento irreducible sin estructura.'
+seleccion_variables:
+  metodo: ninguna

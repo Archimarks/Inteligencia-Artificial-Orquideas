@@ -1,0 +1,9 @@
+2026-10-22 09:25:08,397 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 | Ejecucion 20261022-092508_M17b_actividades_metabolito_0aedd318 | Actividades biologicas de un metabolito a partir de su formula y superclase
+2026-10-22 09:25:08,601 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 | 93 unidades, 75 grupos, 6 clases, 5 particiones (group_kfold)
+2026-10-22 09:25:08,692 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 |   baseline_prior: average_precision_macro=0.292 (0.1 s)
+2026-10-22 09:25:08,930 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 |   logistica: average_precision_macro=0.395 (0.2 s)
+2026-10-22 09:25:12,669 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 |   random_forest: average_precision_macro=0.419 (3.7 s)
+2026-10-22 09:25:12,823 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 |   knn: average_precision_macro=0.436 (0.2 s)
+2026-10-22 09:25:13,344 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 |   Evaluacion no agrupada (optimista): average_precision_macro=0.496
+2026-10-22 09:25:19,384 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 |   Permutacion: p=0.039
+2026-10-22 09:25:19,399 | INFO    | orquideas.20261022-092508_M17b_actividades_metabolito_0aedd318 | Estado: completado (11.0 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-092508_M17b_actividades_metabolito_0aedd318/informe.md

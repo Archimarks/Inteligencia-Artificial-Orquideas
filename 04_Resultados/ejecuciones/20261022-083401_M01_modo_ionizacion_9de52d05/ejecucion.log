@@ -1,0 +1,10 @@
+2026-10-22 08:34:01,536 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 | Ejecucion 20261022-083401_M01_modo_ionizacion_9de52d05 | Modo de ionizacion (ESI+ / ESI-) a partir de la quimica del compuesto
+2026-10-22 08:34:05,384 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 | 69686 unidades, 46 grupos, 2 clases, 5 particiones (group_kfold)
+2026-10-22 08:34:06,981 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   baseline_mayoritaria: balanced_accuracy=0.500 (1.6 s)
+2026-10-22 08:34:08,596 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   baseline_estratificada: balanced_accuracy=0.503 (1.6 s)
+2026-10-22 08:34:13,863 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   logistica: balanced_accuracy=0.620 (5.3 s)
+2026-10-22 08:34:34,071 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   random_forest: balanced_accuracy=0.686 (20.2 s)
+2026-10-22 08:34:40,893 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   lightgbm: balanced_accuracy=0.682 (6.8 s)
+2026-10-22 08:35:00,416 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   Evaluacion no agrupada (optimista): balanced_accuracy=0.702
+2026-10-22 08:39:33,537 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 |   Permutacion: p=0.091
+2026-10-22 08:39:40,611 | INFO    | orquideas.20261022-083401_M01_modo_ionizacion_9de52d05 | Estado: completado (339.0 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-083401_M01_modo_ionizacion_9de52d05/informe.md

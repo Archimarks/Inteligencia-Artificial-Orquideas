@@ -1,0 +1,2 @@
+# Las dependencias se mantienen en el requirements.txt de la raiz del proyecto.
+-r ../requirements.txt

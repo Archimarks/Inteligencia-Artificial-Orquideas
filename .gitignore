@@ -2,3 +2,8 @@
 00_Informes/**/Dataset/
 *.joblib
 **/Models/
+
+# Salidas regenerables
+04_Resultados/cache/
+__pycache__/
+.pytest_cache/
