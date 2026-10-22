@@ -1,5 +1,3 @@
 {
-    "python.analysis.extraPaths": [
-        "./02_Script"
-    ]
+  "python.analysis.extraPaths": ["./02_Script", "./02_Script/src"]
 }

@@ -1,0 +1,11 @@
+2026-10-22 09:12:30,769 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 | Ejecucion 20261022-091230_M13_parte_planta_9fd561d1 | Parte de la planta a partir del perfil quimico
+2026-10-22 09:12:32,302 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 | 772 unidades, 44 grupos, 9 clases, 5 particiones (group_kfold)
+2026-10-22 09:12:32,370 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   baseline_mayoritaria: balanced_accuracy=0.111 (0.1 s)
+2026-10-22 09:12:32,435 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   baseline_estratificada: balanced_accuracy=0.093 (0.1 s)
+2026-10-22 09:12:32,668 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   logistica: balanced_accuracy=0.141 (0.2 s)
+2026-10-22 09:12:43,509 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   random_forest: balanced_accuracy=0.069 (10.8 s)
+2026-10-22 09:12:50,097 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   lightgbm: balanced_accuracy=0.077 (6.6 s)
+2026-10-22 09:12:51,116 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   Evaluacion no agrupada (optimista): balanced_accuracy=0.886
+2026-10-22 09:12:51,258 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   Control instrumental: balanced_accuracy=0.086
+2026-10-22 09:13:01,788 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 |   Permutacion: p=0.065
+2026-10-22 09:13:02,203 | INFO    | orquideas.20261022-091230_M13_parte_planta_9fd561d1 | Estado: completado (31.4 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-091230_M13_parte_planta_9fd561d1/informe.md

@@ -1,0 +1,10 @@
+2026-10-22 09:20:41,195 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 | Ejecucion 20261022-092041_M17_actividades_especie_c5142b20 | Actividades biologicas de una especie a partir de su perfil quimico
+2026-10-22 09:20:41,880 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 | 60 unidades, 44 grupos, 16 clases, 5 particiones (group_kfold)
+2026-10-22 09:20:42,034 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   baseline_prior: average_precision_macro=0.300 (0.2 s)
+2026-10-22 09:20:42,466 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   logistica: average_precision_macro=0.396 (0.4 s)
+2026-10-22 09:20:47,444 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   random_forest: average_precision_macro=0.416 (5.0 s)
+2026-10-22 09:20:47,699 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   knn: average_precision_macro=0.405 (0.3 s)
+2026-10-22 09:20:53,724 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   Evaluacion no agrupada (optimista): average_precision_macro=0.700
+2026-10-22 09:20:58,404 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   Control instrumental: average_precision_macro=0.437
+2026-10-22 09:25:06,835 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 |   Permutacion: p=0.020
+2026-10-22 09:25:08,393 | INFO    | orquideas.20261022-092041_M17_actividades_especie_c5142b20 | Estado: completado (267.2 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-092041_M17_actividades_especie_c5142b20/informe.md

@@ -1,0 +1,27 @@
+{
+  "tarea": "patrones",
+  "notas": [
+    "Unidad = especie x articulo x parte (suma de muestras biologicas). Perfil = conteo de metabolitos identificados por categoria quimica (CLR). Las intensidades no se comparan entre lotes."
+  ],
+  "unidades": 111,
+  "articulos": 51,
+  "especies": 69,
+  "hallazgos": [
+    "Enriquecimiento por ID_CLASE_TAXONOMICA: 2 niveles con >= 2 articulos; 0 de 40 contrastes con q < 0.05.",
+    "Enriquecimiento por ID_ORDEN: 9 niveles con >= 2 articulos; 0 de 180 contrastes con q < 0.05.",
+    "Enriquecimiento por ID_FAMILIA: 9 niveles con >= 2 articulos; 2 de 180 contrastes con q < 0.05. Mas fuertes: Organometallic compounds mayor en Rosaceae (q=0.038); Organic 1,3-dipolar compounds mayor en Rosaceae (q=0.038)",
+    "Enriquecimiento por ID_PARTE_ESTUDIADA: 10 niveles con >= 2 articulos; 0 de 200 contrastes con q < 0.05.",
+    "Enriquecimiento por ID_TIPO_MUESTRA: 3 niveles con >= 2 articulos; 0 de 60 contrastes con q < 0.05.",
+    "Coocurrencia (nulo curveball que conserva la riqueza de cada unidad, 300 aleatorizaciones): 160 de 1770 pares de clases quimicas coaparecen mas de lo esperado (q < 0.05). Mas fuertes: Organic acids + Fatty Acyls (z=6.1); Glycerophospholipids + Steroids and steroid derivatives (z=5.4); Flavones + Flavanones (z=5.2); Glycerophospholipids + Fatty Acids and Conjugates (z=5.1)",
+    "Reglas de asociacion: 4693 reglas entre clases quimicas (soporte >= 0.2, confianza >= 0.9, lift >= 1.5); 105 reglas taxon -> clase quimica sostenidas por >= 2 articulos. Ejemplos: FAMILIA=Moraceae => Phenylpropanoids (C6-C3) (conf 1.00, lift 4.83, 2 art.); FAMILIA=Lamiaceae => Amines (conf 1.00, lift 4.62, 3 art.); FAMILIA=Solanaceae => Amines (conf 1.00, lift 4.62, 4 art.); FAMILIA=Lamiaceae => Tryptophan alkaloids (conf 1.00, lift 3.96, 3 art.)",
+    "Agrupamiento: k=3 (silueta 0.50), estabilidad ARI bootstrap 0.81 +/- 0.27. Concordancia (AMI) de los clusters con orden taxonomico 0.13, con columna cromatografica 0.12 y con articulo 0.16. PC1+PC2 explican 66% de la varianza.",
+    "Particion de varianza: ID_ARTICULO R2=1.00 (ajustado 0.99, nulo 0.45, p=0.002, permutacion libre); ID_FAMILIA R2=0.79 (ajustado 0.71, nulo 0.67, p=0.026, permutacion por articulo); ID_METODO_EXTRACCION R2=0.51 (ajustado 0.38, nulo 0.51, p=0.498, permutacion por articulo); ID_ORDEN R2=0.48 (ajustado 0.35, nulo 0.47, p=0.456, permutacion por articulo); ID_PARTE_ESTUDIADA R2=0.36 (ajustado 0.14, nulo 0.26, p=0.004, permutacion libre); ID_COLUMNA_CROMATOGRAFICA R2=0.34 (ajustado 0.23, nulo 0.34, p=0.466, permutacion por articulo); ID_CLASE_TAXONOMICA R2=0.05 (ajustado 0.02, nulo 0.07, p=0.610, permutacion por articulo).",
+    "Particion de varianza intra-articulo: ID_PARTE_ESTUDIADA R2=0.02 (ajustado -0.06, nulo 0.02, p=0.552, permutacion intra-articulo).",
+    "Particion de varianza intra-articulo: ID_TIPO_CULTIVO R2=0.01 (ajustado -0.03, nulo 0.01, p=0.204, permutacion intra-articulo).",
+    "Particion de varianza intra-articulo: ID_ESPECIE R2=0.02 (ajustado -0.10, nulo 0.01, p=0.114, permutacion intra-articulo).",
+    "Atipicos: 26 de 111 unidades; las mas atipicas: Nicotiana tabacum L. (art. 11), Ipomoea batatas (L.) Lam. (art. 37), Spatholobus suberectus Dunn (art. 15), Medicago sativa L. (art. 22), Actinidia chinensis Planch. (art. 45).",
+    "Red quimica-actividad: 102 metabolitos con actividad citada; 0 asociaciones superclase-actividad enriquecidas (q < 0.05).",
+    "Orquideas: 2 articulos de Orchidaceae; 2783 metabolitos identificados en ellas, 73 presentes en todos sus articulos; de estos, 5 aparecen en <= 10 % de los otros 49 articulos (candidatos a marcadores, a confirmar)."
+  ],
+  "estado": "completado"
+}

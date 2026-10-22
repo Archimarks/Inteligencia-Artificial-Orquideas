@@ -1,0 +1,45 @@
+split:
+  strategy: group_kfold
+  n_splits: 5
+  group_column: ID_ARTICULO
+  min_groups_per_class: 3
+  min_samples_per_class: 5
+evaluation:
+  permutation_test: true
+  n_permutations: 50
+  confounding_control: false
+outputs:
+  save_model: true
+  save_predictions: true
+  save_plots: true
+  dpi: 200
+  overwrite: false
+id: M17b_actividades_metabolito
+nombre: Actividades biologicas de un metabolito a partir de su formula y superclase
+tarea: supervisado
+prioridad: alta
+pregunta_cientifica: ¿La composicion elemental y la superclase de un metabolito con
+  actividad citada permiten anticipar que tipo de actividad se le atribuye?
+descripcion: Unidad = metabolito con actividad registrada en la literatura citada
+  por los articulos. Y = actividades con >= 10 metabolitos. X = descriptores de formula
+  + superclase. Grupos = formula.
+conjunto:
+  nombre: actividad_metabolito
+  parametros:
+    min_positivos: 10
+modelos:
+- nombre: baseline_prior
+- nombre: logistica
+  hiperparametros:
+    C: 0.3
+- nombre: random_forest
+  hiperparametros:
+    n_estimators: 300
+    class_weight: null
+- nombre: knn
+interpretacion: 'Muy pocos metabolitos (~90) y sesgo de publicacion: compuestos famosos
+  acumulan muchas actividades citadas.'
+seleccion_variables:
+  metodo: ninguna
+semilla: 42
+n_jobs: -1

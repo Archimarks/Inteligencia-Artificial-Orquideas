@@ -1,0 +1,11 @@
+2026-10-22 08:46:44,487 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 | Ejecucion 20261022-084644_M06_genero_d8f1dc95 | Genero a partir del perfil quimico
+2026-10-22 08:46:45,951 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 | 84 unidades, 8 grupos, 3 clases, 5 particiones (group_kfold)
+2026-10-22 08:46:46,007 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   baseline_mayoritaria: balanced_accuracy=0.333 (0.1 s)
+2026-10-22 08:46:46,069 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   baseline_estratificada: balanced_accuracy=0.286 (0.1 s)
+2026-10-22 08:46:46,163 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   logistica: balanced_accuracy=0.352 (0.1 s)
+2026-10-22 08:46:53,676 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   random_forest: balanced_accuracy=0.167 (7.5 s)
+2026-10-22 08:46:53,992 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   lightgbm: balanced_accuracy=0.495 (0.3 s)
+2026-10-22 08:46:54,817 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 08:46:55,182 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   Control instrumental: balanced_accuracy=0.167
+2026-10-22 08:47:09,752 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 |   Permutacion: p=0.032
+2026-10-22 08:47:10,169 | INFO    | orquideas.20261022-084644_M06_genero_d8f1dc95 | Estado: completado (25.7 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-084644_M06_genero_d8f1dc95/informe.md

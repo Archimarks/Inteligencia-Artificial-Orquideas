@@ -1,0 +1,10 @@
+2026-10-22 08:53:06,130 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 | Ejecucion 20261022-085306_M09_clase_quimica_433a0117 | Clase quimica a partir de la formula molecular
+2026-10-22 08:53:10,331 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 | 23337 unidades, 10284 grupos, 40 clases, 5 particiones (group_kfold)
+2026-10-22 08:53:10,605 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   baseline_mayoritaria: balanced_accuracy=0.025 (0.3 s)
+2026-10-22 08:53:10,884 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   baseline_estratificada: balanced_accuracy=0.024 (0.3 s)
+2026-10-22 08:53:38,621 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   logistica: balanced_accuracy=0.347 (27.7 s)
+2026-10-22 08:53:48,440 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   random_forest: balanced_accuracy=0.404 (9.8 s)
+2026-10-22 08:55:22,245 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   lightgbm: balanced_accuracy=0.354 (93.8 s)
+2026-10-22 08:55:33,694 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   Evaluacion no agrupada (optimista): balanced_accuracy=0.429
+2026-10-22 08:59:43,187 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 |   Permutacion: p=0.048
+2026-10-22 08:59:49,530 | INFO    | orquideas.20261022-085306_M09_clase_quimica_433a0117 | Estado: completado (403.4 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-085306_M09_clase_quimica_433a0117/informe.md

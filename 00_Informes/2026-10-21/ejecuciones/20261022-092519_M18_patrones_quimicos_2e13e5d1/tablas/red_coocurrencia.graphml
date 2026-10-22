@@ -1,0 +1,414 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d0" for="edge" attr.name="weight" attr.type="double"/>
+<graph edgedefault="undirected"><node id="Organic acids"/>
+<node id="Fatty Acyls"/>
+<node id="Glycerophospholipids"/>
+<node id="Steroids and steroid derivativ"/>
+<node id="Flavones"/>
+<node id="Flavanones"/>
+<node id="Fatty Acids and Conjugates"/>
+<node id="LPC"/>
+<node id="LPE"/>
+<node id="Diterpenoids"/>
+<node id="Triterpenoids"/>
+<node id="Amino acids and derivatives"/>
+<node id="Lactones"/>
+<node id="Isoflavonoids"/>
+<node id="Shikimates and Phenylpropanoid"/>
+<node id="Prenol lipids"/>
+<node id="Plumerane"/>
+<node id="Carboxylic acids and derivativ"/>
+<node id="Vitamin"/>
+<node id="Benzene and substituted deriva"/>
+<node id="Sesquiterpenoids"/>
+<node id="Monoterpenoids"/>
+<node id="Lignans"/>
+<node id="Cinnamic acids and derivatives"/>
+<node id="Phenols"/>
+<node id="Imidazopyrimidines"/>
+<node id="Free fatty acids"/>
+<node id="Saccharides"/>
+<node id="Indoles and derivatives"/>
+<node id="Organonitrogen compounds"/>
+<node id="Coumarins"/>
+<node id="Organooxygen compounds"/>
+<node id="Alkaloids"/>
+<node id="Triterpene"/>
+<node id="Phenolamine"/>
+<node id="Steroids"/>
+<node id="Ketone compounds"/>
+<node id="Nucleotides and derivatives"/>
+<node id="Amines"/>
+<node id="Alcohols"/>
+<node id="Terpenoids"/>
+<node id="Glycerolipids"/>
+<node id="Tryptophan alkaloids"/>
+<node id="Quinolines and derivatives"/>
+<node id="Phenolic acids"/>
+<node id="Benzopyrans"/>
+<node id="Aldehyde compounds"/>
+<node id="Pyridine alkaloids"/>
+<node id="Ditepenoids"/>
+<node id="Pyridines and derivatives"/>
+<node id="Flavanols"/>
+<edge source="Organic acids" target="Fatty Acyls">
+  <data key="d0">6.064902694930405</data>
+</edge>
+<edge source="Organic acids" target="Amino acids and derivatives">
+  <data key="d0">4.748648511194371</data>
+</edge>
+<edge source="Organic acids" target="Vitamin">
+  <data key="d0">4.395037638022977</data>
+</edge>
+<edge source="Organic acids" target="Steroids and steroid derivativ">
+  <data key="d0">3.5815173069157775</data>
+</edge>
+<edge source="Fatty Acyls" target="Amino acids and derivatives">
+  <data key="d0">4.884922699326163</data>
+</edge>
+<edge source="Fatty Acyls" target="Vitamin">
+  <data key="d0">4.741464652638309</data>
+</edge>
+<edge source="Fatty Acyls" target="Imidazopyrimidines">
+  <data key="d0">3.7350065908290837</data>
+</edge>
+<edge source="Fatty Acyls" target="Carboxylic acids and derivativ">
+  <data key="d0">3.5379466099887065</data>
+</edge>
+<edge source="Fatty Acyls" target="Steroids and steroid derivativ">
+  <data key="d0">3.0758331193482173</data>
+</edge>
+<edge source="Fatty Acyls" target="Cinnamic acids and derivatives">
+  <data key="d0">3.070881077389896</data>
+</edge>
+<edge source="Glycerophospholipids" target="Steroids and steroid derivativ">
+  <data key="d0">5.376812628440669</data>
+</edge>
+<edge source="Glycerophospholipids" target="Fatty Acids and Conjugates">
+  <data key="d0">5.0725246471094865</data>
+</edge>
+<edge source="Glycerophospholipids" target="Diterpenoids">
+  <data key="d0">4.624823789116194</data>
+</edge>
+<edge source="Glycerophospholipids" target="Cinnamic acids and derivatives">
+  <data key="d0">4.577765207947219</data>
+</edge>
+<edge source="Glycerophospholipids" target="Shikimates and Phenylpropanoid">
+  <data key="d0">3.907758683081425</data>
+</edge>
+<edge source="Steroids and steroid derivativ" target="Diterpenoids">
+  <data key="d0">4.896982272956185</data>
+</edge>
+<edge source="Steroids and steroid derivativ" target="Glycerolipids">
+  <data key="d0">3.732447485823853</data>
+</edge>
+<edge source="Steroids and steroid derivativ" target="Fatty Acids and Conjugates">
+  <data key="d0">3.6257584981329996</data>
+</edge>
+<edge source="Steroids and steroid derivativ" target="Triterpenoids">
+  <data key="d0">3.5866638568377467</data>
+</edge>
+<edge source="Steroids and steroid derivativ" target="Tryptophan alkaloids">
+  <data key="d0">3.12240489797543</data>
+</edge>
+<edge source="Flavones" target="Flavanones">
+  <data key="d0">5.192509993398013</data>
+</edge>
+<edge source="Flavones" target="Flavanols">
+  <data key="d0">3.086216858495561</data>
+</edge>
+<edge source="Fatty Acids and Conjugates" target="Triterpenoids">
+  <data key="d0">3.895727303425423</data>
+</edge>
+<edge source="Fatty Acids and Conjugates" target="Diterpenoids">
+  <data key="d0">3.267054039926431</data>
+</edge>
+<edge source="LPC" target="LPE">
+  <data key="d0">5.033965750001522</data>
+</edge>
+<edge source="Diterpenoids" target="Triterpenoids">
+  <data key="d0">4.90094641013426</data>
+</edge>
+<edge source="Diterpenoids" target="Shikimates and Phenylpropanoid">
+  <data key="d0">4.780352045128873</data>
+</edge>
+<edge source="Diterpenoids" target="Tryptophan alkaloids">
+  <data key="d0">3.6562404944812505</data>
+</edge>
+<edge source="Triterpenoids" target="Steroids">
+  <data key="d0">4.141392226864448</data>
+</edge>
+<edge source="Triterpenoids" target="Tryptophan alkaloids">
+  <data key="d0">3.252106177662724</data>
+</edge>
+<edge source="Triterpenoids" target="Shikimates and Phenylpropanoid">
+  <data key="d0">3.0977062542985903</data>
+</edge>
+<edge source="Amino acids and derivatives" target="Imidazopyrimidines">
+  <data key="d0">4.539842452280375</data>
+</edge>
+<edge source="Amino acids and derivatives" target="Vitamin">
+  <data key="d0">4.192684032151298</data>
+</edge>
+<edge source="Lactones" target="Isoflavonoids">
+  <data key="d0">4.855777661222405</data>
+</edge>
+<edge source="Lactones" target="Prenol lipids">
+  <data key="d0">4.247732071771836</data>
+</edge>
+<edge source="Lactones" target="Carboxylic acids and derivativ">
+  <data key="d0">3.352395092276695</data>
+</edge>
+<edge source="Lactones" target="Plumerane">
+  <data key="d0">3.3376086745044358</data>
+</edge>
+<edge source="Lactones" target="Phenols">
+  <data key="d0">3.2947091912978794</data>
+</edge>
+<edge source="Shikimates and Phenylpropanoid" target="Cinnamic acids and derivatives">
+  <data key="d0">4.068069353569517</data>
+</edge>
+<edge source="Prenol lipids" target="Plumerane">
+  <data key="d0">4.7772957241667715</data>
+</edge>
+<edge source="Prenol lipids" target="Carboxylic acids and derivativ">
+  <data key="d0">4.760465698259241</data>
+</edge>
+<edge source="Prenol lipids" target="Saccharides">
+  <data key="d0">4.453181448295294</data>
+</edge>
+<edge source="Prenol lipids" target="Phenols">
+  <data key="d0">4.2844255587518445</data>
+</edge>
+<edge source="Prenol lipids" target="Organooxygen compounds">
+  <data key="d0">3.9809328161817397</data>
+</edge>
+<edge source="Prenol lipids" target="Terpenoids">
+  <data key="d0">3.73913043478282</data>
+</edge>
+<edge source="Prenol lipids" target="Triterpene">
+  <data key="d0">3.677069747977476</data>
+</edge>
+<edge source="Prenol lipids" target="Free fatty acids">
+  <data key="d0">3.6094522950331434</data>
+</edge>
+<edge source="Prenol lipids" target="Phenolic acids">
+  <data key="d0">3.590117574855686</data>
+</edge>
+<edge source="Prenol lipids" target="Monoterpenoids">
+  <data key="d0">3.4933174473070308</data>
+</edge>
+<edge source="Prenol lipids" target="Benzene and substituted deriva">
+  <data key="d0">3.427749532002623</data>
+</edge>
+<edge source="Prenol lipids" target="Coumarins">
+  <data key="d0">3.2697068233971742</data>
+</edge>
+<edge source="Prenol lipids" target="Ditepenoids">
+  <data key="d0">3.2520979410808892</data>
+</edge>
+<edge source="Prenol lipids" target="Aldehyde compounds">
+  <data key="d0">3.1748429432931435</data>
+</edge>
+<edge source="Prenol lipids" target="Sesquiterpenoids">
+  <data key="d0">3.041747672016759</data>
+</edge>
+<edge source="Plumerane" target="Sesquiterpenoids">
+  <data key="d0">4.1911666373103955</data>
+</edge>
+<edge source="Plumerane" target="Carboxylic acids and derivativ">
+  <data key="d0">4.136861961998263</data>
+</edge>
+<edge source="Plumerane" target="Coumarins">
+  <data key="d0">4.045788290751954</data>
+</edge>
+<edge source="Plumerane" target="Saccharides">
+  <data key="d0">3.965426366576497</data>
+</edge>
+<edge source="Plumerane" target="Phenols">
+  <data key="d0">3.849777304624876</data>
+</edge>
+<edge source="Plumerane" target="Triterpene">
+  <data key="d0">3.8344740637193406</data>
+</edge>
+<edge source="Plumerane" target="Phenolamine">
+  <data key="d0">3.6265466512495346</data>
+</edge>
+<edge source="Plumerane" target="Organooxygen compounds">
+  <data key="d0">3.4837940459859276</data>
+</edge>
+<edge source="Plumerane" target="Terpenoids">
+  <data key="d0">3.3536059073890847</data>
+</edge>
+<edge source="Plumerane" target="Pyridine alkaloids">
+  <data key="d0">3.3249016543921885</data>
+</edge>
+<edge source="Plumerane" target="Ketone compounds">
+  <data key="d0">3.2016854736605316</data>
+</edge>
+<edge source="Plumerane" target="Alkaloids">
+  <data key="d0">3.148337330862986</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Benzene and substituted deriva">
+  <data key="d0">4.694401296385446</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Free fatty acids">
+  <data key="d0">4.5220932491783135</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Saccharides">
+  <data key="d0">4.496397359676695</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Phenols">
+  <data key="d0">4.48638345789915</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Organooxygen compounds">
+  <data key="d0">4.005379043637415</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Terpenoids">
+  <data key="d0">3.7142188054336445</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Monoterpenoids">
+  <data key="d0">3.3371276017377016</data>
+</edge>
+<edge source="Carboxylic acids and derivativ" target="Pyridines and derivatives">
+  <data key="d0">3.2094162554814822</data>
+</edge>
+<edge source="Vitamin" target="Free fatty acids">
+  <data key="d0">3.699510751887872</data>
+</edge>
+<edge source="Vitamin" target="Monoterpenoids">
+  <data key="d0">3.08662702994475</data>
+</edge>
+<edge source="Benzene and substituted deriva" target="Phenols">
+  <data key="d0">4.55652501448089</data>
+</edge>
+<edge source="Benzene and substituted deriva" target="Saccharides">
+  <data key="d0">3.8507094564821824</data>
+</edge>
+<edge source="Benzene and substituted deriva" target="Organooxygen compounds">
+  <data key="d0">3.204303290624906</data>
+</edge>
+<edge source="Sesquiterpenoids" target="Monoterpenoids">
+  <data key="d0">4.669816755515858</data>
+</edge>
+<edge source="Sesquiterpenoids" target="Coumarins">
+  <data key="d0">4.383774095324195</data>
+</edge>
+<edge source="Sesquiterpenoids" target="Triterpene">
+  <data key="d0">3.909534585788746</data>
+</edge>
+<edge source="Sesquiterpenoids" target="Free fatty acids">
+  <data key="d0">3.4505160902102068</data>
+</edge>
+<edge source="Sesquiterpenoids" target="Indoles and derivatives">
+  <data key="d0">3.071191231090479</data>
+</edge>
+<edge source="Monoterpenoids" target="Lignans">
+  <data key="d0">4.5991789426731815</data>
+</edge>
+<edge source="Monoterpenoids" target="Free fatty acids">
+  <data key="d0">4.2653100247074525</data>
+</edge>
+<edge source="Monoterpenoids" target="Terpenoids">
+  <data key="d0">3.7518336454720327</data>
+</edge>
+<edge source="Monoterpenoids" target="Saccharides">
+  <data key="d0">3.3898898065404945</data>
+</edge>
+<edge source="Monoterpenoids" target="Coumarins">
+  <data key="d0">3.330542552567247</data>
+</edge>
+<edge source="Lignans" target="Coumarins">
+  <data key="d0">4.44586105087639</data>
+</edge>
+<edge source="Lignans" target="Free fatty acids">
+  <data key="d0">3.4165087386328143</data>
+</edge>
+<edge source="Lignans" target="Triterpene">
+  <data key="d0">3.239943335816249</data>
+</edge>
+<edge source="Phenols" target="Saccharides">
+  <data key="d0">4.167154810444799</data>
+</edge>
+<edge source="Phenols" target="Organooxygen compounds">
+  <data key="d0">4.012436260655768</data>
+</edge>
+<edge source="Phenols" target="Nucleotides and derivatives">
+  <data key="d0">3.8660446173874523</data>
+</edge>
+<edge source="Phenols" target="Free fatty acids">
+  <data key="d0">3.6942557437959596</data>
+</edge>
+<edge source="Phenols" target="Terpenoids">
+  <data key="d0">3.278136201676478</data>
+</edge>
+<edge source="Phenols" target="Pyridines and derivatives">
+  <data key="d0">3.1203745873168667</data>
+</edge>
+<edge source="Free fatty acids" target="Saccharides">
+  <data key="d0">4.42858816926135</data>
+</edge>
+<edge source="Free fatty acids" target="Coumarins">
+  <data key="d0">3.3329462659351314</data>
+</edge>
+<edge source="Free fatty acids" target="Nucleotides and derivatives">
+  <data key="d0">3.1241162162424043</data>
+</edge>
+<edge source="Saccharides" target="Organooxygen compounds">
+  <data key="d0">3.742570248728841</data>
+</edge>
+<edge source="Saccharides" target="Terpenoids">
+  <data key="d0">3.6837286147066437</data>
+</edge>
+<edge source="Saccharides" target="Nucleotides and derivatives">
+  <data key="d0">3.6579279334383705</data>
+</edge>
+<edge source="Saccharides" target="Phenolic acids">
+  <data key="d0">3.045072820660318</data>
+</edge>
+<edge source="Indoles and derivatives" target="Organonitrogen compounds">
+  <data key="d0">4.4566926532505375</data>
+</edge>
+<edge source="Indoles and derivatives" target="Quinolines and derivatives">
+  <data key="d0">3.404734442215449</data>
+</edge>
+<edge source="Organonitrogen compounds" target="Quinolines and derivatives">
+  <data key="d0">3.612903749649361</data>
+</edge>
+<edge source="Coumarins" target="Triterpene">
+  <data key="d0">4.242696342772371</data>
+</edge>
+<edge source="Organooxygen compounds" target="Alkaloids">
+  <data key="d0">4.376380851754568</data>
+</edge>
+<edge source="Organooxygen compounds" target="Nucleotides and derivatives">
+  <data key="d0">3.719343890138022</data>
+</edge>
+<edge source="Organooxygen compounds" target="Terpenoids">
+  <data key="d0">3.1000262668858958</data>
+</edge>
+<edge source="Alkaloids" target="Nucleotides and derivatives">
+  <data key="d0">4.016461393757072</data>
+</edge>
+<edge source="Alkaloids" target="Pyridine alkaloids">
+  <data key="d0">3.3655295356763264</data>
+</edge>
+<edge source="Triterpene" target="Phenolamine">
+  <data key="d0">4.208992666883168</data>
+</edge>
+<edge source="Triterpene" target="Terpenoids">
+  <data key="d0">3.187231210288286</data>
+</edge>
+<edge source="Phenolamine" target="Ketone compounds">
+  <data key="d0">4.1208656810259345</data>
+</edge>
+<edge source="Amines" target="Alcohols">
+  <data key="d0">3.8854275805913487</data>
+</edge>
+<edge source="Terpenoids" target="Aldehyde compounds">
+  <data key="d0">3.4291738083012846</data>
+</edge>
+<edge source="Glycerolipids" target="Benzopyrans">
+  <data key="d0">3.5719223140558904</data>
+</edge>
+</graph></graphml>
