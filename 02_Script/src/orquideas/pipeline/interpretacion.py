@@ -4,10 +4,11 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from ..utils.es import guardar_tabla
-from ..utils.rutas import asegurar_dir, ruta
+from ..utils.rutas import asegurar_dir, carpeta_modelo, ruta, ruta_global
 
 UMBRAL_GANANCIA = 0.05      # mejora minima sobre el baseline para hablar de senal
 UMBRAL_CONTROL = 0.03       # si el control instrumental queda a menos de esto del modelo, se considera confundido
@@ -57,6 +58,8 @@ def veredicto(r: dict[str, Any]) -> tuple[str, str]:
     if opt is not None:
         partes.append(f"evaluacion sin agrupar = {opt:.3f}")
     texto = "; ".join(partes) + "."
+    if p is None:
+        texto += " Sin prueba de permutacion (modo rapido): la significancia no se evaluo."
     if opt is not None and opt - v > UMBRAL_FUGA:
         texto += (f" Sin agrupar por {r.get('columna_grupo', 'grupo')} la metrica sube {opt - v:+.3f}: "
                   "la evaluacion ingenua sobrestimaria el rendimiento.")
@@ -152,6 +155,10 @@ def escribir_informe(cfg: dict[str, Any], r: dict[str, Any], man: dict[str, Any]
           f"Reejecutar: `python main.py ejecutar {cfg['id']}`.", ""]
     p = salida["ejecucion"] / "informe.md"
     p.write_text("\n".join(L), encoding="utf-8")
+    if "informes" in salida:   # copia en Models/<Modelo>/informes: una por ejecucion + la ultima como INFORME.md
+        salida["informes"].mkdir(parents=True, exist_ok=True)
+        (salida["informes"] / f"informe_{man['run_id']}.md").write_text("\n".join(L), encoding="utf-8")
+        (salida["informes"] / "INFORME.md").write_text("\n".join(L), encoding="utf-8")
     return p
 
 
@@ -168,10 +175,11 @@ def resumen_ejecutivo(df: pd.DataFrame) -> Path:
             "grupos": rr.get("grupos"), "clases": rr.get("clases_evaluables"), "mejor_modelo": rr.get("mejor_modelo"),
             "metrica": rr.get("metrica_principal"), "valor": rr.get("valor_mejor"), "baseline": rr.get("valor_baseline"),
             "control_plataforma": rr.get("valor_control_instrumental"), "sin_agrupar": rr.get("valor_optimista_sin_agrupar"),
-            "p_permutacion": perm.get("p_valor"), "veredicto": et, "run_id": rr.get("run_id"),
+            "p_permutacion": perm.get("p_valor"), "veredicto": et,
+            "carpeta": f"Models/{carpeta_modelo(str(rr.get('id_experimento')))}", "run_id": rr.get("run_id"),
         })
     t = pd.DataFrame(filas)
-    d = asegurar_dir(ruta("salidas", "resumen"))
+    d = asegurar_dir(ruta_global())
     guardar_tabla(t, d / "resumen_ejecutivo.csv")
     md = ["# Resumen ejecutivo de experimentos", "",
           "Ultima ejecucion de cada experimento. Metricas sobre validacion agrupada por articulo (o formula para los "
@@ -183,7 +191,31 @@ def resumen_ejecutivo(df: pd.DataFrame) -> Path:
           "insuficientes para evaluar).", "", _tabla_md(t.drop(columns=["run_id"]), 100), ""]
     p = d / "resumen_ejecutivo.md"
     p.write_text("\n".join(md), encoding="utf-8")
+    _grafica_global(t, d)
     return p
+
+
+def _grafica_global(t: pd.DataFrame, d: Path) -> None:
+    """Comparacion de todos los modelos: valor frente a la mejor referencia no quimica."""
+    import matplotlib.pyplot as plt
+
+    from ..visualization import graficas
+    x = t.dropna(subset=["valor"]).copy()
+    if x.empty:
+        return
+    x["referencia"] = x[["baseline", "control_plataforma"]].max(axis=1)
+    x = x.iloc[::-1]
+    fig, ax = plt.subplots(figsize=(10, 0.45 * len(x) + 2))
+    yy = np.arange(len(x))
+    ax.barh(yy, x["valor"], color="#2a9d8f", label="Modelo (validacion agrupada)")
+    ax.scatter(x["referencia"], yy, color="#c0392b", zorder=3, label="Mejor referencia (baseline o plataforma)")
+    ax.scatter(x["sin_agrupar"], yy, color="#999999", marker="x", zorder=3, label="Sin agrupar (optimista)")
+    ax.set_yticks(yy, [f"{e} [{v}]" for e, v in zip(x["experimento"], x["veredicto"])], fontsize=8)
+    ax.set_xlabel("Metrica principal (exactitud balanceada o precision promedio)"); ax.set_ylabel("Experimento")
+    ax.set_title("Comparacion global de modelos"); ax.legend(fontsize=8, loc="lower right")
+    graficas.guardar(fig, d / "graficas" / "comparacion_global_modelos.png",
+                     nota="La barra debe superar al punto rojo para hablar de senal quimica. La distancia hasta la x gris "
+                          "muestra cuanto inflaria el resultado una validacion que mezcla muestras del mismo articulo.")
 
 
 def guia_modelos(df: pd.DataFrame) -> Path:

@@ -15,14 +15,16 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from ..config.esquema import ErrorConfiguracion, buscar_config, cargar_config, verificar_fuga
+from ..config.esquema import (ErrorConfiguracion, _fusionar, buscar_config, cargar_config, huella_config, validar,
+                              verificar_fuga)
 from ..utils.es import guardar_json, guardar_yaml, leer_json
 from ..utils.huella import huellas_datos
 from ..utils.registro import cerrar_archivos, obtener_logger
-from ..utils.rutas import asegurar_dir, raiz_proyecto, ruta
+from ..utils.gpu import resumen_hardware
+from ..utils.rutas import asegurar_dir, raiz_proyecto, ruta, ruta_modelo
 from . import interpretacion
 
-PAQUETES = ["pandas", "numpy", "scikit-learn", "scipy", "lightgbm", "mlxtend", "networkx", "umap-learn", "matplotlib",
+PAQUETES = ["pandas", "numpy", "scikit-learn", "scipy", "lightgbm", "xgboost", "catboost", "mlxtend", "networkx", "umap-learn", "matplotlib",
             "seaborn", "pyarrow", "PyYAML", "joblib", "statsmodels"]
 
 
@@ -45,15 +47,18 @@ def _commit_git() -> str | None:
 
 
 def preparar_salidas(cfg: dict[str, Any], run_id: str) -> dict[str, Path]:
-    res = ruta("salidas", "resultados")
+    """Carpetas de la ejecucion dentro de 03_Resultados/Models/<Modelo>/ (una subcarpeta <run_id> en cada una)."""
     dirs = {
-        "ejecucion": ruta("salidas", "ejecuciones") / run_id,
-        "metricas": res / "metricas" / run_id,
-        "predicciones": res / "predicciones" / run_id,
-        "graficas": res / "graficas" / run_id,
-        "modelo": ruta("salidas", "modelos") / cfg["id"] / run_id,
+        "ejecucion": ruta_modelo(cfg["id"], "ejecuciones") / run_id,
+        "auditoria": ruta_modelo(cfg["id"], "auditoria_datos") / run_id,
+        "metricas": ruta_modelo(cfg["id"], "metricas") / run_id,
+        "predicciones": ruta_modelo(cfg["id"], "predicciones") / run_id,
+        "graficas": ruta_modelo(cfg["id"], "graficas") / run_id,
+        "modelo": ruta_modelo(cfg["id"], "modelo_entrenado") / run_id,
+        "informes": ruta_modelo(cfg["id"], "informes"),
     }
-    dirs["tablas"] = dirs["ejecucion"] / "tablas"
+    # tablas de datos del modelo (distribucion de clases, descartes) -> auditoria; tablas de hallazgos (M18) -> metricas
+    dirs["tablas"] = dirs["auditoria"] if cfg["tarea"] == "supervisado" else dirs["metricas"]
     if dirs["ejecucion"].exists() and not cfg["outputs"].get("overwrite", False):
         raise FileExistsError(f"La ejecucion {run_id} ya existe y overwrite=false")
     for d in dirs.values():
@@ -61,9 +66,16 @@ def preparar_salidas(cfg: dict[str, Any], run_id: str) -> dict[str, Path]:
     return dirs
 
 
-def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None) -> dict[str, Any]:
+def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
+                         ajustes: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Ejecuta un experimento. `ajustes` sobreescribe claves de la configuracion solo para esta ejecucion
+    (p. ej. {"evaluation": {"n_permutations": 0}}); quedan registrados en config_resuelta.yaml y en la huella."""
     p = Path(identificador) if str(identificador).endswith(".yaml") else buscar_config(str(identificador))
     cfg = cargar_config(p)
+    if ajustes:
+        cfg = _fusionar(cfg, ajustes)
+        validar(cfg, p)
+        cfg["_huella"] = huella_config(cfg)
     inicio = datetime.now()
     run_id = f"{inicio:%Y%m%d-%H%M%S}_{cfg['id']}_{cfg['_huella'][:8]}" + (f"_{etiqueta}" if etiqueta else "")
     salida = preparar_salidas(cfg, run_id)
@@ -71,11 +83,16 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None)
     random.seed(cfg["semilla"])
     np.random.seed(cfg["semilla"])
     log.info(f"Ejecucion {run_id} | {cfg['nombre']}")
+    hw = resumen_hardware()
+    log.info(f"Hardware: {hw['cpu_nucleos']} nucleos CPU; GPU detectadas: {len(hw['gpus'])}"
+             + "".join(f" | GPU {g['indice']}: {g['nombre']} ({g['memoria_mb']} MB)" for g in hw["gpus"])
+             + f"; GPU usadas para entrenar: {hw['gpus_usadas'] or 'ninguna'}")
     guardar_yaml({k: v for k, v in cfg.items() if not k.startswith("_")}, salida["ejecucion"] / "config_resuelta.yaml")
     manifiesto: dict[str, Any] = {
         "run_id": run_id, "id_experimento": cfg["id"], "nombre": cfg["nombre"], "archivo_config": cfg["_archivo"],
         "huella_config": cfg["_huella"], "inicio": inicio.isoformat(timespec="seconds"), "semilla": cfg["semilla"],
         "huellas_datos": huellas_datos(), "versiones": versiones(), "commit_git": _commit_git(),
+        "hardware": resumen_hardware(),
         "salidas": {k: str(v) for k, v in salida.items()},
     }
     t0 = time.time()
@@ -112,7 +129,7 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None)
 def ultimas_ejecuciones() -> pd.DataFrame:
     """Ultima ejecucion de cada experimento (segun la fecha de inicio del run id)."""
     filas = []
-    for d in sorted(ruta("salidas", "ejecuciones").glob("*/resultado.json")):
+    for d in sorted(ruta("salidas", "modelos").glob("*/ejecuciones/*/resultado.json")):
         r = interpretacion.completar(leer_json(d), d.parent)
         man = leer_json(d.parent / "manifiesto.json")
         filas.append({**r, "inicio": man.get("inicio"), "_dir": str(d.parent)})

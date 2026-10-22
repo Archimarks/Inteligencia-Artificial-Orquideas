@@ -24,6 +24,8 @@ modelos:
     n_estimators: 200
     min_samples_leaf: 5
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 20
 interpretacion: 'Los acidos (carboxilos, fenoles, fosfatos) tienden a ionizar en negativo y las bases nitrogenadas

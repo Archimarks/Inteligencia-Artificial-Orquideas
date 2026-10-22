@@ -25,6 +25,8 @@ modelos:
     n_estimators: 200
     min_samples_leaf: 5
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 20
 interpretacion: El modo determina la polaridad del aducto ([M+H]+ vs [M-H]-); el valor de la quimica se mide como

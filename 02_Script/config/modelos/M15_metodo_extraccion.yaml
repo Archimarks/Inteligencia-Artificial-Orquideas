@@ -27,6 +27,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: Metodos frecuentes (p. ej. metanol 70 %) dominan; muchos metodos aparecen en un solo articulo y

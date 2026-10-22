@@ -28,6 +28,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: Cada orden se representa por pocos articulos; los ordenes con un unico articulo se descartan.

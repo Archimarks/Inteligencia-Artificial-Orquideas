@@ -22,6 +22,8 @@ modelos:
   hiperparametros:
     n_estimators: 200
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 20
 interpretacion: 'La formula restringe la clase (p. ej. N para alcaloides, O/C alto para glicosidos), pero muchos

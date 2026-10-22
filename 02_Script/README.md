@@ -5,58 +5,121 @@ supervisado y no supervisado. Todo resultado lleva su configuracion, sus huellas
 
 ## 1. Instalacion
 
-Requisitos: Python 3.11-3.13 (probado con 3.13) y unos 4 GB de RAM libres.
+Requisitos: Python 3.11-3.14 (probado con 3.13; ruedas verificadas para 3.14 en Windows) y unos 4 GB de RAM libres. Opcional: GPU NVIDIA con el controlador
+instalado (XGBoost 2.1.4 admite GPU desde compute capability 6.0, p. ej. GTX 10xx).
 
-**Windows (PowerShell):**
+**Windows (PowerShell), con el mismo Python con el que ejecutara main.py:**
 ```powershell
-cd "D:\Inteligencia Artificial Orquideas"
-py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+cd "D:\Inteligencia Artificial Orquideas\02_Script"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-cd 02_Script
-python -m pytest            # comprobacion de la instalacion
+python main.py               # abre la interfaz
+```
+Si usa el boton "Ejecutar" de VS Code, instale las librerias con ese mismo interprete, por ejemplo
+`& C:/Users/<usuario>/AppData/Local/Python/pythoncore-3.14-64/python.exe -m pip install -r requirements.txt`.
+`main.py` comprueba al arrancar que esten todas las librerias; si falta alguna, muestra el comando exacto y
+ofrece instalarlas.
+
+Opcional (entorno virtual):
+```powershell
+cd "D:\Inteligencia Artificial Orquideas"
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r 02_Script\requirements.txt
 ```
 
 **Linux / macOS:**
 ```bash
-cd "Inteligencia Artificial Orquideas"
-python3 -m venv .venv && source .venv/bin/activate
-python -m pip install -r requirements.txt
-cd 02_Script && python -m pytest
+cd "Inteligencia Artificial Orquideas/02_Script"
+python3 -m pip install -r requirements.txt
+python3 main.py
 ```
 
 Las rutas se resuelven solas a partir de la carpeta padre de `02_Script` (`raiz_proyecto: auto` en
 `config/rutas.yaml`). Para fijarlas a mano: `raiz_proyecto: "D:/Inteligencia Artificial Orquideas"`.
 
-## 2. Uso
+## 2. Interfaz (recomendada)
 
-Ejecutar desde `02_Script`:
+`python main.py` sin argumentos (o el boton Ejecutar de VS Code) abre la interfaz de consola:
+
+1. **Entrenar modelos.** Es un asistente paso a paso:
+   1. *Maquina:* muestra CPU, RAM, sistema y todas las GPU NVIDIA, y prueba cada una con un entrenamiento corto en
+      CUDA (OK/FALLO). Despues se elige con que entrenar: todas las GPU que pasaron la prueba (recomendado),
+      algunas, o solo CPU.
+   2. *Datos:* comprueba que los 24 CSV de `01_Datos/Base` existan y no sean punteros de Git LFS.
+   3. *Modelos:* tabla de los 19 experimentos por categoria, con su ultimo resultado. Se eligen por numero
+      (`1,3`), rango (`2-7`), categoria (`A B`), ID (`M05`) o `todos`.
+   4. *Opciones:*
+      - modo **completo** (con permutaciones y validacion sin agrupar) o **rapido** (para probar el flujo);
+      - algoritmos a entrenar; los baselines siempre se entrenan.
+   5. *Resumen y confirmacion;* luego el entrenamiento, con el progreso y el tiempo restante estimado, una linea
+      de resultado por modelo y la tabla final. Al terminar se actualizan el resumen ejecutivo y la guia de modelos.
+      Ctrl+C detiene la cola y conserva los modelos terminados.
+2. **Ver resultados:** ultima ejecucion de cada modelo con su veredicto; puede abrir la carpeta de un modelo.
+3. **Auditoria de datos.**
+4. **Revisar el equipo.**
+5. **Validar configuraciones.**
+
+## 2.1 Comandos
+
+Los mismos procesos sin interfaz (por ejemplo, para scripts), desde `02_Script`:
 
 | Comando | Que hace |
 |---|---|
-| `python main.py auditoria [--etiqueta X]` | Auditoria completa -> `04_Resultados/auditoria_datos/<X>/informe_auditoria.md` |
+| `python main.py auditoria [--etiqueta X]` | Auditoria general -> `03_Resultados/Global/auditoria_datos/<X>/informe_auditoria.md` |
+| `python main.py hardware` | Muestra los nucleos CPU, todas las GPU NVIDIA detectadas y las que se usaran |
 | `python main.py listar` | Lista los experimentos configurados |
 | `python main.py validar [ID ...]` | Valida los YAML sin ejecutar (codigo de salida 1 si hay errores) |
 | `python main.py ejecutar M05 [M13 ...] [--etiqueta X]` | Ejecuta experimentos (acepta `M05` o `M05_familia`) |
 | `python main.py ejecutar-todos` | Ejecuta todos y genera el resumen (unas 2-3 h con 4 nucleos, sobre todo por las permutaciones) |
-| `python main.py resumen` | Escribe `04_Resultados/informes/resumen_ejecutivo.md` y `05_Documentacion/guia_modelos.md` |
+| `python main.py resumen` | Escribe `03_Resultados/Global/resumen_ejecutivo.md`, la grafica comparativa global y `05_Documentacion/guia_modelos.md` |
+| `python main.py reinformar` | Regenera los informes de todas las ejecuciones sin reentrenar |
 | `python main.py predecir RUN_ID datos.csv` | Aplica un modelo guardado a un CSV con las mismas columnas que X |
 
 La primera lectura de Dataset.csv (~550 MB) tarda alrededor de 1 minuto y crea una cache Parquet en
-`04_Resultados/cache`; las siguientes tardan segundos.
+`03_Resultados/_cache`; las siguientes tardan segundos.
 
-## 3. Salidas de cada ejecucion
+## 3. Salidas: `03_Resultados`
 
 `run_id = AAAAMMDD-HHMMSS_<ID>_<huella de la config>[_etiqueta]`. Nunca se sobrescribe una ejecucion previa.
 
-| Carpeta | Contenido |
-|---|---|
-| `04_Resultados/ejecuciones/<run_id>/` | `informe.md`, `config_resuelta.yaml`, `manifiesto.json` (huellas SHA-256, versiones, semilla, commit), `resultado.json`, `ejecucion.log`, `tablas/` |
-| `04_Resultados/metricas/<run_id>/` | metricas por modelo y por particion, reporte por clase o etiqueta, matriz de confusion, importancias, permutaciones |
-| `04_Resultados/predicciones/<run_id>/` | predicciones fuera de particion con identificadores (articulo, muestra, metabolito...) |
-| `04_Resultados/graficas/<run_id>/` | graficas con titulo, ejes, leyenda y nota interpretativa |
-| `03_Modelos_Entrenados/<ID>/<run_id>/modelo.joblib` | pipeline final y metadatos (columnas, clases, codificador) |
+```
+03_Resultados/
+├── Global/
+│   ├── auditoria_datos/<run>/          auditoria general de 01_Datos/Base (informe_auditoria.md, tablas, graficas)
+│   ├── resumen_ejecutivo.md / .csv     ultima ejecucion de cada modelo con su veredicto
+│   ├── informe_cientifico.md
+│   └── graficas/comparacion_global_modelos.png
+└── Models/
+    ├── M01_Modo_Ionizacion/
+    │   ├── auditoria_datos/<run_id>/   datos del modelo: unidades, grupos, clases evaluables y descartadas,
+    │   │                               descripcion de variables, unidades por grupo (auditoria_datos.md)
+    │   ├── ejecuciones/<run_id>/       config_resuelta.yaml, manifiesto.json (huellas, versiones, CPU/GPU, commit),
+    │   │                               resultado.json, informe.md, ejecucion.log
+    │   ├── metricas/<run_id>/          metricas por modelo y particion (con la GPU usada), por clase, importancias,
+    │   │                               permutaciones
+    │   ├── graficas/<run_id>/          graficas con titulo, ejes, leyenda y nota interpretativa
+    │   ├── predicciones/<run_id>/      predicciones fuera de particion con identificadores
+    │   ├── informes/                   INFORME.md (ultima ejecucion) + informe_<run_id>.md de cada ejecucion
+    │   └── modelo_entrenado/<run_id>/  modelo.joblib (pipeline final, columnas, clases, codificador)
+    ├── M03_Clase_Taxonomica/  (misma estructura)
+    └── ...
+```
+
+## 3.1 GPU
+
+El sistema detecta todas las GPU NVIDIA con `nvidia-smi` (incluido en el controlador) y las usa segun
+`hardware` en `config/config_global.yaml`. Por defecto (`usar_gpu: auto`, `gpus: todas`) usa todas las GPU
+detectadas:
+- **XGBoost:** cada modelo usa una GPU, y las particiones de la validacion cruzada y de las permutaciones se reparten
+  entre todas las GPU y se entrenan en paralelo. Con dos GPU, dos particiones a la vez.
+- **CatBoost:** cada modelo se entrena con todas las GPU a la vez (`devices="0:1"`).
+- **LightGBM, Random Forest, regresion logistica y KNN:** CPU con todos los nucleos. LightGBM de pip es solo CPU.
+
+Sin GPU, el mismo codigo entrena en CPU. Con `usar_gpu: si`, el sistema se detiene si no hay GPU, y `gpus: [0]`
+limita las GPU usadas. `CUDA_VISIBLE_DEVICES` se respeta. Compruebe la deteccion con `python main.py hardware`.
+Cada `manifiesto.json` registra las GPU detectadas y usadas, y `metricas_por_particion.csv` la GPU de cada
+particion.
 
 ## 4. Configuracion
 
@@ -107,7 +170,7 @@ interpretacion: "..."
 ```
 
 Modelos disponibles: `baseline_mayoritaria`, `baseline_prior`, `baseline_estratificada`, `logistica`,
-`random_forest`, `extra_trees`, `hist_gradient_boosting`, `lightgbm`, `knn`. Los hiperparametros se pasan tal cual
+`random_forest`, `extra_trees`, `hist_gradient_boosting`, `lightgbm`, `xgboost` (GPU), `catboost` (GPU), `knn`. Los hiperparametros se pasan tal cual
 al estimador de scikit-learn o LightGBM.
 
 ### 4.3 Validacion automatica

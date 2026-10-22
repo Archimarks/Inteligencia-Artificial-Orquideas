@@ -1,6 +1,6 @@
 # Informe de auditoria de datos
 
-Ejecucion: `oficial` (2026-10-22T08:31:49). Huellas SHA-256 de los archivos de entrada en `resumen.json`.
+Ejecucion: `oficial` (2026-10-22T13:14:16). Huellas SHA-256 de los archivos de entrada en `resumen.json`.
 
 ## 1. Inventario
 | archivo | filas | columnas | pk | fks | bytes |

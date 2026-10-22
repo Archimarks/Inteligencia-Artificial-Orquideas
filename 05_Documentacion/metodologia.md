@@ -9,7 +9,7 @@
 - **Calidad:** nulos, duplicados y cobertura de las variables numericas por lote.
 - **Distribuciones:** desbalance de cada variable categorica, contado en articulos y no solo en filas.
 
-Responde las 8 preguntas del diagnostico en `04_Resultados/auditoria_datos/<run>/informe_auditoria.md`.
+Responde las 8 preguntas del diagnostico en `03_Resultados/Global/auditoria_datos/<run>/informe_auditoria.md`.
 
 **Hallazgo estructural clave.** Cada articulo aporta su propia especie, plataforma (columna, equipo, modo) y
 biblioteca de anotacion. Una evaluacion que mezcle muestras de un mismo articulo en entrenamiento y prueba mide la
@@ -58,7 +58,8 @@ capacidad de reconocer el articulo, no la quimica. Por eso:
     < 2 clases o < 3 grupos, el experimento se declara **no viable**, sin entrenar.
 - **Modelos.**
   - Baselines: clase mayoritaria, estratificado y prior.
-  - Regresion logistica balanceada, Random Forest, LightGBM (y opcionalmente ExtraTrees, HistGradientBoosting y KNN).
+  - Regresion logistica balanceada, Random Forest, LightGBM, XGBoost y CatBoost (estos dos en GPU si hay; ver
+    `02_Script/README.md`, seccion GPU) y opcionalmente ExtraTrees, HistGradientBoosting y KNN.
   - Pesos 1/n por articulo en los modelos de muestra.
 - **Metricas.**
   - Multiclase: exactitud balanceada (principal), F1 macro y ponderado, MCC, exactitud y top-3.
@@ -115,8 +116,9 @@ capacidad de reconocer el articulo, no la quimica. Por eso:
 
 ## 6. Reproducibilidad
 
-- Semilla global 42, propagada a NumPy, scikit-learn, LightGBM, UMAP y los bootstraps.
+- Semilla global 42, propagada a NumPy, scikit-learn, LightGBM, XGBoost, CatBoost, UMAP y los bootstraps. En GPU,
+  XGBoost y CatBoost pueden diferir ligeramente de CPU en el ultimo decimal (sumas en coma flotante en paralelo).
 - `manifiesto.json` por ejecucion: huellas SHA-256 de cada CSV de entrada, huella de la configuracion, versiones de
   Python y librerias, plataforma, commit de git, inicio, fin y duracion.
 - Las ejecuciones nunca se sobrescriben (`overwrite: false`). La ultima de cada experimento alimenta
-  `04_Resultados/informes/resumen_ejecutivo.md`.
+  `03_Resultados/Global/resumen_ejecutivo.md`.

@@ -22,6 +22,8 @@ modelos:
   hiperparametros:
     n_estimators: 200
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 20
 interpretacion: Problema mas dificil que M08 por el numero de clases y los isomeros; comparar con top3_accuracy.

@@ -64,6 +64,18 @@ class ErrorDatos(RuntimeError):
     """Error de lectura o integridad de los datos."""
 
 
+def verificar_archivo_datos(p: Path) -> None:
+    """Falla con un mensaje claro si el CSV no existe o es un puntero de Git LFS (texto de ~130 bytes que
+    sustituye al archivo real cuando se clona el repositorio sin descargar los datos)."""
+    if not p.exists():
+        raise ErrorDatos(f"No existe el archivo de datos: {p}")
+    with open(p, "rb") as fh:
+        inicio = fh.read(64)
+    if inicio.startswith(b"version https://git-lfs"):
+        raise ErrorDatos(f"{p} es un puntero de Git LFS, no los datos reales. Copie en 01_Datos/Base los CSV "
+                         "procesados (ZIP de datos entregado) o ejecute `git lfs pull`.")
+
+
 def ruta_catalogo(nombre: str) -> Path:
     return ruta("datos", "catalogos") / CATALOGOS[nombre].archivo
 
@@ -75,8 +87,7 @@ def cargar_catalogo(nombre: str) -> pd.DataFrame:
         raise ErrorDatos(f"Catalogo desconocido: {nombre!r}. Opciones: {sorted(CATALOGOS)}")
     cat = CATALOGOS[nombre]
     p = ruta_catalogo(nombre)
-    if not p.exists():
-        raise ErrorDatos(f"No existe el archivo del catalogo {nombre}: {p}")
+    verificar_archivo_datos(p)
     cfg = config_global()["datos"]
     df = pd.read_csv(p, sep=cfg["separador"], encoding=cfg["codificacion_catalogos"], dtype=str, keep_default_na=False)
     for c in df.columns:

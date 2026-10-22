@@ -10,7 +10,6 @@ from typing import Any
 import joblib
 import numpy as np
 import pandas as pd
-from sklearn.base import clone
 from sklearn.metrics import confusion_matrix
 from sklearn.preprocessing import LabelEncoder
 from sklearn.utils.validation import has_fit_parameter
@@ -18,7 +17,8 @@ from sklearn.utils.validation import has_fit_parameter
 from ..evaluation import metricas
 from ..evaluation.validacion import filtrar_clases, filtrar_etiquetas, particiones
 from ..features.conjuntos import Conjunto
-from ..models.registro_modelos import construir_pipeline
+from ..models.registro_modelos import MODELOS_GPU, construir_pipeline, disponible
+from ..utils.gpu import seleccionar_gpus
 from ..utils.es import guardar_json, guardar_tabla
 from ..visualization import graficas
 
@@ -55,29 +55,51 @@ def _proba_multietiqueta(pipe, X, n_etiquetas: int) -> np.ndarray:
     return out
 
 
+def asignar_gpus(nombre: str, n_particiones: int, gpus: list[int]) -> list[list[int] | None]:
+    """GPU de cada particion: XGBoost reparte las particiones entre todas las GPU (una GPU por particion, en
+    paralelo); CatBoost usa todas las GPU en cada particion; el resto de modelos, CPU."""
+    if not gpus or nombre not in MODELOS_GPU:
+        return [None] * n_particiones
+    if nombre == "xgboost":
+        return [[gpus[i % len(gpus)]] for i in range(n_particiones)]
+    return [list(gpus)] * n_particiones
+
+
 def validar_cruzado(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
                     splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
                     columnas: list[str]) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]]]:
     """Predicciones fuera de particion (OOF) y metricas por particion."""
     multi = tipo == "multietiqueta"
-    pipe0 = construir_pipeline(nombre, semilla, n_jobs, multi, seleccion, cfg_modelo.get("hiperparametros"), len(columnas))
-    proba = np.zeros((len(X), n_clases))
-    por_part = []
-    for i, (tr, te) in enumerate(splits):
-        pipe = clone(pipe0)
+    gpus = seleccionar_gpus()
+    asignacion = asignar_gpus(nombre, len(splits), gpus)
+
+    def una_particion(i: int, tr: np.ndarray, te: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        pipe = construir_pipeline(nombre, semilla, n_jobs, multi, seleccion, cfg_modelo.get("hiperparametros"),
+                                  len(columnas), gpus=asignacion[i])
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             _ajustar(pipe, X[tr], y[tr], None if w is None else w[tr])
-            if multi:
-                proba[te] = _proba_multietiqueta(pipe, X[te], n_clases)
-            else:
-                proba[te] = _proba_multiclase(pipe, X[te], n_clases)
+            p = _proba_multietiqueta(pipe, X[te], n_clases) if multi else _proba_multiclase(pipe, X[te], n_clases)
+        return te, p
+
+    if nombre == "xgboost" and len(gpus) > 1:
+        # una particion por GPU al mismo tiempo (hilos: XGBoost libera el GIL mientras entrena en la GPU)
+        from joblib import Parallel, delayed
+        resultados = Parallel(n_jobs=len(gpus), backend="threading")(
+            delayed(una_particion)(i, tr, te) for i, (tr, te) in enumerate(splits))
+    else:
+        resultados = [una_particion(i, tr, te) for i, (tr, te) in enumerate(splits)]
+    proba = np.zeros((len(X), n_clases))
+    por_part = []
+    for i, (te, p) in enumerate(resultados):
+        proba[te] = p
         if multi:
-            m = metricas.multietiqueta(y[te], (proba[te] >= 0.5).astype(int), proba[te])
+            m = metricas.multietiqueta(y[te], (p >= 0.5).astype(int), p)
         else:
-            m = metricas.multiclase(y[te], proba[te].argmax(1), proba[te], np.arange(n_clases))
+            m = metricas.multiclase(y[te], p.argmax(1), p, np.arange(n_clases))
         m["particion"] = i
         m["n_prueba"] = len(te)
+        m["gpu"] = "cpu" if asignacion[i] is None else ",".join(map(str, asignacion[i]))
         por_part.append(m)
     pred = (proba >= 0.5).astype(int) if multi else proba.argmax(1)
     return proba, pred, por_part
@@ -110,6 +132,49 @@ def _importancias(pipe, columnas: list[str]) -> pd.Series | None:
         return None
     s = pd.Series(v / (v.sum() or 1), index=nombres).sort_values(ascending=False)
     return s
+
+
+def auditar_conjunto(conj: Conjunto, X: pd.DataFrame, grupos: pd.Series, nombres: list[str], cfg: dict[str, Any],
+                     salida: dict[str, Path], res: dict[str, Any]) -> None:
+    """Auditoria de los datos que usa este modelo (03_Resultados/Models/<Modelo>/auditoria_datos/<run_id>)."""
+    d = salida["auditoria"]
+    desc = conj.X.describe().T
+    desc["nulos"] = conj.X.isna().sum()
+    desc["pct_nulos"] = (100 * desc["nulos"] / max(len(conj.X), 1)).round(2)
+    desc["constante"] = conj.X.nunique() <= 1
+    guardar_tabla(desc.reset_index(names="variable"), d / "descripcion_variables.csv")
+    upg = grupos.value_counts().rename_axis(str(grupos.name)).rename("unidades").reset_index()
+    guardar_tabla(upg, d / "unidades_por_grupo.csv")
+    duplicadas = int(conj.X.duplicated().sum())
+    resumen = {"conjunto": conj.nombre, "tipo": conj.tipo, "unidades_iniciales": int(len(conj.X)),
+               "unidades_evaluables": int(len(X)), "grupos_iniciales": int(conj.grupos.nunique()),
+               "grupos_evaluables": int(grupos.nunique()), "columna_grupo": str(conj.grupos.name),
+               "variables": int(conj.X.shape[1]), "variables_constantes": int(desc["constante"].sum()),
+               "celdas_nulas": int(desc["nulos"].sum()), "filas_X_duplicadas": duplicadas,
+               "unidades_por_grupo": {"min": int(upg["unidades"].min()) if len(upg) else 0,
+                                      "mediana": float(upg["unidades"].median()) if len(upg) else 0.0,
+                                      "max": int(upg["unidades"].max()) if len(upg) else 0},
+               "clases_evaluables": nombres, "variables_instrumentales": None if conj.X_instrumental is None
+               else list(conj.X_instrumental.columns)}
+    guardar_json(resumen, d / "resumen_datos.json")
+    if cfg["outputs"].get("save_plots", True) and len(upg):
+        graficas.barras(upg.set_index(str(grupos.name))["unidades"], d / "unidades_por_grupo.png",
+                        f"{cfg['id']}: unidades por grupo ({grupos.name})", str(grupos.name), "Unidades", top=40,
+                        nota="Grupos con muchas unidades pesan mas en el entrenamiento salvo que se usen pesos 1/n por grupo; "
+                             "la validacion nunca reparte un grupo entre entrenamiento y prueba.")
+    L = [f"# Auditoria de datos - {cfg['id']}", "", f"Conjunto `{conj.nombre}` ({conj.tipo}).", "",
+         "| indicador | valor |", "|---|---|"]
+    for k in ["unidades_iniciales", "unidades_evaluables", "grupos_iniciales", "grupos_evaluables", "columna_grupo",
+              "variables", "variables_constantes", "celdas_nulas", "filas_X_duplicadas"]:
+        L.append(f"| {k} | {resumen[k]} |")
+    u = resumen["unidades_por_grupo"]
+    L += [f"| unidades por grupo (min / mediana / max) | {u['min']} / {u['mediana']} / {u['max']} |", "",
+          f"Clases o etiquetas evaluables ({len(nombres)}): " + ", ".join(nombres[:40]) + ("..." if len(nombres) > 40 else ""),
+          "", "Notas:"] + [f"- {n}" for n in conj.notas] + [
+          "", "Archivos: `distribucion_clases.csv`, `clases_descartadas.csv` (si hay), `descripcion_variables.csv`, "
+          "`unidades_por_grupo.csv/.png`, `resumen_datos.json`."]
+    (d / "auditoria_datos.md").write_text("\n".join(L), encoding="utf-8")
+    res["filas_X_duplicadas"] = duplicadas
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -156,6 +221,7 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
         y_estrat = y
     res.update({"unidades": int(len(X)), "grupos": int(grupos.nunique()), "clases_evaluables": n_clases,
                 "clases": nombres, "clases_descartadas": int(len(filt.descartadas)), "variables": int(X.shape[1])})
+    auditar_conjunto(conj, X, grupos, nombres, cfg, salida, res)
     if n_clases < 2 or grupos.nunique() < 3:
         res["estado"] = "no_viable"
         res["motivo"] = (f"Tras exigir >= {sp['min_groups_per_class']} grupos y >= {sp['min_samples_per_class']} unidades "
@@ -194,6 +260,12 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
     # 3. Modelos -------------------------------------------------------------------------------------------------------
     principal = metricas.METRICA_PRINCIPAL[tipo]
     filas, por_part_todas, oof = [], [], {}
+    omitidos = [mc["nombre"] for mc in cfg["modelos"] if not disponible(mc["nombre"])]
+    if omitidos:
+        res["modelos_omitidos"] = omitidos
+        log.warning(f"Modelos omitidos porque su libreria no esta instalada: {omitidos} "
+                    "(python -m pip install -r requirements.txt)")
+    cfg = {**cfg, "modelos": [mc for mc in cfg["modelos"] if mc["nombre"] not in omitidos]}
     for mc in cfg["modelos"]:
         nombre = mc["nombre"]
         t = time.time()
@@ -315,7 +387,7 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
 
     # 8. Modelo final con todos los datos -------------------------------------------------------------------------------
     final = construir_pipeline(mejor, semilla, n_jobs, multi, cfg.get("seleccion_variables"), cfg_mejor.get("hiperparametros"),
-                               X.shape[1])
+                               X.shape[1], gpus=asignar_gpus(mejor, 1, seleccionar_gpus())[0])
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         _ajustar(final, Xn, y, w)

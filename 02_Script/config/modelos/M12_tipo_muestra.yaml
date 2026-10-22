@@ -30,6 +30,8 @@ modelos:
 - nombre: logistica
 - nombre: random_forest
 - nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: 'El tipo de muestra esta casi completamente confundido con el articulo (cada estudio usa un unico

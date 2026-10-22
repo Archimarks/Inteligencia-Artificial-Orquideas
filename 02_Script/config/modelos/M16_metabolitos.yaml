@@ -26,6 +26,8 @@ modelos:
     n_estimators: 300
     class_weight: null
 - nombre: knn
+- nombre: xgboost
+- nombre: catboost
 evaluation:
   n_permutations: 30
 interpretacion: 'La presencia depende de la biblioteca del laboratorio tanto como de la planta: si el control solo-plataforma
