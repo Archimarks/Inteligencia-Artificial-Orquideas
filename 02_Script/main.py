@@ -81,11 +81,11 @@ def cmd_reinformar(_: argparse.Namespace) -> None:
     from pathlib import Path as P
 
     from orquideas.config.esquema import cargar_config
-    from orquideas.pipeline.interpretacion import escribir_informe
+    from orquideas.pipeline.interpretacion import completar, escribir_informe
     from orquideas.utils.es import guardar_json, leer_json
     from orquideas.utils.rutas import ruta
     for d in sorted(ruta("salidas", "ejecuciones").glob("*/resultado.json")):
-        r, man = leer_json(d), leer_json(d.parent / "manifiesto.json")
+        r, man = completar(leer_json(d), d.parent), leer_json(d.parent / "manifiesto.json")
         cfg = cargar_config(P(man["archivo_config"]))
         cfg["_huella"] = man["huella_config"]
         salida = {k: P(v) for k, v in man["salidas"].items()}

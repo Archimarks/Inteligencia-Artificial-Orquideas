@@ -71,6 +71,8 @@ capacidad de reconocer el articulo, no la quimica. Por eso:
   3. *Evaluacion no agrupada:* `StratifiedKFold` ignorando grupos. La diferencia con la agrupada cuantifica cuanto
      inflaria una evaluacion ingenua.
   4. *Permutacion:* las etiquetas se permutan entre unidades con las mismas particiones; p = (1 + #nulo >= obs) / (1 + n).
+     Con n permutaciones el p minimo alcanzable es 1/(n+1): si ninguna permutacion iguala el valor observado se
+     considera significativo y se informa ese minimo (se usan >= 20 permutaciones).
 - **Veredicto automatico.** Se deriva solo de las metricas (`pipeline/interpretacion.py`):
 
   | Veredicto | Criterio |
@@ -79,6 +81,7 @@ capacidad de reconocer el articulo, no la quimica. Por eso:
   | senal debil | ganancia entre 0.05 y 0.15, con las mismas condiciones |
   | confundido con plataforma | el control iguala al modelo |
   | sin senal | no cumple las condiciones anteriores |
+  | evidencia insuficiente | < 10 grupos independientes o mediana < 3 grupos por clase (se evalua, pero no se extraen conclusiones) |
   | no viable | clases o grupos insuficientes para evaluar |
 
 ## 5. Patrones quimicos (M18)

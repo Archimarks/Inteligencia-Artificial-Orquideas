@@ -12,6 +12,19 @@ from ..utils.rutas import asegurar_dir, ruta
 UMBRAL_GANANCIA = 0.05      # mejora minima sobre el baseline para hablar de senal
 UMBRAL_CONTROL = 0.03       # si el control instrumental queda a menos de esto del modelo, se considera confundido
 UMBRAL_FUGA = 0.10          # diferencia optimista - agrupada considerada inflacion importante
+MIN_GRUPOS_CLASE = 3        # mediana minima de grupos independientes por clase para extraer conclusiones
+MIN_GRUPOS_TOTAL = 10       # grupos (articulos) minimos en total
+
+
+def completar(r: dict[str, Any], dir_ejecucion: Path) -> dict[str, Any]:
+    """Anade campos derivados que ejecuciones antiguas no guardaron (p. ej. grupos minimos por clase)."""
+    t = dir_ejecucion / "tablas" / "distribucion_clases.csv"
+    if "mediana_grupos_por_clase" not in r and t.exists():
+        d = pd.read_csv(t, sep=";")
+        if "grupos" in d:
+            r["min_grupos_por_clase"] = int(d["grupos"].min())
+            r["mediana_grupos_por_clase"] = float(d["grupos"].median())
+    return r
 
 
 def veredicto(r: dict[str, Any]) -> tuple[str, str]:
@@ -42,6 +55,10 @@ def veredicto(r: dict[str, Any]) -> tuple[str, str]:
     texto = "; ".join(partes) + "."
     # con n permutaciones el menor p posible es 1/(n+1): si ninguna permutacion alcanza el valor observado se
     # considera significativo aunque n sea pequeno (se informa el p minimo alcanzable)
+    mg = r.get("mediana_grupos_por_clase")
+    if (mg is not None and mg < MIN_GRUPOS_CLASE) or (r.get("grupos") or 99) < MIN_GRUPOS_TOTAL:
+        return "evidencia insuficiente", texto + (f" Solo {r.get('grupos')} grupos independientes (mediana {mg} por clase): "
+                                                  "el resultado depende de muy pocos estudios y no permite conclusiones.")
     significativo = p is None or p < 0.05 or (p_min is not None and p <= p_min + 1e-12)
     if gan < UMBRAL_GANANCIA or not significativo:
         etiqueta = "sin senal"
@@ -140,7 +157,8 @@ def resumen_ejecutivo(df: pd.DataFrame) -> Path:
           "validacion ingenua (optimista).", "",
           "Veredictos: **senal robusta** (ganancia >= 0.15 sobre baseline, p < 0.05, supera al control); **senal debil** "
           "(ganancia 0.05-0.15); **confundido con plataforma** (el control instrumental rinde igual); **sin senal**; "
-          "**no viable** (clases/grupos insuficientes para evaluar).", "", _tabla_md(t.drop(columns=["run_id"]), 100), ""]
+          "**evidencia insuficiente** (< 10 grupos independientes o mediana < 3 grupos por clase); **no viable** (clases/grupos "
+          "insuficientes para evaluar).", "", _tabla_md(t.drop(columns=["run_id"]), 100), ""]
     p = d / "resumen_ejecutivo.md"
     p.write_text("\n".join(md), encoding="utf-8")
     return p

@@ -113,7 +113,7 @@ def ultimas_ejecuciones() -> pd.DataFrame:
     """Ultima ejecucion de cada experimento (segun la fecha de inicio del run id)."""
     filas = []
     for d in sorted(ruta("salidas", "ejecuciones").glob("*/resultado.json")):
-        r = leer_json(d)
+        r = interpretacion.completar(leer_json(d), d.parent)
         man = leer_json(d.parent / "manifiesto.json")
         filas.append({**r, "inicio": man.get("inicio"), "_dir": str(d.parent)})
     if not filas:

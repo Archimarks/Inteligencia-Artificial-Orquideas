@@ -174,6 +174,9 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
     if gpc is not None:
         tabla_dist["grupos"] = gpc.groupby("c")["g"].nunique().reindex(range(n_clases)).to_numpy()
     guardar_tabla(tabla_dist.reset_index(names="clase"), salida["tablas"] / "distribucion_clases.csv")
+    if "grupos" in tabla_dist:
+        res["min_grupos_por_clase"] = int(tabla_dist["grupos"].min())
+        res["mediana_grupos_por_clase"] = float(tabla_dist["grupos"].median())
     if cfg["outputs"]["save_plots"]:
         graficas.barras(dist, salida["graficas"] / "distribucion_clases.png",
                         f"{cfg['id']}: distribucion de clases evaluables", "Clase",
