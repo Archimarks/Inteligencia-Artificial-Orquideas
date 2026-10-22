@@ -21,8 +21,8 @@
 Inteligencia Artificial Orquideas/
 ├── 01_Datos/Base/                 # entrada (solo lectura): 22 catalogos + Dataset.csv
 ├── 02_Script/
-│   ├── main.py                    # CLI: auditoria | listar | validar | ejecutar | ejecutar-todos | resumen | predecir
-│   ├── requirements.txt           # -> ../requirements.txt
+│   ├── main.py                    # CLI y menu (sin argumentos); comprueba dependencias al arrancar
+│   ├── requirements.txt           # lista unica de dependencias (la raiz incluye esta)
 │   ├── config/
 │   │   ├── rutas.yaml             # rutas relativas a la raiz (raiz_proyecto: auto)
 │   │   ├── config_global.yaml     # semilla, niveles MSI aceptados, defaults de split/evaluacion/salidas
