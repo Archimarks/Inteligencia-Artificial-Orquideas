@@ -72,9 +72,8 @@ joblib==1.5.3
 #   cruzada se reparten entre todas las GPU y se entrenan en paralelo.
 #
 # catboost:
-#   Gradient Boosting con soporte robusto para variables categóricas. El wheel
-#   de pip trae soporte de GPU y entrena cada modelo con todas las GPU a la vez
-#   (devices="0:1").
+#   Gradient Boosting. El wheel de pip trae soporte de GPU y entrena cada
+#   modelo con todas las GPU a la vez (devices="0:1").
 xgboost==2.1.4
 catboost==1.2.10
 
