@@ -1,0 +1,22 @@
+{
+  "conjunto": "perfil_muestra[ID_FILO|clase]",
+  "tipo": "multiclase",
+  "notas": [
+    "Perfil = numero de metabolitos identificados por clase quimica (categorias presentes en >= 5 articulos + 'otras'), transformado con clr. Se excluyen muestras con < 20 metabolitos clasificados, QC, blancos y objetivo 'No especificado'."
+  ],
+  "unidades_iniciales": 942,
+  "grupos_iniciales": 50,
+  "columna_grupo": "ID_ARTICULO",
+  "unidades": 909,
+  "grupos": 48,
+  "clases_evaluables": 1,
+  "clases": [
+    "Magnoliophyta"
+  ],
+  "clases_descartadas": 2,
+  "variables": 61,
+  "estado": "no_viable",
+  "motivo": "Tras exigir >= 2 grupos y >= 10 unidades por clase quedan 1 clases y 48 grupos; no es posible una evaluacion agrupada honesta.",
+  "run_id": "20261022-083940_M02_filo_95d4261c",
+  "id_experimento": "M02_filo"
+}
