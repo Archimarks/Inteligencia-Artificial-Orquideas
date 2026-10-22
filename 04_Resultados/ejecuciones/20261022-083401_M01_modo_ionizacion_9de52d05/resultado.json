@@ -47,20 +47,25 @@
     "p_valor": 0.09090909090909091
   },
   "variables_principales": {
-    "O_C": 0.1187,
-    "masa_formula": 0.077,
-    "H_C": 0.0748,
-    "N_C": 0.073,
-    "dbe_C": 0.0684,
-    "ai_mod": 0.0667,
-    "n_O": 0.0628,
-    "heteroatomos": 0.0575,
-    "n_H": 0.053,
-    "dbe": 0.0522
+    "O_C [O_C]": 0.1186611598658931,
+    "masa_formula [masa_formula]": 0.0769579320423542,
+    "H_C [H_C]": 0.0747758573037576,
+    "N_C [N_C]": 0.0729688596683563,
+    "dbe_C [dbe_C]": 0.0684129425248329,
+    "ai_mod [ai_mod]": 0.0667256007527228,
+    "n_O [n_O]": 0.0628132176013001,
+    "heteroatomos [heteroatomos]": 0.0574718853752842,
+    "n_H [n_H]": 0.0529850804410782,
+    "dbe [dbe]": 0.0522228627778782
   },
   "archivo_modelo": "/home/user/Inteligencia-Artificial-Orquideas/03_Modelos_Entrenados/M01_modo_ionizacion/20261022-083401_M01_modo_ionizacion_9de52d05/modelo.joblib",
   "estado": "completado",
   "segundos": 335.6,
   "run_id": "20261022-083401_M01_modo_ionizacion_9de52d05",
-  "id_experimento": "M01_modo_ionizacion"
+  "id_experimento": "M01_modo_ionizacion",
+  "min_grupos_por_clase": 46,
+  "mediana_grupos_por_clase": 46.0,
+  "tarea": "supervisado",
+  "veredicto": "senal robusta",
+  "explicacion": "balanced_accuracy = 0.686 frente a 0.503 del baseline (ganancia sobre la mejor referencia +0.183); p de permutacion = 0.091 (minimo alcanzable con 10 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 0.702."
 }

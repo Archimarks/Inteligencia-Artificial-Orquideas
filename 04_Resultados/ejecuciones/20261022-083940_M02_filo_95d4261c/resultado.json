@@ -18,5 +18,8 @@
   "estado": "no_viable",
   "motivo": "Tras exigir >= 2 grupos y >= 10 unidades por clase quedan 1 clases y 48 grupos; no es posible una evaluacion agrupada honesta.",
   "run_id": "20261022-083940_M02_filo_95d4261c",
-  "id_experimento": "M02_filo"
+  "id_experimento": "M02_filo",
+  "tarea": "supervisado",
+  "veredicto": "no viable",
+  "explicacion": "Tras exigir >= 2 grupos y >= 10 unidades por clase quedan 1 clases y 48 grupos; no es posible una evaluacion agrupada honesta."
 }

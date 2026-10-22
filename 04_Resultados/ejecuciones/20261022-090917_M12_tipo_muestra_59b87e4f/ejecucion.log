@@ -1,0 +1,11 @@
+2026-10-22 09:09:17,186 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f | Ejecucion 20261022-090917_M12_tipo_muestra_59b87e4f | Tipo de muestra a partir del perfil quimico
+2026-10-22 09:09:18,646 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f | 915 unidades, 47 grupos, 3 clases, 5 particiones (group_kfold)
+2026-10-22 09:09:18,750 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   baseline_mayoritaria: balanced_accuracy=0.333 (0.1 s)
+2026-10-22 09:09:18,850 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   baseline_estratificada: balanced_accuracy=0.325 (0.1 s)
+2026-10-22 09:09:19,075 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   logistica: balanced_accuracy=0.295 (0.2 s)
+2026-10-22 09:09:30,440 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   random_forest: balanced_accuracy=0.313 (11.4 s)
+2026-10-22 09:09:33,205 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   lightgbm: balanced_accuracy=0.327 (2.8 s)
+2026-10-22 09:09:36,794 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   Evaluacion no agrupada (optimista): balanced_accuracy=0.998
+2026-10-22 09:09:37,946 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   Control instrumental: balanced_accuracy=0.287
+2026-10-22 09:12:29,552 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f |   Permutacion: p=0.710
+2026-10-22 09:12:30,764 | INFO    | orquideas.20261022-090917_M12_tipo_muestra_59b87e4f | Estado: completado (193.5 s). Informe: /home/user/Inteligencia-Artificial-Orquideas/04_Resultados/ejecuciones/20261022-090917_M12_tipo_muestra_59b87e4f/informe.md

@@ -27,9 +27,9 @@ Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificado
 | random_forest | 7.700 | 0.320 | 0.237 | 0.184 | 0.303 | 0.237 | 0.440 |
 | lightgbm | 3.700 | 0.149 | 0.158 | 0.120 | 0.147 | 0.056 | 0.758 |
 
-Mejor modelo: **logistica**. balanced_accuracy = 0.263 frente a 0.111 del baseline (ganancia +0.151); p de permutacion = 0.032; control solo-plataforma = 0.074; evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.737: la evaluacion ingenua sobrestimaria el rendimiento.
+Mejor modelo: **logistica**. balanced_accuracy = 0.263 frente a 0.111 del baseline y 0.074 del control solo-plataforma (ganancia sobre la mejor referencia +0.151); p de permutacion = 0.032 (minimo alcanzable con 30 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.737: la evaluacion ingenua sobrestimaria el rendimiento.
 
-Variables mas influyentes del modelo final: `clase_553` (0.028), `clase_324` (0.026), `clase_705` (0.025), `clase_418` (0.025), `clase_381` (0.025), `clase_60` (0.024), `clase_679` (0.024), `clase_777` (0.023).
+Variables mas influyentes del modelo final: `clase: Phenols [clase_553]` (0.028), `clase: Heterocyclic compounds [clase_324]` (0.026), `clase: Steroids [clase_705]` (0.025), `clase: LPE [clase_418]` (0.025), `clase: Isoflavones [clase_381]` (0.025), `clase: Anthocyanidins [clase_60]` (0.024), `clase: Sesquiterpenoids [clase_679]` (0.024), `clase: Triterpenoids [clase_777]` (0.023).
 
 ## Como interpretar
 Orchidaceae tiene dos articulos (Gastrodia elata y Dendrobium officinale) con plataformas distintas.

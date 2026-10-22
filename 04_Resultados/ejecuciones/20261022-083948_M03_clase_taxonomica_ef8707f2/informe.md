@@ -27,9 +27,9 @@ Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificado
 | random_forest | 11.000 | 0.794 | 0.459 | 0.443 | 0.766 | -0.109 |
 | lightgbm | 1.500 | 0.809 | 0.468 | 0.447 | 0.773 | -0.096 |
 
-Mejor modelo: **logistica**. balanced_accuracy = 0.486 frente a 0.521 del baseline (ganancia -0.035); p de permutacion = 0.806; control solo-plataforma = 0.389; evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.514: la evaluacion ingenua sobrestimaria el rendimiento.
+Mejor modelo: **logistica**. balanced_accuracy = 0.486 frente a 0.521 del baseline y 0.389 del control solo-plataforma (ganancia sobre la mejor referencia -0.035); p de permutacion = 0.806; evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.514: la evaluacion ingenua sobrestimaria el rendimiento.
 
-Variables mas influyentes del modelo final: `clase_774` (0.042), `clase_549` (0.037), `clase_583` (0.037), `clase_505` (0.037), `clase_661` (0.037), `clase_553` (0.036), `clase_120` (0.035), `clase_otras` (0.034).
+Variables mas influyentes del modelo final: `clase: Triterpene [clase_774]` (0.042), `clase: Phenolamine [clase_549]` (0.037), `clase: Plumerane [clase_583]` (0.037), `clase: Organonitrogen compounds [clase_505]` (0.037), `clase: Quinolines and derivatives [clase_661]` (0.037), `clase: Phenols [clase_553]` (0.036), `clase: Benzopyrans [clase_120]` (0.036), `clase: otras [clase_otras]` (0.033).
 
 ## Como interpretar
 Liliopsida esta representada por pocos articulos; una prediccion correcta podria reflejar la plataforma de esos estudios.

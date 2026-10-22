@@ -27,9 +27,9 @@ Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificado
 | random_forest | 10.800 | 0.277 | 0.253 | 0.220 | 0.265 | 0.194 | 0.446 |
 | lightgbm | 5.300 | 0.294 | 0.236 | 0.227 | 0.300 | 0.211 | 0.444 |
 
-Mejor modelo: **random_forest**. balanced_accuracy = 0.253 frente a 0.116 del baseline (ganancia +0.137); p de permutacion = 0.032; control solo-plataforma = 0.189; evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.747: la evaluacion ingenua sobrestimaria el rendimiento.
+Mejor modelo: **random_forest**. balanced_accuracy = 0.253 frente a 0.116 del baseline y 0.189 del control solo-plataforma (ganancia sobre la mejor referencia +0.064); p de permutacion = 0.032 (minimo alcanzable con 30 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.747: la evaluacion ingenua sobrestimaria el rendimiento.
 
-Variables mas influyentes del modelo final: `clase_682` (0.036), `clase_705` (0.034), `clase_784` (0.031), `clase_417` (0.030), `clase_661` (0.029), `clase_45` (0.029), `clase_479` (0.029), `clase_262` (0.027).
+Variables mas influyentes del modelo final: `clase: Shikimates and Phenylpropanoids [clase_682]` (0.036), `clase: Steroids [clase_705]` (0.034), `clase: Tryptophan alkaloids [clase_784]` (0.031), `clase: LPC [clase_417]` (0.030), `clase: Quinolines and derivatives [clase_661]` (0.030), `clase: Amino acids and derivatives [clase_45]` (0.029), `clase: Organic acids [clase_479]` (0.029), `clase: Fatty Acids and Conjugates [clase_262]` (0.027).
 
 ## Como interpretar
 Cada orden se representa por pocos articulos; los ordenes con un unico articulo se descartan.

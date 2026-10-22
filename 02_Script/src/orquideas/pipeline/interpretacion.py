@@ -28,7 +28,10 @@ def completar(r: dict[str, Any], dir_ejecucion: Path) -> dict[str, Any]:
 
 
 def veredicto(r: dict[str, Any]) -> tuple[str, str]:
-    """(etiqueta, explicacion) a partir de baseline, permutacion, control instrumental y evaluacion optimista."""
+    """(etiqueta, explicacion) a partir de baseline, control instrumental, permutacion y evaluacion optimista.
+
+    La ganancia se mide contra la mejor referencia que no usa quimica: max(baseline, control solo-plataforma).
+    """
     if r.get("estado") == "no_viable":
         return "no viable", r.get("motivo", "")
     if r.get("estado") == "error":
@@ -38,41 +41,38 @@ def veredicto(r: dict[str, Any]) -> tuple[str, str]:
     v, b = r.get("valor_mejor"), r.get("valor_baseline")
     if v is None or b is None:
         return "sin evaluar", ""
-    gan = v - b
+    ctrl = r.get("valor_control_instrumental")
+    ref = max(b, ctrl) if ctrl is not None else b
+    gan = v - ref
     perm = r.get("permutacion") or {}
     p = perm.get("p_valor")
     p_min = 1 / (1 + perm["n"]) if perm.get("n") else None
-    ctrl = r.get("valor_control_instrumental")
     opt = r.get("valor_optimista_sin_agrupar")
-    partes = [f"{r['metrica_principal']} = {v:.3f} frente a {b:.3f} del baseline (ganancia {gan:+.3f})"]
+    partes = [f"{r['metrica_principal']} = {v:.3f} frente a {b:.3f} del baseline" +
+              (f" y {ctrl:.3f} del control solo-plataforma" if ctrl is not None else "") +
+              f" (ganancia sobre la mejor referencia {gan:+.3f})"]
     if p is not None:
-        partes.append(f"p de permutacion = {p:.3f}" + (f" (minimo alcanzable con {perm['n']} permutaciones; ninguna "
-                                                       "permutacion igualo al valor observado)" if p <= p_min + 1e-12 else ""))
-    if ctrl is not None:
-        partes.append(f"control solo-plataforma = {ctrl:.3f}")
+        partes.append(f"p de permutacion = {p:.3f}" + (f" (minimo alcanzable con {perm['n']} permutaciones: ninguna "
+                                                       "permutacion igualo el valor observado)" if p <= p_min + 1e-12 else ""))
     if opt is not None:
         partes.append(f"evaluacion sin agrupar = {opt:.3f}")
     texto = "; ".join(partes) + "."
-    # con n permutaciones el menor p posible es 1/(n+1): si ninguna permutacion alcanza el valor observado se
-    # considera significativo aunque n sea pequeno (se informa el p minimo alcanzable)
+    if opt is not None and opt - v > UMBRAL_FUGA:
+        texto += (f" Sin agrupar por {r.get('columna_grupo', 'grupo')} la metrica sube {opt - v:+.3f}: "
+                  "la evaluacion ingenua sobrestimaria el rendimiento.")
     mg = r.get("mediana_grupos_por_clase")
     if (mg is not None and mg < MIN_GRUPOS_CLASE) or (r.get("grupos") or 99) < MIN_GRUPOS_TOTAL:
         return "evidencia insuficiente", texto + (f" Solo {r.get('grupos')} grupos independientes (mediana {mg} por clase): "
                                                   "el resultado depende de muy pocos estudios y no permite conclusiones.")
+    # con n permutaciones el menor p posible es 1/(n+1): si ninguna permutacion alcanza el valor observado se
+    # considera significativo y se informa ese minimo
     significativo = p is None or p < 0.05 or (p_min is not None and p <= p_min + 1e-12)
+    if ctrl is not None and ctrl >= v - UMBRAL_CONTROL and v - b >= UMBRAL_GANANCIA:
+        return "confundido con plataforma", texto + (" El modelo con solo variables de plataforma rinde igual o mejor: "
+                                                     "no se puede atribuir la prediccion a la quimica.")
     if gan < UMBRAL_GANANCIA or not significativo:
-        etiqueta = "sin senal"
-    elif ctrl is not None and ctrl >= v - UMBRAL_CONTROL:
-        etiqueta = "confundido con plataforma"
-        texto += " El modelo con solo variables de plataforma rinde igual o mejor: no se puede atribuir la prediccion a la quimica."
-    elif gan < 0.15:
-        etiqueta = "senal debil"
-    else:
-        etiqueta = "senal robusta"
-    if opt is not None and opt - v > UMBRAL_FUGA:
-        texto += (f" Sin agrupar por {r.get('columna_grupo', 'grupo')} la metrica sube {opt - v:+.3f}: "
-                  "la evaluacion ingenua sobrestimaria el rendimiento.")
-    return etiqueta, texto
+        return "sin senal", texto
+    return ("senal debil" if gan < 0.15 else "senal robusta"), texto
 
 
 def _tabla_md(df: pd.DataFrame, max_filas: int = 30) -> str:
@@ -86,8 +86,30 @@ def _tabla_md(df: pd.DataFrame, max_filas: int = 30) -> str:
     return cab + "\n".join("| " + " | ".join(str(v) for v in fila) + " |" for fila in d.itertuples(index=False))
 
 
+def _nombrar_importancias(cfg: dict[str, Any], r: dict[str, Any], salida: dict[str, Path]) -> None:
+    """Anade nombres legibles a importancia_variables.csv y redibuja su grafica."""
+    from ..features.conjuntos import nombre_variable
+    from ..visualization import graficas
+    p = salida["metricas"] / "importancia_variables.csv"
+    if not p.exists():
+        return
+    t = pd.read_csv(p, sep=";")
+    t["nombre"] = t["variable"].astype(str).map(nombre_variable)
+    guardar_tabla(t, p)
+    r["variables_principales"] = {f"{n} [{v}]": float(i) for v, n, i in
+                                  t[["variable", "nombre", "importancia"]].head(10).itertuples(index=False)}
+    if cfg["outputs"].get("save_plots", True):
+        graficas.barras(t.set_index("nombre")["importancia"], salida["graficas"] / "importancia_variables.png",
+                        f"{cfg['id']}: variables mas influyentes ({r.get('mejor_modelo')})", "Variable",
+                        "Importancia relativa", top=25,
+                        nota="Importancia del modelo final ajustado con todos los datos (impureza o |coeficiente|). "
+                             "Indica asociacion predictiva, no causalidad.")
+
+
 def escribir_informe(cfg: dict[str, Any], r: dict[str, Any], man: dict[str, Any], salida: dict[str, Path]) -> Path:
     r.setdefault("tarea", cfg["tarea"])
+    if r.get("estado") == "completado" and cfg["tarea"] == "supervisado":
+        _nombrar_importancias(cfg, r, salida)
     etiqueta, texto = veredicto(r)
     r["veredicto"], r["explicacion"] = etiqueta, texto
     L = [f"# {cfg['id']} - {cfg['nombre']}", "",
@@ -155,8 +177,8 @@ def resumen_ejecutivo(df: pd.DataFrame) -> Path:
           "Ultima ejecucion de cada experimento. Metricas sobre validacion agrupada por articulo (o formula para los "
           "modelos de compuesto). `control_plataforma` = mismo modelo con solo variables instrumentales; `sin_agrupar` = "
           "validacion ingenua (optimista).", "",
-          "Veredictos: **senal robusta** (ganancia >= 0.15 sobre baseline, p < 0.05, supera al control); **senal debil** "
-          "(ganancia 0.05-0.15); **confundido con plataforma** (el control instrumental rinde igual); **sin senal**; "
+          "Veredictos (ganancia = valor - max(baseline, control_plataforma)): **senal robusta** (ganancia >= 0.15 y p < 0.05); "
+          "**senal debil** (ganancia 0.05-0.15 y p < 0.05); **confundido con plataforma** (el control instrumental rinde igual); **sin senal**; "
           "**evidencia insuficiente** (< 10 grupos independientes o mediana < 3 grupos por clase); **no viable** (clases/grupos "
           "insuficientes para evaluar).", "", _tabla_md(t.drop(columns=["run_id"]), 100), ""]
     p = d / "resumen_ejecutivo.md"

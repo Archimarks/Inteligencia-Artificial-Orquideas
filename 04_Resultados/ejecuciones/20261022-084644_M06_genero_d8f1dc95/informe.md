@@ -2,7 +2,7 @@
 
 - Ejecucion: `20261022-084644_M06_genero_d8f1dc95` (2026-10-22T08:46:44, 25.7 s)
 - Configuracion: `M06_genero.yaml` (huella `d8f1dc95580b`), semilla 42
-- Estado: **completado** - Veredicto: **senal robusta**
+- Estado: **completado** - Veredicto: **evidencia insuficiente**
 
 ## Pregunta cientifica
 ¿El perfil quimico identifica el genero en articulos no vistos?
@@ -27,9 +27,9 @@ Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificado
 | random_forest | 7.500 | 0.214 | 0.167 | 0.118 | 0.151 | -0.376 |
 | lightgbm | 0.300 | 0.500 | 0.495 | 0.521 | 0.518 | 0.242 |
 
-Mejor modelo: **lightgbm**. balanced_accuracy = 0.495 frente a 0.333 del baseline (ganancia +0.161); p de permutacion = 0.032; control solo-plataforma = 0.167; evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.505: la evaluacion ingenua sobrestimaria el rendimiento.
+Mejor modelo: **lightgbm**. balanced_accuracy = 0.495 frente a 0.333 del baseline y 0.167 del control solo-plataforma (ganancia sobre la mejor referencia +0.161); p de permutacion = 0.032 (minimo alcanzable con 30 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.505: la evaluacion ingenua sobrestimaria el rendimiento. Solo 8 grupos independientes (mediana 2.0 por clase): el resultado depende de muy pocos estudios y no permite conclusiones.
 
-Variables mas influyentes del modelo final: `clase_45` (0.371), `clase_679` (0.148), `clase_774` (0.137), `clase_551` (0.062), `clase_479` (0.055), `clase_553` (0.033), `clase_101` (0.026), `clase_288` (0.021).
+Variables mas influyentes del modelo final: `clase: Amino acids and derivatives [clase_45]` (0.372), `clase: Sesquiterpenoids [clase_679]` (0.148), `clase: Triterpene [clase_774]` (0.137), `clase: Phenolic acids [clase_551]` (0.062), `clase: Organic acids [clase_479]` (0.055), `clase: Phenols [clase_553]` (0.033), `clase: Benzene and substituted derivatives [clase_101]` (0.026), `clase: Flavonols [clase_288]` (0.021).
 
 ## Como interpretar
 Pocos generos aparecen en mas de un articulo (Camellia, Ipomoea, Morus); es esperable poca o ninguna senal evaluable.

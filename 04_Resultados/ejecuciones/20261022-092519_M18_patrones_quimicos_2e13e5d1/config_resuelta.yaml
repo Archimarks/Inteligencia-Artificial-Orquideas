@@ -1,0 +1,76 @@
+split:
+  strategy: group_kfold
+  n_splits: 5
+  group_column: ID_ARTICULO
+  min_groups_per_class: 2
+  min_samples_per_class: 10
+evaluation:
+  permutation_test: true
+  n_permutations: 100
+  confounding_control: true
+outputs:
+  save_model: true
+  save_predictions: true
+  save_plots: true
+  dpi: 200
+  overwrite: false
+id: M18_patrones_quimicos
+nombre: 'Patrones quimicos: enriquecimiento, coocurrencia, reglas, agrupamiento y
+  particion de varianza'
+tarea: patrones
+prioridad: central
+pregunta_cientifica: '¿Que patrones quimicos (categorias enriquecidas por taxon u
+  organo, categorias que coaparecen, reglas taxon -> quimica, grupos de especies con
+  perfil similar, perfiles atipicos y asociaciones quimica-actividad) se sostienen
+  cuando se controla que cada articulo aporta su propia plataforma y biblioteca de
+  anotacion?
+
+  '
+descripcion: 'Unidad = especie x articulo x parte de la planta (suma de muestras biologicas).
+  Perfil = numero de metabolitos identificados por superclase (o clase) quimica, transformado
+  con CLR. Contrastes Mann-Whitney con correccion BH, coocurrencias con Fisher exacto
+  + BH, FP-growth, K-means con estabilidad bootstrap, PERMANOVA (R2 marginal con permutaciones;
+  version intra-articulo centrando por estudio), Isolation Forest, enriquecimiento
+  superclase-actividad y firma descriptiva de Orchidaceae.
+
+  '
+conjunto: {}
+patrones:
+  alfa: 0.05
+  min_metabolitos: 20
+  min_articulos_categoria: 3
+  min_articulos_clase: 5
+  max_clases: 60
+  max_aristas: 120
+  n_permutaciones: 499
+  factores_enriquecimiento:
+  - ID_CLASE_TAXONOMICA
+  - ID_ORDEN
+  - ID_FAMILIA
+  - ID_PARTE_ESTUDIADA
+  - ID_TIPO_MUESTRA
+  n_nulos: 300
+  reglas:
+    min_soporte: 0.2
+    min_confianza: 0.9
+    min_confianza_taxon: 0.8
+    min_lift: 1.5
+    max_longitud: 3
+    max_soporte_item: 0.8
+    max_reglas_guardadas: 2000
+    items_taxonomicos:
+    - ID_ORDEN
+    - ID_FAMILIA
+  agrupamiento:
+    k_max: 8
+    n_bootstrap: 30
+interpretacion: 'Un patron es candidato a hallazgo solo si (1) aparece en varios articulos
+  independientes, (2) sobrevive a la correccion por comparaciones multiples y (3)
+  no se explica mejor por columna/plataforma (comparar R2 de articulo y columna con
+  el de orden/familia). Las coocurrencias pueden deberse a bibliotecas compartidas
+  (p. ej. MRM de Metware). La firma de orquideas es descriptiva: solo hay dos estudios
+  de Orchidaceae.
+
+  '
+semilla: 42
+n_jobs: -1

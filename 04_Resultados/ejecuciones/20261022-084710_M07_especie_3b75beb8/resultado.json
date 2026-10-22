@@ -72,20 +72,25 @@
     "p_valor": 0.03225806451612903
   },
   "variables_principales": {
-    "clase_45": 0.7367,
-    "clase_479": 0.1467,
-    "clase_551": 0.06,
-    "clase_265": 0.03,
-    "clase_506": 0.0133,
-    "clase_101": 0.0067,
-    "clase_172": 0.0033,
-    "clase_595": 0.0033,
-    "clase_285": 0.0,
-    "clase_288": 0.0
+    "clase: Amino acids and derivatives [clase_45]": 0.7366666666666667,
+    "clase: Organic acids [clase_479]": 0.1466666666666666,
+    "clase: Phenolic acids [clase_551]": 0.06,
+    "clase: Fatty Acyls [clase_265]": 0.03,
+    "clase: Organooxygen compounds [clase_506]": 0.0133333333333333,
+    "clase: Benzene and substituted derivatives [clase_101]": 0.0066666666666666,
+    "clase: Carboxylic acids and derivatives [clase_172]": 0.0033333333333333,
+    "clase: Prenol lipids [clase_595]": 0.0033333333333333,
+    "clase: Flavonoids [clase_285]": 0.0,
+    "clase: Flavonols [clase_288]": 0.0
   },
   "archivo_modelo": "/home/user/Inteligencia-Artificial-Orquideas/03_Modelos_Entrenados/M07_especie/20261022-084710_M07_especie_3b75beb8/modelo.joblib",
   "estado": "completado",
   "segundos": 11.0,
   "run_id": "20261022-084710_M07_especie_3b75beb8",
-  "id_experimento": "M07_especie"
+  "id_experimento": "M07_especie",
+  "min_grupos_por_clase": 2,
+  "mediana_grupos_por_clase": 2.0,
+  "tarea": "supervisado",
+  "veredicto": "evidencia insuficiente",
+  "explicacion": "balanced_accuracy = 0.714 frente a 0.394 del baseline y 0.000 del control solo-plataforma (ganancia sobre la mejor referencia +0.320); p de permutacion = 0.032 (minimo alcanzable con 30 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.286: la evaluacion ingenua sobrestimaria el rendimiento. Solo 4 grupos independientes (mediana 2.0 por clase): el resultado depende de muy pocos estudios y no permite conclusiones."
 }

@@ -82,20 +82,25 @@
     "p_valor": 0.03225806451612903
   },
   "variables_principales": {
-    "clase_682": 0.0358,
-    "clase_705": 0.0343,
-    "clase_784": 0.0311,
-    "clase_417": 0.0298,
-    "clase_661": 0.0295,
-    "clase_45": 0.0287,
-    "clase_479": 0.0286,
-    "clase_262": 0.0271,
-    "clase_469": 0.0266,
-    "clase_29": 0.0258
+    "clase: Shikimates and Phenylpropanoids [clase_682]": 0.0358405128167102,
+    "clase: Steroids [clase_705]": 0.0342858215103808,
+    "clase: Tryptophan alkaloids [clase_784]": 0.031101101979814,
+    "clase: LPC [clase_417]": 0.0298388189021903,
+    "clase: Quinolines and derivatives [clase_661]": 0.0295238685851086,
+    "clase: Amino acids and derivatives [clase_45]": 0.0287175463317201,
+    "clase: Organic acids [clase_479]": 0.0286387873733458,
+    "clase: Fatty Acids and Conjugates [clase_262]": 0.0270602310143947,
+    "clase: Nucleotides and derivatives [clase_469]": 0.0265625620000473,
+    "clase: Alcohols [clase_29]": 0.0258259927919213
   },
   "archivo_modelo": "/home/user/Inteligencia-Artificial-Orquideas/03_Modelos_Entrenados/M04_orden/20261022-084009_M04_orden_26c7871e/modelo.joblib",
   "estado": "completado",
   "segundos": 370.0,
   "run_id": "20261022-084009_M04_orden_26c7871e",
-  "id_experimento": "M04_orden"
+  "id_experimento": "M04_orden",
+  "min_grupos_por_clase": 2,
+  "mediana_grupos_por_clase": 4.0,
+  "tarea": "supervisado",
+  "veredicto": "senal debil",
+  "explicacion": "balanced_accuracy = 0.253 frente a 0.116 del baseline y 0.189 del control solo-plataforma (ganancia sobre la mejor referencia +0.064); p de permutacion = 0.032 (minimo alcanzable con 30 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.747: la evaluacion ingenua sobrestimaria el rendimiento."
 }

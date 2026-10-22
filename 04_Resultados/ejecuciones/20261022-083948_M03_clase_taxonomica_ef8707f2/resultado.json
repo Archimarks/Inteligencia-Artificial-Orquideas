@@ -72,20 +72,25 @@
     "p_valor": 0.8064516129032258
   },
   "variables_principales": {
-    "clase_774": 0.0415,
-    "clase_549": 0.0375,
-    "clase_583": 0.0374,
-    "clase_505": 0.0372,
-    "clase_661": 0.037,
-    "clase_553": 0.036,
-    "clase_120": 0.0355,
-    "clase_otras": 0.0335,
-    "clase_513": 0.0331,
-    "clase_444": 0.0323
+    "clase: Triterpene [clase_774]": 0.0415084226855847,
+    "clase: Phenolamine [clase_549]": 0.037478915256378,
+    "clase: Plumerane [clase_583]": 0.037424214873492,
+    "clase: Organonitrogen compounds [clase_505]": 0.0371629049642546,
+    "clase: Quinolines and derivatives [clase_661]": 0.0369831165919661,
+    "clase: Phenols [clase_553]": 0.0359801280293049,
+    "clase: Benzopyrans [clase_120]": 0.0355340608634592,
+    "clase: otras [clase_otras]": 0.0334797990610405,
+    "clase: Other Flavonoids [clase_513]": 0.0331334420719476,
+    "clase: Monoterpenoids [clase_444]": 0.0323038566102451
   },
   "archivo_modelo": "/home/user/Inteligencia-Artificial-Orquideas/03_Modelos_Entrenados/M03_clase_taxonomica/20261022-083948_M03_clase_taxonomica_ef8707f2/modelo.joblib",
   "estado": "completado",
   "segundos": 19.6,
   "run_id": "20261022-083948_M03_clase_taxonomica_ef8707f2",
-  "id_experimento": "M03_clase_taxonomica"
+  "id_experimento": "M03_clase_taxonomica",
+  "min_grupos_por_clase": 7,
+  "mediana_grupos_por_clase": 24.0,
+  "tarea": "supervisado",
+  "veredicto": "sin senal",
+  "explicacion": "balanced_accuracy = 0.486 frente a 0.521 del baseline y 0.389 del control solo-plataforma (ganancia sobre la mejor referencia -0.035); p de permutacion = 0.806; evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.514: la evaluacion ingenua sobrestimaria el rendimiento."
 }

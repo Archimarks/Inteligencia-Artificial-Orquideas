@@ -264,3 +264,23 @@ def construir(nombre: str, parametros: dict[str, Any]) -> Conjunto:
     if nombre not in CONSTRUCTORES:
         raise ValueError(f"Conjunto desconocido '{nombre}'. Disponibles: {sorted(CONSTRUCTORES)}")
     return CONSTRUCTORES[nombre](**parametros)
+
+
+def nombre_variable(col: str) -> str:
+    """Nombre legible de una variable: 'clase_240' -> nombre de la clase quimica; 'ID_FAMILIA_6' -> 'FAMILIA: Fabaceae'."""
+    try:
+        if col.startswith(("superclase_", "clase_")):
+            nivel, k = col.rsplit("_", 1)
+            if k == "otras":
+                return f"{nivel}: otras"
+            return f"{nivel}: " + mapa_etiquetas("superclases" if nivel == "superclase" else "clases_quim").get(int(k), k)
+        for c, cat in CATALOGO_DE.items():
+            if col.startswith(c + "_"):
+                k = col[len(c) + 1:]
+                return f"{c.replace('ID_', '')}: " + mapa_etiquetas(cat).get(int(k), k)
+        if col.startswith("MODOS_"):
+            modos = mapa_etiquetas("modos")
+            return "MODOS: " + "+".join(modos.get(int(m), m) for m in col[6:].split("+"))
+    except (ValueError, KeyError):
+        pass
+    return col

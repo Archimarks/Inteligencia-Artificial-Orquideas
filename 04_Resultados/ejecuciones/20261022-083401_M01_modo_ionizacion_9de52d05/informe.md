@@ -2,7 +2,7 @@
 
 - Ejecucion: `20261022-083401_M01_modo_ionizacion_9de52d05` (2026-10-22T08:34:01, 339.0 s)
 - Configuracion: `M01_modo_ionizacion.yaml` (huella `9de52d05e6cc`), semilla 42
-- Estado: **completado** - Veredicto: **sin senal**
+- Estado: **completado** - Veredicto: **senal robusta**
 
 ## Pregunta cientifica
 ¿La composicion elemental y la superclase de un metabolito permiten anticipar si se detecta en ESI positivo o negativo, en articulos no vistos?
@@ -27,9 +27,9 @@ Unidad = (articulo, metabolito) detectado en un solo modo, solo en articulos que
 | random_forest | 20.200 | 0.688 | 0.686 | 0.685 | 0.689 | 0.370 |
 | lightgbm | 6.800 | 0.684 | 0.682 | 0.681 | 0.685 | 0.362 |
 
-Mejor modelo: **random_forest**. balanced_accuracy = 0.686 frente a 0.503 del baseline (ganancia +0.183); p de permutacion = 0.091; evaluacion sin agrupar = 0.702.
+Mejor modelo: **random_forest**. balanced_accuracy = 0.686 frente a 0.503 del baseline (ganancia sobre la mejor referencia +0.183); p de permutacion = 0.091 (minimo alcanzable con 10 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 0.702.
 
-Variables mas influyentes del modelo final: `O_C` (0.119), `masa_formula` (0.077), `H_C` (0.075), `N_C` (0.073), `dbe_C` (0.068), `ai_mod` (0.067), `n_O` (0.063), `heteroatomos` (0.058).
+Variables mas influyentes del modelo final: `O_C [O_C]` (0.119), `masa_formula [masa_formula]` (0.077), `H_C [H_C]` (0.075), `N_C [N_C]` (0.073), `dbe_C [dbe_C]` (0.068), `ai_mod [ai_mod]` (0.067), `n_O [n_O]` (0.063), `heteroatomos [heteroatomos]` (0.057).
 
 ## Como interpretar
 Los acidos (carboxilos, fenoles, fosfatos) tienden a ionizar en negativo y las bases nitrogenadas en positivo. Un rendimiento moderado es esperable: muchos compuestos ionizan en ambos modos y la eleccion depende del metodo.
