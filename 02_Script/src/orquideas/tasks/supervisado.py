@@ -17,7 +17,7 @@ from sklearn.utils.validation import has_fit_parameter
 from ..evaluation import metricas
 from ..evaluation.validacion import filtrar_clases, filtrar_etiquetas, particiones
 from ..features.conjuntos import Conjunto
-from ..models.registro_modelos import MODELOS_GPU, construir_pipeline
+from ..models.registro_modelos import MODELOS_GPU, construir_pipeline, disponible
 from ..utils.gpu import seleccionar_gpus
 from ..utils.es import guardar_json, guardar_tabla
 from ..visualization import graficas
@@ -260,6 +260,12 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
     # 3. Modelos -------------------------------------------------------------------------------------------------------
     principal = metricas.METRICA_PRINCIPAL[tipo]
     filas, por_part_todas, oof = [], [], {}
+    omitidos = [mc["nombre"] for mc in cfg["modelos"] if not disponible(mc["nombre"])]
+    if omitidos:
+        res["modelos_omitidos"] = omitidos
+        log.warning(f"Modelos omitidos porque su libreria no esta instalada: {omitidos} "
+                    "(python -m pip install -r requirements.txt)")
+    cfg = {**cfg, "modelos": [mc for mc in cfg["modelos"] if mc["nombre"] not in omitidos]}
     for mc in cfg["modelos"]:
         nombre = mc["nombre"]
         t = time.time()

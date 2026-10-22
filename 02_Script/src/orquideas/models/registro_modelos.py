@@ -25,6 +25,14 @@ from sklearn.utils.class_weight import compute_sample_weight
 
 ESCALAR = {"logistica", "knn"}
 MODELOS_GPU = {"xgboost", "catboost"}
+LIBRERIA = {"xgboost": "xgboost", "catboost": "catboost", "lightgbm": "lightgbm"}
+
+
+def disponible(nombre: str) -> bool:
+    """True si la libreria que necesita el modelo esta instalada."""
+    import importlib.util
+    lib = LIBRERIA.get(nombre)
+    return lib is None or importlib.util.find_spec(lib) is not None
 
 
 class XGBoostGPU(ClassifierMixin, BaseEstimator):

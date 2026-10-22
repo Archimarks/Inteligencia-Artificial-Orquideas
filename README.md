@@ -14,8 +14,9 @@ de metabolomica (LC/GC-MS).
 Inicio rapido:
 
 ```bash
-python -m pip install -r requirements.txt
 cd 02_Script
+python -m pip install -r requirements.txt
+python main.py                 # menu interactivo
 python main.py hardware        # GPU detectadas (se usan todas)
 python main.py auditoria
 python main.py ejecutar-todos

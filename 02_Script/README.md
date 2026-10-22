@@ -5,26 +5,34 @@ supervisado y no supervisado. Todo resultado lleva su configuracion, sus huellas
 
 ## 1. Instalacion
 
-Requisitos: Python 3.11-3.13 (probado con 3.13) y unos 4 GB de RAM libres. Opcional: GPU NVIDIA con el controlador
+Requisitos: Python 3.11-3.14 (probado con 3.13; ruedas verificadas para 3.14 en Windows) y unos 4 GB de RAM libres. Opcional: GPU NVIDIA con el controlador
 instalado (XGBoost 2.1.4 admite GPU desde compute capability 6.0, p. ej. GTX 10xx).
 
-**Windows (PowerShell):**
+**Windows (PowerShell), con el mismo Python con el que ejecutara main.py:**
 ```powershell
-cd "D:\Inteligencia Artificial Orquideas"
-py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+cd "D:\Inteligencia Artificial Orquideas\02_Script"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-cd 02_Script
-python -m pytest            # comprobacion de la instalacion
+python main.py               # abre el menu
+```
+Si usa el boton "Ejecutar" de VS Code, instale las librerias con ese mismo interprete, por ejemplo
+`& C:/Users/<usuario>/AppData/Local/Python/pythoncore-3.14-64/python.exe -m pip install -r requirements.txt`.
+`main.py` comprueba al arrancar que esten todas las librerias; si falta alguna, muestra el comando exacto y
+ofrece instalarlas.
+
+Opcional (entorno virtual):
+```powershell
+cd "D:\Inteligencia Artificial Orquideas"
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r 02_Script\requirements.txt
 ```
 
 **Linux / macOS:**
 ```bash
-cd "Inteligencia Artificial Orquideas"
-python3 -m venv .venv && source .venv/bin/activate
-python -m pip install -r requirements.txt
-cd 02_Script && python -m pytest
+cd "Inteligencia Artificial Orquideas/02_Script"
+python3 -m pip install -r requirements.txt
+python3 main.py
 ```
 
 Las rutas se resuelven solas a partir de la carpeta padre de `02_Script` (`raiz_proyecto: auto` en
@@ -32,7 +40,8 @@ Las rutas se resuelven solas a partir de la carpeta padre de `02_Script` (`raiz_
 
 ## 2. Uso
 
-Ejecutar desde `02_Script`:
+Ejecutar desde `02_Script`. Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) se abre un menu;
+tambien se puede usar cada comando directamente:
 
 | Comando | Que hace |
 |---|---|

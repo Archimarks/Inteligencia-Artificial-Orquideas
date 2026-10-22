@@ -14,12 +14,52 @@ Uso (desde la carpeta 02_Script):
 from __future__ import annotations
 
 import argparse
+import importlib.util
+import subprocess
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+SCRIPT_DIR = Path(__file__).resolve().parent
+REQUIREMENTS = SCRIPT_DIR / "requirements.txt"
+
+# modulo importable -> paquete de pip (02_Script/requirements.txt)
+DEPENDENCIAS = {
+    "yaml": "PyYAML", "pandas": "pandas", "numpy": "numpy", "pyarrow": "pyarrow", "sklearn": "scikit-learn",
+    "lightgbm": "lightgbm", "joblib": "joblib", "xgboost": "xgboost", "catboost": "catboost", "scipy": "scipy",
+    "statsmodels": "statsmodels", "mlxtend": "mlxtend", "networkx": "networkx", "umap": "umap-learn",
+    "matplotlib": "matplotlib", "seaborn": "seaborn",
+}
+
+
+def verificar_dependencias() -> None:
+    """Comprueba que las librerias esten instaladas en ESTE Python y ofrece instalarlas si faltan."""
+    faltan = [pip for mod, pip in DEPENDENCIAS.items() if importlib.util.find_spec(mod) is None]
+    if not faltan:
+        return
+    cmd = [sys.executable, "-m", "pip", "install", "-r", str(REQUIREMENTS)]
+    print(f"Faltan librerias en este Python ({sys.executable}, version {sys.version.split()[0]}):")
+    print("  " + ", ".join(faltan))
+    print("\nPara instalarlas ejecute:")
+    print("  " + " ".join(f'"{c}"' if " " in c else c for c in cmd))
+    if sys.stdin is not None and sys.stdin.isatty():
+        r = input("\n¿Instalarlas ahora? [s/N]: ").strip().lower()
+        if r in ("s", "si", "sí", "y", "yes"):
+            if subprocess.run(cmd).returncode == 0:
+                importlib.invalidate_caches()
+                faltan = [pip for mod, pip in DEPENDENCIAS.items() if importlib.util.find_spec(mod) is None]
+                if not faltan:
+                    print("\nDependencias instaladas correctamente.\n")
+                    return
+            print("\nLa instalacion no se completo; revise los mensajes de pip.")
+    sys.exit(1)
+
+
+verificar_dependencias()
+sys.path.insert(0, str(SCRIPT_DIR / "src"))
 
 from orquideas.config.esquema import ErrorConfiguracion, cargar_config, listar_configs  # noqa: E402
+from orquideas.data.catalogos import ErrorDatos  # noqa: E402
+from orquideas.utils.gpu import ErrorGPU  # noqa: E402
 
 
 def cmd_auditoria(a: argparse.Namespace) -> None:
@@ -137,23 +177,86 @@ def cmd_predecir(a: argparse.Namespace) -> None:
     print(destino)
 
 
-def main() -> None:
-    ap = argparse.ArgumentParser(description="IA para el descubrimiento de patrones quimicos en orquideas")
+def construir_parser() -> argparse.ArgumentParser:
+    ap = argparse.ArgumentParser(description="IA para el descubrimiento de patrones quimicos en orquideas. "
+                                             "Sin argumentos abre un menu.")
     sub = ap.add_subparsers(dest="comando", required=True)
-    s = sub.add_parser("auditoria"); s.add_argument("--etiqueta"); s.set_defaults(f=cmd_auditoria)
-    s = sub.add_parser("listar"); s.set_defaults(f=cmd_listar)
-    s = sub.add_parser("hardware"); s.set_defaults(f=cmd_hardware)
-    s = sub.add_parser("validar"); s.add_argument("ids", nargs="*"); s.set_defaults(f=cmd_validar)
-    s = sub.add_parser("ejecutar"); s.add_argument("ids", nargs="+"); s.add_argument("--etiqueta")
-    s.set_defaults(f=cmd_ejecutar)
-    s = sub.add_parser("ejecutar-todos"); s.add_argument("--etiqueta"); s.set_defaults(f=cmd_ejecutar_todos)
-    s = sub.add_parser("resumen"); s.set_defaults(f=cmd_resumen)
-    s = sub.add_parser("reinformar"); s.set_defaults(f=cmd_reinformar)
-    s = sub.add_parser("predecir"); s.add_argument("run_id"); s.add_argument("csv"); s.add_argument("--salida")
-    s.set_defaults(f=cmd_predecir)
-    a = ap.parse_args()
-    a.f(a)
+    s = sub.add_parser("auditoria", help="auditoria general de 01_Datos/Base"); s.add_argument("--etiqueta")
+    s.set_defaults(f=cmd_auditoria)
+    s = sub.add_parser("listar", help="lista los experimentos configurados"); s.set_defaults(f=cmd_listar)
+    s = sub.add_parser("hardware", help="CPU y GPU detectadas"); s.set_defaults(f=cmd_hardware)
+    s = sub.add_parser("validar", help="valida las configuraciones YAML"); s.add_argument("ids", nargs="*")
+    s.set_defaults(f=cmd_validar)
+    s = sub.add_parser("ejecutar", help="entrena uno o varios experimentos"); s.add_argument("ids", nargs="+")
+    s.add_argument("--etiqueta"); s.set_defaults(f=cmd_ejecutar)
+    s = sub.add_parser("ejecutar-todos", help="entrena todos los experimentos"); s.add_argument("--etiqueta")
+    s.set_defaults(f=cmd_ejecutar_todos)
+    s = sub.add_parser("resumen", help="resumen ejecutivo y guia de modelos"); s.set_defaults(f=cmd_resumen)
+    s = sub.add_parser("reinformar", help="regenera informes sin reentrenar"); s.set_defaults(f=cmd_reinformar)
+    s = sub.add_parser("predecir", help="aplica un modelo guardado a un CSV"); s.add_argument("run_id")
+    s.add_argument("csv"); s.add_argument("--salida"); s.set_defaults(f=cmd_predecir)
+    return ap
+
+
+def menu() -> list[str] | None:
+    """Menu interactivo cuando main.py se ejecuta sin argumentos (p. ej. con el boton Ejecutar de VS Code)."""
+    opciones = [
+        ("Auditoria de datos", ["auditoria"]),
+        ("Ver hardware (CPU y GPU detectadas)", ["hardware"]),
+        ("Listar experimentos", ["listar"]),
+        ("Validar configuraciones", ["validar"]),
+        ("Entrenar UN experimento", None),
+        ("Entrenar TODOS los experimentos", ["ejecutar-todos"]),
+        ("Resumen ejecutivo", ["resumen"]),
+        ("Regenerar informes (sin reentrenar)", ["reinformar"]),
+    ]
+    print("\n=== IA para patrones quimicos en orquideas ===")
+    for i, (texto, _) in enumerate(opciones, 1):
+        print(f"  {i}. {texto}")
+    print("  0. Salir")
+    r = input("Opcion: ").strip()
+    if r in ("", "0"):
+        return None
+    if not r.isdigit() or not 1 <= int(r) <= len(opciones):
+        print("Opcion no valida.")
+        return []
+    texto, args = opciones[int(r) - 1]
+    if args is not None:
+        return args
+    cfgs = listar_configs()
+    for i, p in enumerate(cfgs, 1):
+        print(f"  {i:>2}. {p.stem}")
+    r = input("Numero o ID del experimento (varios separados por espacio): ").split()
+    ids = [cfgs[int(x) - 1].stem if x.isdigit() and 1 <= int(x) <= len(cfgs) else x for x in r]
+    return ["ejecutar", *ids] if ids else []
+
+
+def ejecutar_comando(argv: list[str]) -> int:
+    a = construir_parser().parse_args(argv)
+    try:
+        a.f(a)
+    except (ErrorConfiguracion, ErrorDatos, ErrorGPU, FileExistsError) as e:
+        print(f"\nERROR: {e}")
+        return 1
+    except SystemExit as e:   # p. ej. `validar` con errores: en el menu no debe cerrar el programa
+        return int(e.code or 0)
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv:
+        return ejecutar_comando(argv)
+    if not (sys.stdin is not None and sys.stdin.isatty()):
+        construir_parser().print_help()
+        return 0
+    while True:
+        args = menu()
+        if args is None:
+            return 0
+        if args:
+            ejecutar_comando(args)
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

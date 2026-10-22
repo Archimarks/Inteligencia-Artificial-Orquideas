@@ -51,3 +51,23 @@ def test_carpetas_por_modelo():
     assert carpeta_modelo("M01_modo_ionizacion") == "M01_Modo_Ionizacion"
     assert ruta_modelo("M01_modo_ionizacion", "metricas").parts[-3:] == ("Models", "M01_Modo_Ionizacion", "metricas")
     assert ruta_global().parts[-2:] == ("03_Resultados", "Global")
+
+
+def test_puntero_lfs_detectado(tmp_path):
+    from orquideas.data.catalogos import ErrorDatos, verificar_archivo_datos
+    p = tmp_path / "Dataset.csv"
+    p.write_text("version https://git-lfs.github.com/spec/v1\noid sha256:abc\nsize 123\n")
+    with pytest.raises(ErrorDatos, match="LFS"):
+        verificar_archivo_datos(p)
+    with pytest.raises(ErrorDatos, match="No existe"):
+        verificar_archivo_datos(tmp_path / "no.csv")
+
+
+def test_main_sin_argumentos_no_interactivo(capsys):
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location("main_orq", Path(__file__).resolve().parents[1] / "main.py")
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    assert m.main(["listar"]) == 0
+    assert "M01_modo_ionizacion" in capsys.readouterr().out
