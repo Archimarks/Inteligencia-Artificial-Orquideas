@@ -57,3 +57,17 @@ def test_xgboost_cpu_con_clases_no_contiguas():
     assert list(m.classes_) == [2, 5, 9]
     assert m.predict_proba(X).shape == (120, 3)
     assert (m.predict(X) == y).mean() > 0.9
+
+
+@pytest.mark.parametrize("multi", [False, True])
+def test_todos_los_modelos_entrenan(multi):
+    from orquideas.models.registro_modelos import MODELOS
+    rng = np.random.default_rng(0)
+    X = rng.normal(size=(60, 4))
+    y = np.c_[(X[:, 0] > 0), (X[:, 1] > 0)].astype(int) if multi else (X[:, 0] > 0).astype(int) + (X[:, 1] > 1)
+    rapidos = {"random_forest": {"n_estimators": 10}, "extra_trees": {"n_estimators": 10}, "lightgbm": {"n_estimators": 10},
+               "xgboost": {"n_estimators": 10}, "catboost": {"iterations": 10}, "hist_gradient_boosting": {"max_iter": 10}}
+    for nombre in MODELOS:
+        pipe = construir_pipeline(nombre, 0, 1, multietiqueta=multi, hiperparametros=rapidos.get(nombre), n_variables=4)
+        pipe.fit(X, y)
+        assert pipe.predict_proba(X) is not None, nombre

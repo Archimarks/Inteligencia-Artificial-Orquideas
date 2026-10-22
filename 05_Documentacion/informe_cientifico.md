@@ -1,7 +1,8 @@
 # Informe cientifico: patrones quimicos en orquideas y plantas medicinales
 
-Ejecuciones del 2026-10-22, semilla 42. Todas las cifras provienen de `04_Resultados/ejecuciones/*/resultado.json`;
-la tabla completa esta en `04_Resultados/informes/resumen_ejecutivo.md`. La validacion se agrupa por articulo, o
+Ejecuciones del 2026-10-22, semilla 42 (commit `4968a18`, antes de reorganizar las salidas en `03_Resultados` y de
+anadir XGBoost/CatBoost; esos resultados siguen en el historial de git). Al reejecutar (`python main.py ejecutar-todos`)
+las cifras se regeneran en `03_Resultados/Models/<Modelo>` y la tabla en `03_Resultados/Global/resumen_ejecutivo.md`. La validacion se agrupa por articulo, o
 por formula molecular en los modelos de compuesto. **Ganancia** = valor del modelo menos la mejor referencia que no
 usa quimica: max(baseline, control solo-plataforma).
 

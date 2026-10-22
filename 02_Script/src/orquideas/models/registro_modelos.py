@@ -115,6 +115,14 @@ class CatBoostGPU(ClassifierMixin, BaseEstimator):
         return self.classes_[self.predict_proba(X).argmax(1)]
 
 
+def _lightgbm(semilla: int, n_jobs: int, **kw: Any):
+    from lightgbm import LGBMClassifier
+    base = dict(n_estimators=300, learning_rate=0.05, num_leaves=31, min_child_samples=10, subsample=0.8,
+                subsample_freq=1, colsample_bytree=0.8, class_weight="balanced", verbose=-1)
+    base.update(kw)
+    return LGBMClassifier(random_state=semilla, n_jobs=n_jobs, **base)
+
+
 def estimador(nombre: str, semilla: int, n_jobs: int, multietiqueta: bool = False, gpus: list[int] | None = None,
               **kw: Any):
     """Instancia el estimador `nombre` con los hiperparametros `kw`; `gpus` = indices de GPU para este ajuste."""
