@@ -1,0 +1,52 @@
+============================================================================
+RESULTADOS: Clustering
+============================================================================
+Modelos registrados: 4 | completados: 3 (3 con alertas) | fallidos: 1
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado           modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion  n_clusters  silhouette  davies_bouldin  ruido_pct  tamano_cluster_min  tamano_cluster_max  estabilidad_ari_media  k_mejor_silhouette  k_candidatos_evaluados  cluster_minimo_requerido  cluster_minimo_observado                                         k_seleccion_criterio  estabilidad_ari_desviacion  estabilidad_ari_repeticiones  cobertura_clasificacion_media_pct  cobertura_clasificacion_mediana_pct  especies_cobertura_menor_10_pct  especies_cobertura_menor_30_pct  especies_cobertura_menor_50_pct                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS    agglomerative PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      6.0000      0.1744          1.7363     0.0000              3.0000             12.0000                 0.8226              7.0000                  6.0000                    3.0000                    3.0000 menor k dentro de un error estandar aproximado del mejor ...                      0.1176                       20.0000                            44.6544                              53.5354                          20.0000                          24.0000                          24.0000 Separación interna débil (silhouette < 0.25); los grupos ... 03_Resultados\Models\02_No supervisado\Clustering\PATRONE...
+COMPLETADO_CON_ALERTAS gaussian_mixture PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      2.0000      0.1140          2.3721     0.0000             11.0000             42.0000                 0.1722              8.0000                  5.0000                    3.0000                   11.0000 menor k dentro de un error estandar aproximado del mejor ...                      0.1999                       20.0000                            44.6544                              53.5354                          20.0000                          24.0000                          24.0000 Separación interna débil (silhouette < 0.25); los grupos ... 03_Resultados\Models\02_No supervisado\Clustering\PATRONE...
+COMPLETADO_CON_ALERTAS           kmeans PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      5.0000      0.1566          1.8339     0.0000              5.0000             14.0000                 0.6981              6.0000                  5.0000                    3.0000                    5.0000 menor k dentro de un error estandar aproximado del mejor ...                      0.1152                       20.0000                            44.6544                              53.5354                          20.0000                          24.0000                          24.0000 Separación interna débil (silhouette < 0.25); los grupos ... 03_Resultados\Models\02_No supervisado\Clustering\PATRONE...
+
+## Modelos fallidos: diagnóstico y siguiente paso
+ estado modelo tipo_error                                                                                      error                                                                              recomendacion                                                      directorio_resultados
+FALLIDO dbscan ValueError DBSCAN no produjo un agrupamiento evaluable. Se probaron 12 configuraciones (min_sample... DBSCAN no encontró estructura de densidad evaluable con las configuraciones probadas. C... 03_Resultados\Models\02_No supervisado\Clustering\PATRONES_QUIMICOS\dbscan
+Abra error.json para el resumen estructurado y error.log para el traceback.
+
+## Cómo leer las métricas
+- n_clusters: Número de grupos encontrados; no mide calidad por sí solo.
+- silhouette: Separación/compactación interna; comparable solo con la misma X y tratamiento de ruido.
+- davies_bouldin: Dispersión relativa entre grupos (más bajo suele ser mejor).
+- ruido_pct: Porcentaje sin grupo asignado por el algoritmo.
+- tamano_cluster_min: Tamaño del grupo más pequeño, sin contar ruido.
+- tamano_cluster_max: Tamaño del grupo más grande, sin contar ruido.
+- estabilidad_ari_media: ARI medio frente a submuestras del 80%; descriptivo, no holdout.
+- k_mejor_silhouette: k con silhouette máximo entre las soluciones que respetan el tamaño mínimo de grupo.
+- k_candidatos_evaluados: Cantidad de valores k elegibles tras aplicar el tamaño mínimo de grupo.
+- cluster_minimo_requerido: Mínimo de plantas exigido en cada grupo candidato.
+- cluster_minimo_observado: Tamaño del grupo más pequeño de la solución seleccionada.
+- k_seleccion_criterio: Regla aplicada para elegir k entre las particiones evaluables.
+- estabilidad_ari_desviacion: Desviación del ARI entre submuestras; más bajo implica menos variación.
+- estabilidad_ari_repeticiones: Cantidad de submuestras usadas para estimar estabilidad.
+- cobertura_clasificacion_media_pct: Media de registros clasificados por unidad de análisis; considerar junto a la mediana.
+- cobertura_clasificacion_mediana_pct: Mediana de cobertura de clasificación química.
+- especies_cobertura_menor_10_pct: Especies con menos de 10% de registros clasificados.
+- especies_cobertura_menor_30_pct: Especies con menos de 30% de registros clasificados.
+- especies_cobertura_menor_50_pct: Especies con menos de 50% de registros clasificados.
+
+## Límites de interpretación
+Interpretación: silhouette y estabilidad son diagnósticos internos, no validación biológica.
+k se elige entre soluciones con tamaño mínimo por grupo mediante un error estándar aproximado;
+el número de grupos sigue siendo exploratorio y debe contrastarse con conocimiento botánico.
+DBSCAN puede fallar sin que los datos estén dañados: indica que no encontró densidad
+con soporte suficiente en las configuraciones examinadas; revise error.json para
+el detalle del intento y la recomendación.
+Una asociación alta con batch puede reflejar condiciones experimentales; revise
+validacion_lote_externo.csv, cruce_lote_grupo.csv, composicion_batch_especie.csv
+y sensibilidad_cobertura.csv.
+La transferencia externa usa predict nativo donde existe; Agglomerative y DBSCAN
+usan asignación por centroides solo como diagnóstico, no como inferencia nativa.
+Los ceros del perfil significan no detectado/no clasificado, no ausencia química confirmada.

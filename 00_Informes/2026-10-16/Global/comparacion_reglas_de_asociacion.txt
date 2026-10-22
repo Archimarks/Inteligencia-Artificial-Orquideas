@@ -1,0 +1,26 @@
+============================================================================
+RESULTADOS: Reglas de asociación
+============================================================================
+Modelos registrados: 1 | completados: 1 (1 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado  modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion   n_reglas  n_reglas_diagnostico  min_soporte  min_confianza  prevalencia_minima_muestras  muestras_clasificadas_media  muestras_clasificadas_mediana  muestras_clasificadas_minima  lift_medio                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS apriori PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column... 32214.0000              200.0000       0.1500         0.7000                       0.5000                      19.0943                        12.0000                        3.0000      2.0937 Las reglas son asociaciones descriptivas; no demuestran c... 03_Resultados\Models\02_No supervisado\Reglas de asociaci...
+
+## Cómo leer las métricas
+- n_reglas: Total de reglas que cumplen los umbrales configurados.
+- n_reglas_diagnostico: Reglas incluidas en el CSV legible (máximo 200).
+- min_soporte: Fracción mínima de perfiles de especie donde aparece el conjunto de la regla.
+- min_confianza: Umbral mínimo de confianza condicional de la regla.
+- prevalencia_minima_muestras: Fracción mínima de muestras biológicas clasificadas en que debe aparecer una clase para contarla presente en una especie.
+- muestras_clasificadas_media: Media de muestras biológicas clasificadas que sustentan cada perfil vegetal para Apriori.
+- muestras_clasificadas_mediana: Mediana de muestras biológicas clasificadas que sustentan cada perfil vegetal para Apriori.
+- muestras_clasificadas_minima: Menor número de muestras biológicas clasificadas usado en un perfil vegetal para Apriori.
+- lift_medio: Lift medio; >1 indica asociación sobre independencia, no causalidad.
+
+## Límites de interpretación
+Interpretación: las reglas son asociaciones descriptivas, no relaciones causales.
+La presencia requiere prevalencia mínima entre muestras biológicas clasificadas; varios modos de una misma muestra no se cuentan como réplicas.
+diagnostico.csv muestra el top 200; reglas_completas.csv permite revisar todas las reglas que superaron los umbrales.

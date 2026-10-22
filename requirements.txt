@@ -1,0 +1,163 @@
+# =============================================================================
+# DEPENDENCIAS DEL PROYECTO
+# =============================================================================
+#
+# Archivo: requirements.txt
+# Propósito:
+#   Define las dependencias necesarias para ejecutar el proyecto de
+#   Machine Learning de forma reproducible.
+#
+# Convenciones:
+#   - Todas las dependencias deben tener una versión exacta (==X.Y.Z).
+#   - No agregar una librería directamente desde requirements.txt sin actualizar
+#     también la documentación correspondiente del proyecto.
+#   - Las dependencias deben agruparse según su responsabilidad funcional.
+#   - Evitar dependencias duplicadas o paquetes que no sean utilizados.
+#
+# Instalación:
+#   python -m pip install -r requirements.txt
+#
+# Actualización:
+#   1. Verificar compatibilidad entre las dependencias.
+#   2. Actualizar la versión explícitamente.
+#   3. Ejecutar la suite de pruebas.
+#   4. Validar entrenamiento, evaluación y visualización de modelos.
+#   5. Registrar el cambio en la documentación/changelog del proyecto.
+#
+# NOTA:
+#   Este archivo contiene únicamente dependencias de ejecución/desarrollo
+#   requeridas por el proyecto. Las dependencias transitivas son resueltas
+#   automáticamente por pip.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# 01. MANIPULACIÓN Y PROCESAMIENTO DE DATOS
+# -----------------------------------------------------------------------------
+#
+# pandas:
+#   Manipulación, transformación y análisis de datos tabulares.
+#
+# numpy:
+#   Computación numérica y estructuras multidimensionales.
+#
+pandas==3.0.5
+numpy==2.5.2
+
+
+# -----------------------------------------------------------------------------
+# 02. MACHINE LEARNING — CORE
+# -----------------------------------------------------------------------------
+#
+# scikit-learn:
+#   Algoritmos de Machine Learning, preprocesamiento, selección de modelos,
+#   validación cruzada y métricas de evaluación.
+#
+# joblib:
+#   Serialización de modelos/objetos y ejecución paralela utilizada por
+#   diferentes componentes del ecosistema científico de Python.
+#
+scikit-learn==1.9.0
+joblib==1.5.3
+
+
+# -----------------------------------------------------------------------------
+# 03. MACHINE LEARNING — BOOSTING Y ENSEMBLES
+# -----------------------------------------------------------------------------
+#
+# xgboost:
+#   Gradient Boosting optimizado para problemas de clasificación y regresión.
+#   Se fija la 2.1.x: el wheel de la 3.x solo trae binarios de GPU para tarjetas
+#   Volta o más nuevas (compute capability >= 7.0) y deja fuera las Pascal
+#   (GTX 10xx). La 2.1.4 soporta GPU desde compute 6.0.
+#
+# lightgbm:
+#   Gradient Boosting basado en árboles, optimizado para rendimiento y
+#   conjuntos de datos de gran tamaño. El wheel de pip es solo CPU (la GPU
+#   requiere compilar con -DUSE_GPU=1).
+#
+# catboost:
+#   Gradient Boosting basado en árboles, con soporte especialmente robusto
+#   para variables categóricas. El wheel de pip ya trae soporte de GPU.
+#
+xgboost==2.1.4
+lightgbm==4.7.0
+catboost==1.2.10
+
+
+# -----------------------------------------------------------------------------
+# 04. MACHINE LEARNING — DEEP LEARNING
+# -----------------------------------------------------------------------------
+#
+# torch:
+#   Framework de Deep Learning para construcción y entrenamiento de redes
+#   neuronales. Se fija la rueda CUDA 12.6 para aprovechar las GPU NVIDIA
+#   compatibles; la rueda CPU no permite detectar ni utilizar CUDA.
+#
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.14.0+cu126
+
+
+# -----------------------------------------------------------------------------
+# 05. MACHINE LEARNING — APRENDIZAJE NO SUPERVISADO
+# -----------------------------------------------------------------------------
+#
+# umap-learn:
+#   Reducción de dimensionalidad no lineal y representación de datos para
+#   análisis exploratorio y visualización.
+#
+umap-learn==0.5.12
+
+
+# -----------------------------------------------------------------------------
+# 06. MACHINE LEARNING — REGLAS DE ASOCIACIÓN
+# -----------------------------------------------------------------------------
+#
+# mlxtend:
+#   Algoritmos y utilidades adicionales para Machine Learning, incluyendo
+#   reglas de asociación como Apriori y generación de conjuntos frecuentes.
+#
+mlxtend==0.25.0
+
+
+# -----------------------------------------------------------------------------
+# 07. INTERPRETABILIDAD Y EXPLICABILIDAD
+# -----------------------------------------------------------------------------
+#
+# shap:
+#   Explicabilidad de modelos mediante valores SHAP (SHapley Additive
+#   exPlanations).
+#
+shap==0.52.0
+
+
+# -----------------------------------------------------------------------------
+# 08. VISUALIZACIÓN
+# -----------------------------------------------------------------------------
+#
+# matplotlib:
+#   Generación de gráficas para análisis exploratorio, evaluación,
+#   diagnóstico e interpretación de modelos.
+#
+matplotlib==3.11.1
+
+
+# -----------------------------------------------------------------------------
+# 09. INTERFAZ GRÁFICA
+# -----------------------------------------------------------------------------
+#
+# PySide6:
+#   Framework Qt para construir la interfaz gráfica de usuario (GUI).
+#
+PySide6==6.11.2
+
+
+# -----------------------------------------------------------------------------
+# 10. SISTEMA Y RECURSOS
+# -----------------------------------------------------------------------------
+#
+# psutil:
+#   Consulta y monitorización de recursos del sistema, como CPU, memoria,
+#   procesos y almacenamiento.
+#
+psutil==7.2.2

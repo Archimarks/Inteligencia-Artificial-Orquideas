@@ -1,0 +1,23 @@
+============================================================================
+RESULTADOS: Cadenas de Markov
+============================================================================
+Entrenamientos: 1
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma             tarea          objetivo         modelo           dataset                   archivo_fuente dispositivo                                               validacion  n_filas  n_filas_dataset  n_features  n_transiciones_evaluadas  n_estados  precision_siguiente_estado  n_transiciones_en_vocabulario  cobertura_vocabulario_pct  precision_baseline_orden_cero  mejora_precision_vs_orden_cero_pp  log_verosimilitud_media  log_verosimilitud_baseline_orden_cero
+No supervisado Cadenas de Markov PATRONES_QUIMICOS markov_orden_1 Cadenas de Markov 04_Dataset_Patrones_Quimicos.csv         cpu holdout 75/25 por batch (17/6 batches; 463/164 muestras)   121084           121084           1                14937.0000   319.0000                      0.2806                     14757.0000                    98.7949                         0.0006                            27.9976                  -3.2093                                -3.2551
+
+## Cómo leer las métricas
+- n_transiciones_evaluadas: Todas las transiciones del conjunto de prueba; los estados desconocidos cuentan como fallos top-1.
+- n_estados: Cantidad de clases químicas distintas en el vocabulario de Markov.
+- precision_siguiente_estado: Exactitud top-1 para predecir la clase siguiente.
+- n_transiciones_en_vocabulario: Transiciones de prueba con estados conocidos por el entrenamiento.
+- cobertura_vocabulario_pct: Porcentaje de transiciones de prueba cubiertas por el vocabulario entrenado.
+- precision_baseline_orden_cero: Exactitud de predecir siempre el estado siguiente más frecuente en entrenamiento.
+- mejora_precision_vs_orden_cero_pp: Diferencia de exactitud frente al baseline, en puntos porcentuales.
+- log_verosimilitud_media: Log-probabilidad media del siguiente estado; más cerca de cero es mejor.
+- log_verosimilitud_baseline_orden_cero: Log-probabilidad media del baseline de frecuencia.
+
+## Límites de interpretación
+Interpretación: el holdout separa batches completos; estados nuevos se cuentan como fallos.
+Compare la exactitud y log-probabilidad con el baseline de orden cero; el azar uniforme no basta.

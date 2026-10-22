@@ -1,0 +1,30 @@
+============================================================================
+RESULTADOS: Cadenas de Markov
+============================================================================
+Modelos registrados: 1 | completados: 1 (0 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+    estado         modelo          objetivo                             archivo_fuente     n_filas  n_features                                                   validacion  n_secuencias  n_muestras_unicas  n_modos_ionizacion  n_batches  n_transiciones_evaluadas  n_estados  precision_siguiente_estado  n_transiciones_en_vocabulario  cobertura_vocabulario_pct  precision_baseline_orden_cero  mejora_precision_vs_orden_cero_pp  log_verosimilitud_media  log_verosimilitud_baseline_orden_cero alertas_interpretacion                                        directorio_resultados
+COMPLETADO markov_orden_1 PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv 333773.0000      1.0000 No aplica: aprendizaje no supervisado; no requiere column...     1079.0000           704.0000              4.0000    29.0000               180363.0000   608.0000                      0.2421                    164796.0000                    91.3691                         0.0013                            24.0748                  -4.4860                                -5.1695                        03_Resultados\Models\02_No supervisado\Cadenas de Markov\...
+
+## Cómo leer las métricas
+- n_secuencias: Número de corridas instrumentales independientes modeladas.
+- n_muestras_unicas: Número de muestras biológicas representadas en las corridas.
+- n_modos_ionizacion: Cantidad de modos instrumentales; cada modo permanece en una secuencia separada.
+- n_batches: Cantidad de lotes disponibles para validación agrupada.
+- n_transiciones_evaluadas: Todas las transiciones del conjunto de prueba; los estados desconocidos cuentan como fallos top-1.
+- n_estados: Cantidad de clases químicas distintas en el vocabulario de Markov.
+- precision_siguiente_estado: Exactitud top-1 para predecir la clase siguiente.
+- n_transiciones_en_vocabulario: Transiciones de prueba con estados conocidos por el entrenamiento.
+- cobertura_vocabulario_pct: Porcentaje de transiciones de prueba cubiertas por el vocabulario entrenado; cobertura baja limita la transferencia.
+- precision_baseline_orden_cero: Exactitud de predecir siempre el estado siguiente más frecuente en entrenamiento.
+- mejora_precision_vs_orden_cero_pp: Diferencia de exactitud frente al baseline, en puntos porcentuales.
+- log_verosimilitud_media: Log-probabilidad media del siguiente estado; más cerca de cero es mejor.
+- log_verosimilitud_baseline_orden_cero: Log-probabilidad media del baseline de frecuencia.
+
+## Límites de interpretación
+Interpretación: cada modo de ionización se modela como secuencia independiente; el holdout separa batches completos cuando hay suficientes lotes.
+Cobertura de vocabulario baja significa que muchas clases de las pruebas no aparecieron al entrenar.
+Compare la exactitud y log-probabilidad con el baseline de orden cero; el azar uniforme no basta.

@@ -1,0 +1,194 @@
+============================================================================
+REPORTE GLOBAL DE RESULTADOS
+============================================================================
+Generado: 2026-10-15 12:36
+Entrenamientos: 49
+Paradigmas: No supervisado
+
+Los resultados se separan por tarea: métricas de tareas distintas no son comparables.
+Las métricas son descriptivas y no sustituyen una evaluación independiente.
+Cada resultado registra el CSV fuente; los entrenamientos antiguos que no guardaban
+esa información aparecen como 'No registrado'.
+resultados.csv conserva las métricas crudas; cada archivo comparacion_<tarea>.txt
+contiene solo las columnas aplicables, una guía de lectura y limitaciones.
+
+Informes por tarea:
+- comparacion_cadenas_de_markov.txt
+- comparacion_clustering.txt
+- comparacion_deteccion_de_anomalias.txt
+- comparacion_reduccion_de_dimensionalidad.txt
+- comparacion_reglas_de_asociacion.txt
+
+============================================================================
+RESULTADOS: Cadenas de Markov
+============================================================================
+Entrenamientos: 1
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma             tarea          objetivo         modelo           dataset                   archivo_fuente dispositivo                                               validacion  n_filas  n_filas_dataset  n_features  n_transiciones_evaluadas  n_estados  precision_siguiente_estado  n_transiciones_en_vocabulario  cobertura_vocabulario_pct  precision_baseline_orden_cero  mejora_precision_vs_orden_cero_pp  log_verosimilitud_media  log_verosimilitud_baseline_orden_cero
+No supervisado Cadenas de Markov PATRONES_QUIMICOS markov_orden_1 Cadenas de Markov 04_Dataset_Patrones_Quimicos.csv         cpu holdout 75/25 por batch (17/6 batches; 463/164 muestras)   121084           121084           1                14937.0000   319.0000                      0.2806                     14757.0000                    98.7949                         0.0006                            27.9976                  -3.2093                                -3.2551
+
+## Cómo leer las métricas
+- n_transiciones_evaluadas: Todas las transiciones del conjunto de prueba; los estados desconocidos cuentan como fallos top-1.
+- n_estados: Cantidad de clases químicas distintas en el vocabulario de Markov.
+- precision_siguiente_estado: Exactitud top-1 para predecir la clase siguiente.
+- n_transiciones_en_vocabulario: Transiciones de prueba con estados conocidos por el entrenamiento.
+- cobertura_vocabulario_pct: Porcentaje de transiciones de prueba cubiertas por el vocabulario entrenado.
+- precision_baseline_orden_cero: Exactitud de predecir siempre el estado siguiente más frecuente en entrenamiento.
+- mejora_precision_vs_orden_cero_pp: Diferencia de exactitud frente al baseline, en puntos porcentuales.
+- log_verosimilitud_media: Log-probabilidad media del siguiente estado; más cerca de cero es mejor.
+- log_verosimilitud_baseline_orden_cero: Log-probabilidad media del baseline de frecuencia.
+
+## Límites de interpretación
+Interpretación: el holdout separa batches completos; estados nuevos se cuentan como fallos.
+Compare la exactitud y log-probabilidad con el baseline de orden cero; el azar uniforme no basta.
+
+
+============================================================================
+RESULTADOS: Clustering
+============================================================================
+Entrenamientos: 15
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma      tarea              objetivo           modelo                                                  dataset                       archivo_fuente dispositivo                                                                       validacion  n_filas  n_filas_dataset  n_features  n_clusters  silhouette  davies_bouldin  ruido_pct  tamano_cluster_min  tamano_cluster_max  estabilidad_ari_media  estabilidad_ari_desviacion  estabilidad_ari_repeticiones  batch_nmi  batch_ari  especie_nmi  especie_ari  batch_holdout_batches  batch_holdout_fuera_soporte_pct  batch_holdout_distancia_mediana  batch_n_especies_mediana  batch_una_especie_pct  especie_un_batch_pct  cobertura_clasificacion_media_pct  cobertura_clasificacion_mediana_pct  muestras_cobertura_menor_10_pct  muestras_cobertura_menor_30_pct  muestras_cobertura_menor_50_pct
+No supervisado Clustering         CALIDAD_BATCH    agglomerative                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                         k=4 seleccionado por silhouette en ajuste; no es holdout       44               44           7      4.0000      0.5724          0.5053     0.0000              1.0000             36.0000                 0.5773                      0.3134                       20.0000     0.2885     0.0000          NaN          NaN                44.0000                          25.0000                           1.2240                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering       CALIDAD_MUESTRA    agglomerative                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                         k=3 seleccionado por silhouette en ajuste; no es holdout      974              974           5      3.0000      0.6647          0.6547     0.0000              6.0000            915.0000                 0.6387                      0.2921                       20.0000     0.1382     0.0119          NaN          NaN                39.0000                          35.5236                           0.6412                       NaN                    NaN                   NaN                            34.5320                               6.2500                         495.0000                         563.0000                         598.0000
+No supervisado Clustering METABOLITOS_SIN_CLASE    agglomerative Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu k=3 seleccionado por silhouette en ajuste; no es holdout; ajuste sobre submue...     5000            22272          21      3.0000      0.9693          0.0207     0.0000              1.0000           4998.0000                 0.7004                      0.4576                       20.0000        NaN        NaN          NaN          NaN                    NaN                              NaN                              NaN                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering     PATRONES_QUIMICOS    agglomerative           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                        k=15 seleccionado por silhouette en ajuste; no es holdout      866              866         337     15.0000      0.5329          1.2284     0.0000             24.0000             96.0000                 0.9353                      0.0385                       20.0000     0.8562     0.6886       0.7938       0.5436                37.0000                          70.6696                           0.7169                    1.0000                86.1111               87.8049                            38.8385                              16.6667                         387.0000                         455.0000                         490.0000
+No supervisado Clustering       CALIDAD_MUESTRA           dbscan                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                               DBSCAN eps=0.074318, min_samples=5      974              974           5     53.0000      0.9700          0.0741     1.5400              5.0000            108.0000                 0.9772                      0.0061                       20.0000     0.9440     0.8465          NaN          NaN                39.0000                          80.0821                           0.3156                       NaN                    NaN                   NaN                            34.5320                               6.2500                         495.0000                         563.0000                         598.0000
+No supervisado Clustering METABOLITOS_SIN_CLASE           dbscan Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu DBSCAN eps=1.7772, min_samples=15; ajuste sobre submuestra determinista de 50...     5000            22272          21      5.0000      0.4757          0.9221     3.0600             33.0000           3015.0000                 0.9956                      0.0013                       20.0000        NaN        NaN          NaN          NaN                    NaN                              NaN                              NaN                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering     PATRONES_QUIMICOS           dbscan           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                                DBSCAN eps=0.39474, min_samples=5      866              866         337     44.0000      0.7514          0.4844     2.3100              5.0000             86.0000                 0.9733                      0.0128                       20.0000     0.9621     0.9231       0.9000       0.6732                37.0000                          96.8817                           0.7394                    1.0000                86.1111               87.8049                            38.8385                              16.6667                         387.0000                         455.0000                         490.0000
+No supervisado Clustering         CALIDAD_BATCH gaussian_mixture                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                         k=9 seleccionado por silhouette en ajuste; no es holdout       44               44           7      9.0000      0.5593          0.3174     0.0000              1.0000             15.0000                 0.7655                      0.1486                       20.0000     0.6167     0.0000          NaN          NaN                44.0000                          38.6364                           0.6994                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering       CALIDAD_MUESTRA gaussian_mixture                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                         k=7 seleccionado por silhouette en ajuste; no es holdout      974              974           5      7.0000      0.5153          0.6737     0.0000              6.0000            329.0000                 0.8742                      0.0828                       20.0000     0.6268     0.2579          NaN          NaN                39.0000                          47.8439                           0.9365                       NaN                    NaN                   NaN                            34.5320                               6.2500                         495.0000                         563.0000                         598.0000
+No supervisado Clustering METABOLITOS_SIN_CLASE gaussian_mixture Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu                        k=10 seleccionado por silhouette en ajuste; no es holdout    22272            22272          21     10.0000      0.4408          1.5525     0.0000              1.0000          13282.0000                 0.8701                      0.1480                       20.0000        NaN        NaN          NaN          NaN                    NaN                              NaN                              NaN                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering     PATRONES_QUIMICOS gaussian_mixture           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                        k=13 seleccionado por silhouette en ajuste; no es holdout      866              866         337     13.0000      0.5022          1.2373     0.0000             27.0000            132.0000                 0.7994                      0.0522                       20.0000     0.8151     0.5872       0.7553       0.4539                37.0000                          77.1360                           0.8986                    1.0000                86.1111               87.8049                            38.8385                              16.6667                         387.0000                         455.0000                         490.0000
+No supervisado Clustering         CALIDAD_BATCH           kmeans                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                         k=7 seleccionado por silhouette en ajuste; no es holdout       44               44           7      7.0000      0.5672          0.4302     0.0000              1.0000             16.0000                 0.9743                      0.0409                       20.0000     0.5845     0.0000          NaN          NaN                44.0000                          29.5455                           0.7036                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering       CALIDAD_MUESTRA           kmeans                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                        k=15 seleccionado por silhouette en ajuste; no es holdout      974              974           5     15.0000      0.6450          0.4817     0.0000              3.0000            320.0000                 0.9558                      0.0207                       20.0000     0.7384     0.3402          NaN          NaN                39.0000                          45.4825                           0.7088                       NaN                    NaN                   NaN                            34.5320                               6.2500                         495.0000                         563.0000                         598.0000
+No supervisado Clustering METABOLITOS_SIN_CLASE           kmeans Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu                        k=14 seleccionado por silhouette en ajuste; no es holdout    22272            22272          21     14.0000      0.4794          0.4272     0.0000              1.0000          12798.0000                 0.8804                      0.1111                       20.0000        NaN        NaN          NaN          NaN                    NaN                              NaN                              NaN                       NaN                    NaN                   NaN                                NaN                                  NaN                              NaN                              NaN                              NaN
+No supervisado Clustering     PATRONES_QUIMICOS           kmeans           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                        k=15 seleccionado por silhouette en ajuste; no es holdout      866              866         337     15.0000      0.5305          1.0898     0.0000             24.0000            107.0000                 0.8992                      0.0443                       20.0000     0.8527     0.6715       0.7810       0.5050                37.0000                          72.7479                           0.7215                    1.0000                86.1111               87.8049                            38.8385                              16.6667                         387.0000                         455.0000                         490.0000
+
+## Cómo leer las métricas
+- n_clusters: Número de grupos encontrados; no mide calidad por sí solo.
+- silhouette: Separación/compactación interna; comparable solo con la misma X y tratamiento de ruido.
+- davies_bouldin: Dispersión relativa entre grupos (más bajo suele ser mejor).
+- ruido_pct: Porcentaje sin grupo asignado por el algoritmo.
+- tamano_cluster_min: Tamaño del grupo más pequeño, sin contar ruido.
+- tamano_cluster_max: Tamaño del grupo más grande, sin contar ruido.
+- estabilidad_ari_media: ARI medio frente a submuestras del 80%; descriptivo, no holdout.
+- estabilidad_ari_desviacion: Desviación del ARI entre submuestras; más bajo implica menos variación.
+- estabilidad_ari_repeticiones: Cantidad de submuestras usadas para estimar estabilidad.
+- batch_nmi: Asociación entre cluster y batch; alto alerta posible efecto de lote, no causalidad.
+- batch_ari: Concordancia ajustada entre cluster y batch; alto alerta posible efecto de lote.
+- especie_nmi: Asociación entre cluster y especie; no demuestra relación causal.
+- especie_ari: Concordancia ajustada entre cluster y especie.
+- batch_holdout_batches: Batches evaluados como grupos no vistos durante el ajuste.
+- batch_holdout_fuera_soporte_pct: Muestras de batch externo más allá del soporte de los grupos entrenados.
+- batch_holdout_distancia_mediana: Distancia mediana al centroide asignado en batches no usados durante el ajuste.
+- batch_n_especies_mediana: Mediana de especies representadas por batch.
+- batch_una_especie_pct: Porcentaje de batches que contienen una sola especie; alto indica confusión batch-especie posible.
+- especie_un_batch_pct: Porcentaje de especies observadas en un solo batch; alto limita la separación de ambos efectos.
+- cobertura_clasificacion_media_pct: Media de registros clasificados por muestra; considerar junto a la mediana.
+- cobertura_clasificacion_mediana_pct: Mediana de cobertura de clasificación química.
+- muestras_cobertura_menor_10_pct: Muestras con menos de 10% de registros clasificados.
+- muestras_cobertura_menor_30_pct: Muestras con menos de 30% de registros clasificados.
+- muestras_cobertura_menor_50_pct: Muestras con menos de 50% de registros clasificados.
+
+## Límites de interpretación
+Interpretación: silhouette y estabilidad son diagnósticos internos, no validación biológica.
+Una asociación alta con batch puede reflejar condiciones experimentales; revise
+validacion_lote_externo.csv, cruce_lote_grupo.csv, composicion_batch_especie.csv
+y sensibilidad_cobertura.csv.
+La transferencia externa usa predict nativo donde existe; Agglomerative y DBSCAN
+usan asignación por centroides solo como diagnóstico, no como inferencia nativa.
+Los ceros del perfil significan no detectado/no clasificado, no ausencia química confirmada.
+
+
+============================================================================
+RESULTADOS: Detección de anomalías
+============================================================================
+Entrenamientos: 16
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma                  tarea              objetivo               modelo                                                  dataset                       archivo_fuente dispositivo                                                            validacion  n_filas  n_filas_dataset  n_features  anomalias_n  anomalias_pct  separacion_puntaje  silhouette_anomalias
+No supervisado Detección de anomalías         CALIDAD_BATCH    elliptic_envelope                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7       5.0000        11.3600              1.9522                0.5264
+No supervisado Detección de anomalías       CALIDAD_MUESTRA    elliptic_envelope                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5      89.0000         9.1400              2.5766                0.5675
+No supervisado Detección de anomalías METABOLITOS_SIN_CLASE    elliptic_envelope Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu                                             sin validacion (no hay Y)    22272            22272          21    2228.0000        10.0000              0.4314                0.3687
+No supervisado Detección de anomalías     PATRONES_QUIMICOS    elliptic_envelope           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337      87.0000        10.0500              1.5391                0.0158
+No supervisado Detección de anomalías         CALIDAD_BATCH     isolation_forest                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7       6.0000        13.6400              2.5289                0.5431
+No supervisado Detección de anomalías       CALIDAD_MUESTRA     isolation_forest                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5     143.0000        14.6800              2.3260                0.5543
+No supervisado Detección de anomalías METABOLITOS_SIN_CLASE     isolation_forest Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu                                             sin validacion (no hay Y)    22272            22272          21    2251.0000        10.1100              2.4598                0.4289
+No supervisado Detección de anomalías     PATRONES_QUIMICOS     isolation_forest           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337      24.0000         2.7700              4.3342                0.0422
+No supervisado Detección de anomalías         CALIDAD_BATCH local_outlier_factor                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7       8.0000        18.1800              2.2437                0.5136
+No supervisado Detección de anomalías       CALIDAD_MUESTRA local_outlier_factor                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5     169.0000        17.3500              1.6244                0.2466
+No supervisado Detección de anomalías METABOLITOS_SIN_CLASE local_outlier_factor Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu ajuste sobre submuestra determinista de 5000 de 22272 filas; no hay Y     5000            22272          21     333.0000         6.6600              1.4485                0.5228
+No supervisado Detección de anomalías     PATRONES_QUIMICOS local_outlier_factor           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337     111.0000        12.8200              1.8547                0.0153
+No supervisado Detección de anomalías         CALIDAD_BATCH        one_class_svm                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7      22.0000        50.0000              1.2775                0.1330
+No supervisado Detección de anomalías       CALIDAD_MUESTRA        one_class_svm                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5     463.0000        47.5400              1.2265                0.2289
+No supervisado Detección de anomalías METABOLITOS_SIN_CLASE        one_class_svm Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu ajuste sobre submuestra determinista de 5000 de 22272 filas; no hay Y     5000            22272          21    1945.0000        38.9000              1.3408                0.2059
+No supervisado Detección de anomalías     PATRONES_QUIMICOS        one_class_svm           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337     427.0000        49.3100              1.2820                0.0368
+
+## Cómo leer las métricas
+- anomalias_n: Número de muestras marcadas como anomalías; requiere revisión.
+- anomalias_pct: Porcentaje marcado como anomalía; depende del modelo y sus parámetros.
+- separacion_puntaje: Separación interna de puntajes; no confirma anomalías reales.
+- silhouette_anomalias: Separación geométrica de normal/anomalía; cerca de cero indica solapamiento.
+
+## Límites de interpretación
+Interpretación: anomalías son candidatos a revisar, no observaciones erróneas confirmadas.
+Consulte diagnostico.csv para muestra, puntaje y características atípicas.
+
+
+============================================================================
+RESULTADOS: Reducción de dimensionalidad
+============================================================================
+Entrenamientos: 16
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma                        tarea              objetivo     modelo                                                  dataset                       archivo_fuente dispositivo                                                            validacion  n_filas  n_filas_dataset  n_features  trustworthiness  varianza_explicada_acumulada
+No supervisado Reducción de dimensionalidad         CALIDAD_BATCH     isomap                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7           0.9938                           NaN
+No supervisado Reducción de dimensionalidad       CALIDAD_MUESTRA     isomap                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5           0.9853                           NaN
+No supervisado Reducción de dimensionalidad METABOLITOS_SIN_CLASE     isomap Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu ajuste sobre submuestra determinista de 5000 de 22272 filas; no hay Y     5000            22272          21           0.9840                           NaN
+No supervisado Reducción de dimensionalidad     PATRONES_QUIMICOS     isomap           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337           0.9952                           NaN
+No supervisado Reducción de dimensionalidad         CALIDAD_BATCH kernel_pca                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7           0.9989                           NaN
+No supervisado Reducción de dimensionalidad       CALIDAD_MUESTRA kernel_pca                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5           0.9859                           NaN
+No supervisado Reducción de dimensionalidad METABOLITOS_SIN_CLASE kernel_pca Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu ajuste sobre submuestra determinista de 5000 de 22272 filas; no hay Y     5000            22272          21           0.9750                           NaN
+No supervisado Reducción de dimensionalidad     PATRONES_QUIMICOS kernel_pca           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337           0.9972                           NaN
+No supervisado Reducción de dimensionalidad         CALIDAD_BATCH        pca                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7           0.9981                        1.0000
+No supervisado Reducción de dimensionalidad       CALIDAD_MUESTRA        pca                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5           0.9858                        1.0000
+No supervisado Reducción de dimensionalidad METABOLITOS_SIN_CLASE        pca Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu                                             sin validacion (no hay Y)    22272            22272          21           0.9843                        0.6720
+No supervisado Reducción de dimensionalidad     PATRONES_QUIMICOS        pca           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337           0.9972                        0.8014
+No supervisado Reducción de dimensionalidad         CALIDAD_BATCH       tsne                            Calidad de perfiles por batch     04_Informe_Calidad_Por_Batch.csv         cpu                                             sin validacion (no hay Y)       44               44           7           0.9218                           NaN
+No supervisado Reducción de dimensionalidad       CALIDAD_MUESTRA       tsne                              Calidad química por muestra   04_Informe_Calidad_Por_Muestra.csv         cpu                                             sin validacion (no hay Y)      974              974           5           0.9858                           NaN
+No supervisado Reducción de dimensionalidad METABOLITOS_SIN_CLASE       tsne Metabolitos sin clase química (descriptores moleculares) 04_Metabolitos_Sin_Clase_Quimica.csv         cpu ajuste sobre submuestra determinista de 5000 de 22272 filas; no hay Y     5000            22272          21           0.9835                           NaN
+No supervisado Reducción de dimensionalidad     PATRONES_QUIMICOS       tsne           Perfil químico (abundancia absoluta por clase)     04_Dataset_Patrones_Quimicos.csv         cpu                                             sin validacion (no hay Y)      866              866         337           0.9990                           NaN
+
+## Cómo leer las métricas
+- trustworthiness: Conservación de vecindarios locales (cercano a 1 es mejor; no mide calidad de clusters).
+- varianza_explicada_acumulada: Fracción de varianza retenida por las componentes guardadas.
+
+## Límites de interpretación
+Interpretación: trustworthiness evalúa vecindarios, no separabilidad ni calidad predictiva.
+n_filas indica cuántas muestras ajustó el modelo; n_filas_dataset es el total disponible.
+Los algoritmos cuadráticos usan una submuestra determinista cuando el dataset supera el tope.
+
+
+============================================================================
+RESULTADOS: Reglas de asociación
+============================================================================
+Entrenamientos: 1
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma                tarea          objetivo  modelo                  dataset                   archivo_fuente dispositivo                validacion  n_filas  n_filas_dataset  n_features  n_reglas  n_reglas_diagnostico  min_soporte  min_confianza  lift_medio
+No supervisado Reglas de asociación PATRONES_QUIMICOS apriori Perfil quimico (binario) 04_Dataset_Patrones_Quimicos.csv         cpu sin validacion (no hay Y)      866              866         337 6697.0000              200.0000       0.1500         0.7000      1.8705
+
+## Cómo leer las métricas
+- n_reglas: Total de reglas que cumplen los umbrales configurados.
+- n_reglas_diagnostico: Reglas incluidas en el CSV legible (máximo 200).
+- min_soporte: Fracción mínima de muestras donde aparece el conjunto de la regla.
+- min_confianza: Umbral mínimo de confianza condicional de la regla.
+- lift_medio: Lift medio; >1 indica asociación sobre independencia, no causalidad.
+
+## Límites de interpretación
+Interpretación: las reglas son asociaciones descriptivas, no relaciones causales.
+diagnostico.csv muestra como máximo 200 reglas ordenadas por lift, confianza y soporte.
+

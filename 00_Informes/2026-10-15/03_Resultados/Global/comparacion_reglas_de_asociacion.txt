@@ -1,0 +1,19 @@
+============================================================================
+RESULTADOS: Reglas de asociación
+============================================================================
+Entrenamientos: 1
+
+## Resultados (solo se incluyen métricas aplicables y presentes)
+     paradigma                tarea          objetivo  modelo                  dataset                   archivo_fuente dispositivo                validacion  n_filas  n_filas_dataset  n_features  n_reglas  n_reglas_diagnostico  min_soporte  min_confianza  lift_medio
+No supervisado Reglas de asociación PATRONES_QUIMICOS apriori Perfil quimico (binario) 04_Dataset_Patrones_Quimicos.csv         cpu sin validacion (no hay Y)      866              866         337 6697.0000              200.0000       0.1500         0.7000      1.8705
+
+## Cómo leer las métricas
+- n_reglas: Total de reglas que cumplen los umbrales configurados.
+- n_reglas_diagnostico: Reglas incluidas en el CSV legible (máximo 200).
+- min_soporte: Fracción mínima de muestras donde aparece el conjunto de la regla.
+- min_confianza: Umbral mínimo de confianza condicional de la regla.
+- lift_medio: Lift medio; >1 indica asociación sobre independencia, no causalidad.
+
+## Límites de interpretación
+Interpretación: las reglas son asociaciones descriptivas, no relaciones causales.
+diagnostico.csv muestra como máximo 200 reglas ordenadas por lift, confianza y soporte.

@@ -1,0 +1,188 @@
+============================================================================
+REPORTE GLOBAL DE RESULTADOS
+============================================================================
+Generado: 2026-10-16 18:07
+Modelos registrados: 14
+Completados: 13 (12 con alertas) | Fallidos: 1
+Paradigmas: No supervisado
+
+Los resultados se separan por tarea: métricas de tareas distintas no son comparables.
+Las métricas son descriptivas y no sustituyen una evaluación independiente.
+La ausencia de Y en tareas no supervisadas es esperada; no significa que falte un dato.
+Los modelos fallidos se incluyen con explicación y recomendación; revise error.json
+y error.log en su carpeta específica.
+Cada resultado registra el CSV fuente; los entrenamientos antiguos que no guardaban
+esa información aparecen como 'No registrado'.
+resultados.csv conserva las métricas crudas; cada archivo comparacion_<tarea>.txt
+contiene solo las columnas aplicables, una guía de lectura y limitaciones.
+
+Informes por tarea:
+- comparacion_cadenas_de_markov.txt
+- comparacion_clustering.txt
+- comparacion_deteccion_de_anomalias.txt
+- comparacion_reduccion_de_dimensionalidad.txt
+- comparacion_reglas_de_asociacion.txt
+
+============================================================================
+RESULTADOS: Cadenas de Markov
+============================================================================
+Modelos registrados: 1 | completados: 1 (0 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+    estado         modelo          objetivo                             archivo_fuente     n_filas  n_features                                                   validacion  n_secuencias  n_muestras_unicas  n_modos_ionizacion  n_batches  n_transiciones_evaluadas  n_estados  precision_siguiente_estado  n_transiciones_en_vocabulario  cobertura_vocabulario_pct  precision_baseline_orden_cero  mejora_precision_vs_orden_cero_pp  log_verosimilitud_media  log_verosimilitud_baseline_orden_cero alertas_interpretacion                                        directorio_resultados
+COMPLETADO markov_orden_1 PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv 333773.0000      1.0000 No aplica: aprendizaje no supervisado; no requiere column...     1079.0000           704.0000              4.0000    29.0000               180363.0000   608.0000                      0.2421                    164796.0000                    91.3691                         0.0013                            24.0748                  -4.4860                                -5.1695                        03_Resultados\Models\02_No supervisado\Cadenas de Markov\...
+
+## Cómo leer las métricas
+- n_secuencias: Número de corridas instrumentales independientes modeladas.
+- n_muestras_unicas: Número de muestras biológicas representadas en las corridas.
+- n_modos_ionizacion: Cantidad de modos instrumentales; cada modo permanece en una secuencia separada.
+- n_batches: Cantidad de lotes disponibles para validación agrupada.
+- n_transiciones_evaluadas: Todas las transiciones del conjunto de prueba; los estados desconocidos cuentan como fallos top-1.
+- n_estados: Cantidad de clases químicas distintas en el vocabulario de Markov.
+- precision_siguiente_estado: Exactitud top-1 para predecir la clase siguiente.
+- n_transiciones_en_vocabulario: Transiciones de prueba con estados conocidos por el entrenamiento.
+- cobertura_vocabulario_pct: Porcentaje de transiciones de prueba cubiertas por el vocabulario entrenado; cobertura baja limita la transferencia.
+- precision_baseline_orden_cero: Exactitud de predecir siempre el estado siguiente más frecuente en entrenamiento.
+- mejora_precision_vs_orden_cero_pp: Diferencia de exactitud frente al baseline, en puntos porcentuales.
+- log_verosimilitud_media: Log-probabilidad media del siguiente estado; más cerca de cero es mejor.
+- log_verosimilitud_baseline_orden_cero: Log-probabilidad media del baseline de frecuencia.
+
+## Límites de interpretación
+Interpretación: cada modo de ionización se modela como secuencia independiente; el holdout separa batches completos cuando hay suficientes lotes.
+Cobertura de vocabulario baja significa que muchas clases de las pruebas no aparecieron al entrenar.
+Compare la exactitud y log-probabilidad con el baseline de orden cero; el azar uniforme no basta.
+
+
+============================================================================
+RESULTADOS: Clustering
+============================================================================
+Modelos registrados: 4 | completados: 3 (3 con alertas) | fallidos: 1
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado           modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion  n_clusters  silhouette  davies_bouldin  ruido_pct  tamano_cluster_min  tamano_cluster_max  estabilidad_ari_media  k_mejor_silhouette  k_candidatos_evaluados  cluster_minimo_requerido  cluster_minimo_observado                                         k_seleccion_criterio  estabilidad_ari_desviacion  estabilidad_ari_repeticiones  cobertura_clasificacion_media_pct  cobertura_clasificacion_mediana_pct  especies_cobertura_menor_10_pct  especies_cobertura_menor_30_pct  especies_cobertura_menor_50_pct                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS    agglomerative PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      6.0000      0.1744          1.7363     0.0000              3.0000             12.0000                 0.8226              7.0000                  6.0000                    3.0000                    3.0000 menor k dentro de un error estandar aproximado del mejor ...                      0.1176                       20.0000                            44.6544                              53.5354                          20.0000                          24.0000                          24.0000 Separación interna débil (silhouette < 0.25); los grupos ... 03_Resultados\Models\02_No supervisado\Clustering\PATRONE...
+COMPLETADO_CON_ALERTAS gaussian_mixture PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      2.0000      0.1140          2.3721     0.0000             11.0000             42.0000                 0.1722              8.0000                  5.0000                    3.0000                   11.0000 menor k dentro de un error estandar aproximado del mejor ...                      0.1999                       20.0000                            44.6544                              53.5354                          20.0000                          24.0000                          24.0000 Separación interna débil (silhouette < 0.25); los grupos ... 03_Resultados\Models\02_No supervisado\Clustering\PATRONE...
+COMPLETADO_CON_ALERTAS           kmeans PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      5.0000      0.1566          1.8339     0.0000              5.0000             14.0000                 0.6981              6.0000                  5.0000                    3.0000                    5.0000 menor k dentro de un error estandar aproximado del mejor ...                      0.1152                       20.0000                            44.6544                              53.5354                          20.0000                          24.0000                          24.0000 Separación interna débil (silhouette < 0.25); los grupos ... 03_Resultados\Models\02_No supervisado\Clustering\PATRONE...
+
+## Modelos fallidos: diagnóstico y siguiente paso
+ estado modelo tipo_error                                                                                      error                                                                              recomendacion                                                      directorio_resultados
+FALLIDO dbscan ValueError DBSCAN no produjo un agrupamiento evaluable. Se probaron 12 configuraciones (min_sample... DBSCAN no encontró estructura de densidad evaluable con las configuraciones probadas. C... 03_Resultados\Models\02_No supervisado\Clustering\PATRONES_QUIMICOS\dbscan
+Abra error.json para el resumen estructurado y error.log para el traceback.
+
+## Cómo leer las métricas
+- n_clusters: Número de grupos encontrados; no mide calidad por sí solo.
+- silhouette: Separación/compactación interna; comparable solo con la misma X y tratamiento de ruido.
+- davies_bouldin: Dispersión relativa entre grupos (más bajo suele ser mejor).
+- ruido_pct: Porcentaje sin grupo asignado por el algoritmo.
+- tamano_cluster_min: Tamaño del grupo más pequeño, sin contar ruido.
+- tamano_cluster_max: Tamaño del grupo más grande, sin contar ruido.
+- estabilidad_ari_media: ARI medio frente a submuestras del 80%; descriptivo, no holdout.
+- k_mejor_silhouette: k con silhouette máximo entre las soluciones que respetan el tamaño mínimo de grupo.
+- k_candidatos_evaluados: Cantidad de valores k elegibles tras aplicar el tamaño mínimo de grupo.
+- cluster_minimo_requerido: Mínimo de plantas exigido en cada grupo candidato.
+- cluster_minimo_observado: Tamaño del grupo más pequeño de la solución seleccionada.
+- k_seleccion_criterio: Regla aplicada para elegir k entre las particiones evaluables.
+- estabilidad_ari_desviacion: Desviación del ARI entre submuestras; más bajo implica menos variación.
+- estabilidad_ari_repeticiones: Cantidad de submuestras usadas para estimar estabilidad.
+- cobertura_clasificacion_media_pct: Media de registros clasificados por unidad de análisis; considerar junto a la mediana.
+- cobertura_clasificacion_mediana_pct: Mediana de cobertura de clasificación química.
+- especies_cobertura_menor_10_pct: Especies con menos de 10% de registros clasificados.
+- especies_cobertura_menor_30_pct: Especies con menos de 30% de registros clasificados.
+- especies_cobertura_menor_50_pct: Especies con menos de 50% de registros clasificados.
+
+## Límites de interpretación
+Interpretación: silhouette y estabilidad son diagnósticos internos, no validación biológica.
+k se elige entre soluciones con tamaño mínimo por grupo mediante un error estándar aproximado;
+el número de grupos sigue siendo exploratorio y debe contrastarse con conocimiento botánico.
+DBSCAN puede fallar sin que los datos estén dañados: indica que no encontró densidad
+con soporte suficiente en las configuraciones examinadas; revise error.json para
+el detalle del intento y la recomendación.
+Una asociación alta con batch puede reflejar condiciones experimentales; revise
+validacion_lote_externo.csv, cruce_lote_grupo.csv, composicion_batch_especie.csv
+y sensibilidad_cobertura.csv.
+La transferencia externa usa predict nativo donde existe; Agglomerative y DBSCAN
+usan asignación por centroides solo como diagnóstico, no como inferencia nativa.
+Los ceros del perfil significan no detectado/no clasificado, no ausencia química confirmada.
+
+
+============================================================================
+RESULTADOS: Detección de anomalías
+============================================================================
+Modelos registrados: 4 | completados: 4 (4 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado               modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion  anomalias_n  anomalias_pct  separacion_puntaje  silhouette_anomalias                                       diagnostico_covarianza                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS    elliptic_envelope PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...       6.0000        11.3200              2.4953                0.0309 Estimación de covarianza potencialmente singular: 812 fea... Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+COMPLETADO_CON_ALERTAS     isolation_forest PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...       5.0000         9.4300              3.3095                0.0967                                                          NaN Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+COMPLETADO_CON_ALERTAS local_outlier_factor PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...       0.0000         0.0000                 NaN                   NaN                                                          NaN Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+COMPLETADO_CON_ALERTAS        one_class_svm PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      26.0000        49.0600              1.2765                0.0601                                                          NaN Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+
+## Cómo leer las métricas
+- anomalias_n: Número de muestras marcadas como anomalías; requiere revisión.
+- anomalias_pct: Porcentaje marcado como anomalía; depende del modelo y sus parámetros.
+- separacion_puntaje: Separación interna de puntajes; no confirma anomalías reales.
+- silhouette_anomalias: Separación geométrica de normal/anomalía; cerca de cero indica solapamiento.
+- diagnostico_covarianza: Aviso de posible matriz de covarianza singular para EllipticEnvelope; sus resultados no deben interpretarse sin cautela.
+
+## Límites de interpretación
+Interpretación: anomalías son candidatos a revisar, no observaciones erróneas confirmadas.
+Consulte diagnostico.csv para muestra, puntaje y características atípicas.
+
+
+============================================================================
+RESULTADOS: Reducción de dimensionalidad
+============================================================================
+Modelos registrados: 4 | completados: 4 (4 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado     modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion  trustworthiness  varianza_explicada_acumulada                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS     isomap PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9852                           NaN La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+COMPLETADO_CON_ALERTAS kernel_pca PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9696                           NaN La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+COMPLETADO_CON_ALERTAS        pca PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9696                        0.7248 La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+COMPLETADO_CON_ALERTAS       tsne PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9281                           NaN La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+
+## Cómo leer las métricas
+- trustworthiness: Conservación de vecindarios locales (cercano a 1 es mejor; no mide calidad de clusters).
+- varianza_explicada_acumulada: Fracción de varianza retenida por las componentes guardadas.
+
+## Límites de interpretación
+Interpretación: trustworthiness evalúa vecindarios, no separabilidad ni calidad predictiva.
+n_filas indica cuántas muestras ajustó el modelo; n_filas_dataset es el total disponible.
+Los algoritmos cuadráticos usan una submuestra determinista cuando el dataset supera el tope.
+
+
+============================================================================
+RESULTADOS: Reglas de asociación
+============================================================================
+Modelos registrados: 1 | completados: 1 (1 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado  modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion   n_reglas  n_reglas_diagnostico  min_soporte  min_confianza  prevalencia_minima_muestras  muestras_clasificadas_media  muestras_clasificadas_mediana  muestras_clasificadas_minima  lift_medio                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS apriori PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column... 32214.0000              200.0000       0.1500         0.7000                       0.5000                      19.0943                        12.0000                        3.0000      2.0937 Las reglas son asociaciones descriptivas; no demuestran c... 03_Resultados\Models\02_No supervisado\Reglas de asociaci...
+
+## Cómo leer las métricas
+- n_reglas: Total de reglas que cumplen los umbrales configurados.
+- n_reglas_diagnostico: Reglas incluidas en el CSV legible (máximo 200).
+- min_soporte: Fracción mínima de perfiles de especie donde aparece el conjunto de la regla.
+- min_confianza: Umbral mínimo de confianza condicional de la regla.
+- prevalencia_minima_muestras: Fracción mínima de muestras biológicas clasificadas en que debe aparecer una clase para contarla presente en una especie.
+- muestras_clasificadas_media: Media de muestras biológicas clasificadas que sustentan cada perfil vegetal para Apriori.
+- muestras_clasificadas_mediana: Mediana de muestras biológicas clasificadas que sustentan cada perfil vegetal para Apriori.
+- muestras_clasificadas_minima: Menor número de muestras biológicas clasificadas usado en un perfil vegetal para Apriori.
+- lift_medio: Lift medio; >1 indica asociación sobre independencia, no causalidad.
+
+## Límites de interpretación
+Interpretación: las reglas son asociaciones descriptivas, no relaciones causales.
+La presencia requiere prevalencia mínima entre muestras biológicas clasificadas; varios modos de una misma muestra no se cuentan como réplicas.
+diagnostico.csv muestra el top 200; reglas_completas.csv permite revisar todas las reglas que superaron los umbrales.
+

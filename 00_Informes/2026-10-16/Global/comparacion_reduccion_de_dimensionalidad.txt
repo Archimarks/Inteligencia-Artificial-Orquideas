@@ -1,0 +1,22 @@
+============================================================================
+RESULTADOS: Reducción de dimensionalidad
+============================================================================
+Modelos registrados: 4 | completados: 4 (4 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado     modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion  trustworthiness  varianza_explicada_acumulada                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS     isomap PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9852                           NaN La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+COMPLETADO_CON_ALERTAS kernel_pca PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9696                           NaN La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+COMPLETADO_CON_ALERTAS        pca PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9696                        0.7248 La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+COMPLETADO_CON_ALERTAS       tsne PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...           0.9281                           NaN La proyección conserva vecindarios, pero no valida grupos... 03_Resultados\Models\02_No supervisado\Reduccion de dimen...
+
+## Cómo leer las métricas
+- trustworthiness: Conservación de vecindarios locales (cercano a 1 es mejor; no mide calidad de clusters).
+- varianza_explicada_acumulada: Fracción de varianza retenida por las componentes guardadas.
+
+## Límites de interpretación
+Interpretación: trustworthiness evalúa vecindarios, no separabilidad ni calidad predictiva.
+n_filas indica cuántas muestras ajustó el modelo; n_filas_dataset es el total disponible.
+Los algoritmos cuadráticos usan una submuestra determinista cuando el dataset supera el tope.

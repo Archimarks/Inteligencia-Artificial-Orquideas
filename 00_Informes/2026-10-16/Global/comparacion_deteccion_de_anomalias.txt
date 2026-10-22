@@ -1,0 +1,24 @@
+============================================================================
+RESULTADOS: Detección de anomalías
+============================================================================
+Modelos registrados: 4 | completados: 4 (4 con alertas) | fallidos: 0
+
+La ausencia de Y en aprendizaje no supervisado es esperada; no constituye un error.
+
+## Modelos completados
+                estado               modelo          objetivo                             archivo_fuente  n_filas  n_features                                                   validacion  anomalias_n  anomalias_pct  separacion_puntaje  silhouette_anomalias                                       diagnostico_covarianza                                       alertas_interpretacion                                        directorio_resultados
+COMPLETADO_CON_ALERTAS    elliptic_envelope PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...       6.0000        11.3200              2.4953                0.0309 Estimación de covarianza potencialmente singular: 812 fea... Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+COMPLETADO_CON_ALERTAS     isolation_forest PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...       5.0000         9.4300              3.3095                0.0967                                                          NaN Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+COMPLETADO_CON_ALERTAS local_outlier_factor PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...       0.0000         0.0000                 NaN                   NaN                                                          NaN Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+COMPLETADO_CON_ALERTAS        one_class_svm PATRONES_QUIMICOS 04_Dataset_Patrones_Quimicos_Unificado.csv  53.0000    812.0000 No aplica: aprendizaje no supervisado; no requiere column...      26.0000        49.0600              1.2765                0.0601                                                          NaN Las anomalías son candidatas a revisión, no errores confi... 03_Resultados\Models\02_No supervisado\Deteccion de anoma...
+
+## Cómo leer las métricas
+- anomalias_n: Número de muestras marcadas como anomalías; requiere revisión.
+- anomalias_pct: Porcentaje marcado como anomalía; depende del modelo y sus parámetros.
+- separacion_puntaje: Separación interna de puntajes; no confirma anomalías reales.
+- silhouette_anomalias: Separación geométrica de normal/anomalía; cerca de cero indica solapamiento.
+- diagnostico_covarianza: Aviso de posible matriz de covarianza singular para EllipticEnvelope; sus resultados no deben interpretarse sin cautela.
+
+## Límites de interpretación
+Interpretación: anomalías son candidatos a revisar, no observaciones erróneas confirmadas.
+Consulte diagnostico.csv para muestra, puntaje y características atípicas.
