@@ -23,7 +23,7 @@ modelos:
     n_estimators: 200
 - nombre: lightgbm
 evaluation:
-  n_permutations: 5
+  n_permutations: 20
 interpretacion: 'La formula restringe la clase (p. ej. N para alcaloides, O/C alto para glicosidos), pero muchos
   isomeros pertenecen a clases distintas: hay un techo de rendimiento irreducible sin estructura.'
 seleccion_variables:

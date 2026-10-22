@@ -7,6 +7,7 @@ Uso (desde la carpeta 02_Script):
     python main.py ejecutar M12 [M13 ...]    # ejecuta uno o varios experimentos
     python main.py ejecutar-todos            # ejecuta todos (M01..M18)
     python main.py resumen                   # tabla ejecutiva con la ultima ejecucion de cada experimento
+    python main.py reinformar                # regenera los informes de todas las ejecuciones sin reentrenar
     python main.py predecir RUN_ID datos.csv # aplica un modelo guardado a un CSV con las mismas variables
 """
 from __future__ import annotations
@@ -75,6 +76,24 @@ def cmd_resumen(_: argparse.Namespace) -> None:
     print(resumen_ejecutivo(df))
 
 
+def cmd_reinformar(_: argparse.Namespace) -> None:
+    """Regenera informe.md de todas las ejecuciones a partir de sus resultados guardados (sin reentrenar)."""
+    from pathlib import Path as P
+
+    from orquideas.config.esquema import cargar_config
+    from orquideas.pipeline.interpretacion import escribir_informe
+    from orquideas.utils.es import guardar_json, leer_json
+    from orquideas.utils.rutas import ruta
+    for d in sorted(ruta("salidas", "ejecuciones").glob("*/resultado.json")):
+        r, man = leer_json(d), leer_json(d.parent / "manifiesto.json")
+        cfg = cargar_config(P(man["archivo_config"]))
+        cfg["_huella"] = man["huella_config"]
+        salida = {k: P(v) for k, v in man["salidas"].items()}
+        escribir_informe(cfg, r, man, salida)
+        guardar_json(r, d)
+        print(d.parent.name, r.get("veredicto"))
+
+
 def cmd_predecir(a: argparse.Namespace) -> None:
     import joblib
     import pandas as pd
@@ -115,6 +134,7 @@ def main() -> None:
     s.set_defaults(f=cmd_ejecutar)
     s = sub.add_parser("ejecutar-todos"); s.add_argument("--etiqueta"); s.set_defaults(f=cmd_ejecutar_todos)
     s = sub.add_parser("resumen"); s.set_defaults(f=cmd_resumen)
+    s = sub.add_parser("reinformar"); s.set_defaults(f=cmd_reinformar)
     s = sub.add_parser("predecir"); s.add_argument("run_id"); s.add_argument("csv"); s.add_argument("--salida")
     s.set_defaults(f=cmd_predecir)
     a = ap.parse_args()

@@ -23,7 +23,7 @@ modelos:
     n_estimators: 200
 - nombre: lightgbm
 evaluation:
-  n_permutations: 5
+  n_permutations: 20
 interpretacion: Problema mas dificil que M08 por el numero de clases y los isomeros; comparar con top3_accuracy.
 seleccion_variables:
   metodo: ninguna

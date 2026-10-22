@@ -26,18 +26,23 @@ def veredicto(r: dict[str, Any]) -> tuple[str, str]:
     if v is None or b is None:
         return "sin evaluar", ""
     gan = v - b
-    p = (r.get("permutacion") or {}).get("p_valor")
+    perm = r.get("permutacion") or {}
+    p = perm.get("p_valor")
+    p_min = 1 / (1 + perm["n"]) if perm.get("n") else None
     ctrl = r.get("valor_control_instrumental")
     opt = r.get("valor_optimista_sin_agrupar")
     partes = [f"{r['metrica_principal']} = {v:.3f} frente a {b:.3f} del baseline (ganancia {gan:+.3f})"]
     if p is not None:
-        partes.append(f"p de permutacion = {p:.3f}")
+        partes.append(f"p de permutacion = {p:.3f}" + (f" (minimo alcanzable con {perm['n']} permutaciones; ninguna "
+                                                       "permutacion igualo al valor observado)" if p <= p_min + 1e-12 else ""))
     if ctrl is not None:
         partes.append(f"control solo-plataforma = {ctrl:.3f}")
     if opt is not None:
         partes.append(f"evaluacion sin agrupar = {opt:.3f}")
     texto = "; ".join(partes) + "."
-    significativo = p is None or p < 0.05
+    # con n permutaciones el menor p posible es 1/(n+1): si ninguna permutacion alcanza el valor observado se
+    # considera significativo aunque n sea pequeno (se informa el p minimo alcanzable)
+    significativo = p is None or p < 0.05 or (p_min is not None and p <= p_min + 1e-12)
     if gan < UMBRAL_GANANCIA or not significativo:
         etiqueta = "sin senal"
     elif ctrl is not None and ctrl >= v - UMBRAL_CONTROL:

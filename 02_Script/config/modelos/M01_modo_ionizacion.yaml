@@ -25,7 +25,7 @@ modelos:
     min_samples_leaf: 5
 - nombre: lightgbm
 evaluation:
-  n_permutations: 10
+  n_permutations: 20
 interpretacion: 'Los acidos (carboxilos, fenoles, fosfatos) tienden a ionizar en negativo y las bases nitrogenadas
   en positivo. Un rendimiento moderado es esperable: muchos compuestos ionizan en ambos modos y la eleccion depende
   del metodo.'
