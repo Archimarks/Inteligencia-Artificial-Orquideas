@@ -1,0 +1,35 @@
+id: M14_tipo_cultivo
+nombre: Tipo de cultivo a partir del perfil quimico
+tarea: supervisado
+prioridad: normal
+pregunta_cientifica: ¿El perfil quimico distingue el tipo de cultivo (silvestre, campo, invernadero, in vitro...)
+  en articulos no vistos?
+descripcion: Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos
+  de metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por articulo
+  (StratifiedGroupKFold, 5 particiones); solo clases presentes en >= 2 articulos. Pesos 1/n por articulo. Se compara
+  con baselines, con un control que usa solo variables de plataforma (columna, modos, n de senales/identificados),
+  con una validacion no agrupada (optimista) y con una prueba de permutacion.
+conjunto:
+  nombre: perfil_muestra
+  parametros:
+    objetivo: ID_TIPO_CULTIVO
+    nivel: clase
+    transformacion: clr
+    min_metabolitos: 20
+    min_articulos_categoria: 5
+    max_categorias: 60
+split:
+  n_splits: 5
+  min_groups_per_class: 2
+  min_samples_per_class: 10
+modelos:
+- nombre: baseline_mayoritaria
+- nombre: baseline_estratificada
+- nombre: logistica
+- nombre: random_forest
+- nombre: lightgbm
+evaluation:
+  n_permutations: 30
+interpretacion: El tipo de cultivo suele ser constante dentro de un estudio; la senal puede deberse al estudio.
+seleccion_variables:
+  metodo: ninguna

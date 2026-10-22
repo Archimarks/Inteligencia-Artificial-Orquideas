@@ -1,0 +1,21 @@
+# Rutas del proyecto. Las rutas relativas se resuelven contra `raiz_proyecto`.
+# `raiz_proyecto: auto` toma la carpeta padre de 02_Script (funciona en Windows y Linux).
+# Para fijarla manualmente en Windows: raiz_proyecto: "D:/Inteligencia Artificial Orquideas"
+raiz_proyecto: auto
+
+datos:
+  base: 01_Datos/Base
+  dataset: 01_Datos/Base/Dataset.csv
+  catalogos: 01_Datos/Base
+
+salidas:
+  modelos: 03_Modelos_Entrenados
+  resultados: 04_Resultados
+  auditoria: 04_Resultados/auditoria_datos
+  ejecuciones: 04_Resultados/ejecuciones
+  cache: 04_Resultados/cache
+  resumen: 04_Resultados/informes
+  documentacion: 05_Documentacion
+
+configuracion:
+  modelos: 02_Script/config/modelos
