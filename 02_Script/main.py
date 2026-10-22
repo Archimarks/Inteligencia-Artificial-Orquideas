@@ -1,6 +1,9 @@
 """Punto de entrada del sistema de IA para patrones quimicos en orquideas y plantas medicinales.
 
-Uso (desde la carpeta 02_Script):
+Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) abre la interfaz: maquina -> datos -> modelos ->
+opciones -> entrenamiento -> resultados.
+
+Uso por comandos (desde la carpeta 02_Script):
     python main.py auditoria                 # auditoria completa de 01_Datos/Base
     python main.py listar                    # experimentos configurados
     python main.py hardware                  # CPU y GPU detectadas y GPU que se usaran
@@ -27,7 +30,7 @@ DEPENDENCIAS = {
     "yaml": "PyYAML", "pandas": "pandas", "numpy": "numpy", "pyarrow": "pyarrow", "sklearn": "scikit-learn",
     "lightgbm": "lightgbm", "joblib": "joblib", "xgboost": "xgboost", "catboost": "catboost", "scipy": "scipy",
     "statsmodels": "statsmodels", "mlxtend": "mlxtend", "networkx": "networkx", "umap": "umap-learn",
-    "matplotlib": "matplotlib", "seaborn": "seaborn",
+    "matplotlib": "matplotlib", "seaborn": "seaborn", "rich": "rich",
 }
 
 
@@ -198,39 +201,6 @@ def construir_parser() -> argparse.ArgumentParser:
     return ap
 
 
-def menu() -> list[str] | None:
-    """Menu interactivo cuando main.py se ejecuta sin argumentos (p. ej. con el boton Ejecutar de VS Code)."""
-    opciones = [
-        ("Auditoria de datos", ["auditoria"]),
-        ("Ver hardware (CPU y GPU detectadas)", ["hardware"]),
-        ("Listar experimentos", ["listar"]),
-        ("Validar configuraciones", ["validar"]),
-        ("Entrenar UN experimento", None),
-        ("Entrenar TODOS los experimentos", ["ejecutar-todos"]),
-        ("Resumen ejecutivo", ["resumen"]),
-        ("Regenerar informes (sin reentrenar)", ["reinformar"]),
-    ]
-    print("\n=== IA para patrones quimicos en orquideas ===")
-    for i, (texto, _) in enumerate(opciones, 1):
-        print(f"  {i}. {texto}")
-    print("  0. Salir")
-    r = input("Opcion: ").strip()
-    if r in ("", "0"):
-        return None
-    if not r.isdigit() or not 1 <= int(r) <= len(opciones):
-        print("Opcion no valida.")
-        return []
-    texto, args = opciones[int(r) - 1]
-    if args is not None:
-        return args
-    cfgs = listar_configs()
-    for i, p in enumerate(cfgs, 1):
-        print(f"  {i:>2}. {p.stem}")
-    r = input("Numero o ID del experimento (varios separados por espacio): ").split()
-    ids = [cfgs[int(x) - 1].stem if x.isdigit() and 1 <= int(x) <= len(cfgs) else x for x in r]
-    return ["ejecutar", *ids] if ids else []
-
-
 def ejecutar_comando(argv: list[str]) -> int:
     a = construir_parser().parse_args(argv)
     try:
@@ -250,12 +220,8 @@ def main(argv: list[str] | None = None) -> int:
     if not (sys.stdin is not None and sys.stdin.isatty()):
         construir_parser().print_help()
         return 0
-    while True:
-        args = menu()
-        if args is None:
-            return 0
-        if args:
-            ejecutar_comando(args)
+    from orquideas.interfaz.consola import ejecutar as interfaz
+    return interfaz()
 
 
 if __name__ == "__main__":

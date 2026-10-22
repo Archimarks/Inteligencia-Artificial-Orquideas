@@ -17,8 +17,10 @@ Uso por modelo:
 from __future__ import annotations
 
 import os
+import platform
 import shutil
 import subprocess
+import time
 from functools import lru_cache
 from typing import Any
 
@@ -65,8 +67,19 @@ def detectar_gpus() -> list[dict[str, Any]]:
     return gpus
 
 
+_GPUS_SESION: list[int] | None = None
+
+
+def establecer_gpus_sesion(indices: list[int] | None) -> None:
+    """Fija las GPU de esta sesion (la interfaz lo usa tras elegir la maquina); None vuelve a config_global.yaml."""
+    global _GPUS_SESION
+    _GPUS_SESION = None if indices is None else list(indices)
+
+
 def seleccionar_gpus(hardware: dict[str, Any] | None = None, detectadas: list[dict[str, Any]] | None = None) -> list[int]:
-    """Indices de GPU que se usaran para entrenar, segun config_global.yaml (hardware)."""
+    """Indices de GPU que se usaran para entrenar: la eleccion de la sesion (interfaz) o config_global.yaml."""
+    if hardware is None and detectadas is None and _GPUS_SESION is not None:
+        return list(_GPUS_SESION)
     hw = hardware if hardware is not None else config_global().get("hardware", {})
     detectadas = detectar_gpus() if detectadas is None else detectadas
     modo = str(hw.get("usar_gpu", "auto")).lower()
@@ -84,3 +97,93 @@ def seleccionar_gpus(hardware: dict[str, Any] | None = None, detectadas: list[di
 
 def resumen_hardware() -> dict[str, Any]:
     return {"cpu_nucleos": os.cpu_count(), "gpus": detectar_gpus(), "gpus_usadas": seleccionar_gpus()}
+
+
+
+def nombre_cpu() -> str:
+    if platform.system() == "Windows":
+        try:
+            import winreg
+            k = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"HARDWARE\DESCRIPTION\System\CentralProcessor\0")
+            return str(winreg.QueryValueEx(k, "ProcessorNameString")[0]).strip()
+        except OSError:
+            pass
+    try:
+        with open("/proc/cpuinfo", encoding="utf-8") as fh:
+            for linea in fh:
+                if linea.lower().startswith("model name"):
+                    return linea.split(":", 1)[1].strip()
+    except OSError:
+        pass
+    if platform.system() == "Darwin":
+        try:
+            return subprocess.run(["sysctl", "-n", "machdep.cpu.brand_string"], capture_output=True, text=True,
+                                  timeout=5).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+    return platform.processor() or platform.machine() or "desconocido"
+
+
+def memoria_ram_gb() -> tuple[float | None, float | None]:
+    """(total, disponible) en GB, sin dependencias externas."""
+    try:
+        if platform.system() == "Windows":
+            import ctypes
+
+            class _Estado(ctypes.Structure):
+                _fields_ = [("dwLength", ctypes.c_ulong), ("dwMemoryLoad", ctypes.c_ulong),
+                            ("ullTotalPhys", ctypes.c_ulonglong), ("ullAvailPhys", ctypes.c_ulonglong),
+                            ("ullTotalPageFile", ctypes.c_ulonglong), ("ullAvailPageFile", ctypes.c_ulonglong),
+                            ("ullTotalVirtual", ctypes.c_ulonglong), ("ullAvailVirtual", ctypes.c_ulonglong),
+                            ("ullAvailExtendedVirtual", ctypes.c_ulonglong)]
+            e = _Estado()
+            e.dwLength = ctypes.sizeof(_Estado)
+            ctypes.windll.kernel32.GlobalMemoryStatusEx(ctypes.byref(e))
+            return round(e.ullTotalPhys / 2**30, 1), round(e.ullAvailPhys / 2**30, 1)
+        info = {}
+        with open("/proc/meminfo", encoding="utf-8") as fh:
+            for linea in fh:
+                k, v = linea.split(":", 1)
+                info[k] = int(v.split()[0])
+        return round(info["MemTotal"] / 2**20, 1), round(info.get("MemAvailable", 0) / 2**20, 1)
+    except Exception:  # noqa: BLE001
+        return None, None
+
+
+def probar_gpu(indice: int) -> tuple[bool, str]:
+    """Entrena un XGBoost diminuto en la GPU `indice` para comprobar que CUDA funciona de verdad."""
+    import importlib.util
+    if importlib.util.find_spec("xgboost") is None:
+        return False, "xgboost no instalado"
+    try:
+        import warnings
+
+        import numpy as np
+        from xgboost import XGBClassifier
+        rng = np.random.default_rng(0)
+        X = rng.normal(size=(2000, 10))
+        y = (X[:, 0] > 0).astype(int)
+        t = time.time()
+        # XGBoost no falla si no puede usar la GPU: avisa y sigue en CPU. Se registran los avisos y se comprueba
+        # el dispositivo que realmente uso.
+        with warnings.catch_warnings(record=True) as avisos:
+            warnings.simplefilter("always")
+            m = XGBClassifier(n_estimators=20, device=f"cuda:{indice}", tree_method="hist").fit(X, y)
+        textos = " ".join(str(a.message) for a in avisos)
+        import json
+        dispositivo = json.loads(m.get_booster().save_config())["learner"]["generic_param"].get("device", "")
+        for clave in ("not compiled with CUDA", "No visible GPU", "setting device to CPU", "Falling back"):
+            if clave.lower() in textos.lower():
+                return False, f"XGBoost no pudo usar la GPU ({clave})"
+        if not str(dispositivo).startswith("cuda"):
+            return False, f"XGBoost entreno en '{dispositivo}', no en la GPU"
+        return True, f"XGBoost en {dispositivo} OK ({time.time() - t:.1f} s)"
+    except Exception as e:  # noqa: BLE001
+        return False, f"{type(e).__name__}: {str(e).splitlines()[0][:90]}"
+
+
+def descripcion_equipo() -> dict[str, Any]:
+    total, libre = memoria_ram_gb()
+    return {"cpu": nombre_cpu(), "nucleos_logicos": os.cpu_count(), "ram_total_gb": total, "ram_libre_gb": libre,
+            "sistema": f"{platform.system()} {platform.release()}", "python": platform.python_version(),
+            "gpus": detectar_gpus()}

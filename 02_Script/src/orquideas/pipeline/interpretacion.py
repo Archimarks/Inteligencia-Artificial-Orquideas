@@ -58,6 +58,8 @@ def veredicto(r: dict[str, Any]) -> tuple[str, str]:
     if opt is not None:
         partes.append(f"evaluacion sin agrupar = {opt:.3f}")
     texto = "; ".join(partes) + "."
+    if p is None:
+        texto += " Sin prueba de permutacion (modo rapido): la significancia no se evaluo."
     if opt is not None and opt - v > UMBRAL_FUGA:
         texto += (f" Sin agrupar por {r.get('columna_grupo', 'grupo')} la metrica sube {opt - v:+.3f}: "
                   "la evaluacion ingenua sobrestimaria el rendimiento.")

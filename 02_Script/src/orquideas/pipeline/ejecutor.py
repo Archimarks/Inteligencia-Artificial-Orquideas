@@ -15,7 +15,8 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from ..config.esquema import ErrorConfiguracion, buscar_config, cargar_config, verificar_fuga
+from ..config.esquema import (ErrorConfiguracion, _fusionar, buscar_config, cargar_config, huella_config, validar,
+                              verificar_fuga)
 from ..utils.es import guardar_json, guardar_yaml, leer_json
 from ..utils.huella import huellas_datos
 from ..utils.registro import cerrar_archivos, obtener_logger
@@ -65,9 +66,16 @@ def preparar_salidas(cfg: dict[str, Any], run_id: str) -> dict[str, Path]:
     return dirs
 
 
-def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None) -> dict[str, Any]:
+def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
+                         ajustes: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Ejecuta un experimento. `ajustes` sobreescribe claves de la configuracion solo para esta ejecucion
+    (p. ej. {"evaluation": {"n_permutations": 0}}); quedan registrados en config_resuelta.yaml y en la huella."""
     p = Path(identificador) if str(identificador).endswith(".yaml") else buscar_config(str(identificador))
     cfg = cargar_config(p)
+    if ajustes:
+        cfg = _fusionar(cfg, ajustes)
+        validar(cfg, p)
+        cfg["_huella"] = huella_config(cfg)
     inicio = datetime.now()
     run_id = f"{inicio:%Y%m%d-%H%M%S}_{cfg['id']}_{cfg['_huella'][:8]}" + (f"_{etiqueta}" if etiqueta else "")
     salida = preparar_salidas(cfg, run_id)

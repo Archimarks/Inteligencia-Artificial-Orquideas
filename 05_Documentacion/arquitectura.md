@@ -21,7 +21,7 @@
 Inteligencia Artificial Orquideas/
 ├── 01_Datos/Base/                 # entrada (solo lectura): 22 catalogos + Dataset.csv
 ├── 02_Script/
-│   ├── main.py                    # CLI y menu (sin argumentos); comprueba dependencias al arrancar
+│   ├── main.py                    # interfaz (sin argumentos) o comandos; comprueba dependencias al arrancar
 │   ├── requirements.txt           # lista unica de dependencias (la raiz incluye esta)
 │   ├── config/
 │   │   ├── rutas.yaml             # rutas relativas a la raiz (raiz_proyecto: auto)
@@ -37,6 +37,7 @@ Inteligencia Artificial Orquideas/
 │   │   ├── tasks/                 # supervisado (M01-M17b) y patrones (M18)
 │   │   ├── config/                # esquema y validacion de YAML, deteccion de fuga
 │   │   ├── pipeline/              # ejecutor (run id, manifiesto) e interpretacion (informes, resumen)
+│   │   ├── interfaz/              # interfaz de consola (rich): maquina -> datos -> modelos -> opciones -> entrenamiento
 │   │   └── visualization/         # graficas con titulo, ejes, leyenda y nota interpretativa
 │   └── tests/                     # pytest: unitarias, flujo sintetico de extremo a extremo e integridad de datos
 ├── 03_Resultados/

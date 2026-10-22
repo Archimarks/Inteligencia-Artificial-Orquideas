@@ -13,7 +13,7 @@ instalado (XGBoost 2.1.4 admite GPU desde compute capability 6.0, p. ej. GTX 10x
 cd "D:\Inteligencia Artificial Orquideas\02_Script"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
-python main.py               # abre el menu
+python main.py               # abre la interfaz
 ```
 Si usa el boton "Ejecutar" de VS Code, instale las librerias con ese mismo interprete, por ejemplo
 `& C:/Users/<usuario>/AppData/Local/Python/pythoncore-3.14-64/python.exe -m pip install -r requirements.txt`.
@@ -38,10 +38,31 @@ python3 main.py
 Las rutas se resuelven solas a partir de la carpeta padre de `02_Script` (`raiz_proyecto: auto` en
 `config/rutas.yaml`). Para fijarlas a mano: `raiz_proyecto: "D:/Inteligencia Artificial Orquideas"`.
 
-## 2. Uso
+## 2. Interfaz (recomendada)
 
-Ejecutar desde `02_Script`. Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) se abre un menu;
-tambien se puede usar cada comando directamente:
+`python main.py` sin argumentos (o el boton Ejecutar de VS Code) abre la interfaz de consola:
+
+1. **Entrenar modelos.** Es un asistente paso a paso:
+   1. *Maquina:* muestra CPU, RAM, sistema y todas las GPU NVIDIA, y prueba cada una con un entrenamiento corto en
+      CUDA (OK/FALLO). Despues se elige con que entrenar: todas las GPU que pasaron la prueba (recomendado),
+      algunas, o solo CPU.
+   2. *Datos:* comprueba que los 24 CSV de `01_Datos/Base` existan y no sean punteros de Git LFS.
+   3. *Modelos:* tabla de los 19 experimentos por categoria, con su ultimo resultado. Se eligen por numero
+      (`1,3`), rango (`2-7`), categoria (`A B`), ID (`M05`) o `todos`.
+   4. *Opciones:*
+      - modo **completo** (con permutaciones y validacion sin agrupar) o **rapido** (para probar el flujo);
+      - algoritmos a entrenar; los baselines siempre se entrenan.
+   5. *Resumen y confirmacion;* luego el entrenamiento, con el progreso y el tiempo restante estimado, una linea
+      de resultado por modelo y la tabla final. Al terminar se actualizan el resumen ejecutivo y la guia de modelos.
+      Ctrl+C detiene la cola y conserva los modelos terminados.
+2. **Ver resultados:** ultima ejecucion de cada modelo con su veredicto; puede abrir la carpeta de un modelo.
+3. **Auditoria de datos.**
+4. **Revisar el equipo.**
+5. **Validar configuraciones.**
+
+## 2.1 Comandos
+
+Los mismos procesos sin interfaz (por ejemplo, para scripts), desde `02_Script`:
 
 | Comando | Que hace |
 |---|---|

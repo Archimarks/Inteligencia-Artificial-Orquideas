@@ -21,8 +21,8 @@
 #
 # Cambios respecto a la versión anterior:
 #   - Se eliminan torch, shap, PySide6 y psutil: el sistema no los usa (no hay
-#     redes neuronales ni interfaz gráfica; las GPU se detectan con nvidia-smi,
-#     que viene con el controlador NVIDIA, sin necesidad de torch).
+#     redes neuronales; la interfaz es de consola con rich; las GPU se detectan
+#     con nvidia-smi, que viene con el controlador NVIDIA, sin necesidad de torch).
 #   - Se mantienen xgboost y catboost para entrenar en GPU: el sistema detecta
 #     todas las GPU NVIDIA y, si hay varias (p. ej. dos), las usa todas
 #     (ver sección 03 y `python main.py hardware`).
@@ -104,7 +104,14 @@ seaborn==0.13.2
 
 
 # -----------------------------------------------------------------------------
-# 06. CONFIGURACIÓN Y PRUEBAS
+# 06. INTERFAZ
+# -----------------------------------------------------------------------------
+# rich: interfaz de consola (tablas, colores y progreso) de `python main.py`.
+rich==14.1.0
+
+
+# -----------------------------------------------------------------------------
+# 07. CONFIGURACIÓN Y PRUEBAS
 # -----------------------------------------------------------------------------
 # PyYAML: lectura de config/*.yaml.
 # pytest: suite de pruebas (02_Script/tests).
