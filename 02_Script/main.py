@@ -1,4 +1,4 @@
-"""Punto de entrada del sistema de IA para patrones quimicos en orquideas y plantas medicinales.
+"""Punto de entrada del sistema de IA para patrones quimicos plantas medicinales.
 
 Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) abre la interfaz: maquina -> datos -> modelos ->
 opciones -> entrenamiento -> resultados.
