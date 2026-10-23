@@ -2,7 +2,7 @@ import copy
 
 import pytest
 
-from orquideas.config.esquema import ErrorConfiguracion, cargar_config, listar_configs, validar, verificar_fuga
+from src.config.esquema import ErrorConfiguracion, cargar_config, listar_configs, validar, verificar_fuga
 
 
 def test_todas_las_configs_validas():
@@ -47,14 +47,14 @@ def test_deteccion_fuga():
 
 
 def test_carpetas_por_modelo():
-    from orquideas.utils.rutas import carpeta_modelo, ruta_global, ruta_modelo
+    from src.utils.rutas import carpeta_modelo, ruta_global, ruta_modelo
     assert carpeta_modelo("M01_modo_ionizacion") == "M01_Modo_Ionizacion"
     assert ruta_modelo("M01_modo_ionizacion", "metricas").parts[-3:] == ("Models", "M01_Modo_Ionizacion", "metricas")
     assert ruta_global().parts[-2:] == ("03_Resultados", "Global")
 
 
 def test_puntero_lfs_detectado(tmp_path):
-    from orquideas.data.catalogos import ErrorDatos, verificar_archivo_datos
+    from src.data.catalogos import ErrorDatos, verificar_archivo_datos
     p = tmp_path / "Dataset.csv"
     p.write_text("version https://git-lfs.github.com/spec/v1\noid sha256:abc\nsize 123\n")
     with pytest.raises(ErrorDatos, match="LFS"):

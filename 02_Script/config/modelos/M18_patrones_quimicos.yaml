@@ -40,3 +40,26 @@ interpretacion: >
   correccion por comparaciones multiples y (3) no se explica mejor por columna/plataforma (comparar R2 de articulo y
   columna con el de orden/familia). Las coocurrencias pueden deberse a bibliotecas compartidas (p. ej. MRM de
   Metware). La firma de orquideas es descriptiva: solo hay dos estudios de Orchidaceae.
+
+# Archivos y columnas usados para entrenar. Cada ejecucion los informa en consola, en ejecucion.log, en
+# datos_entrenamiento.md y en el informe (`python main.py datos M18` los muestra sin ejecutar).
+#   archivos: archivo -> ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta). Debajo de cada
+#             archivo se indican las columnas que se leen de el y para que se usan.
+datos_entrenamiento:
+  archivos:
+    dataset: Dataset.csv
+      # variables de entrada: ID_SUPERCLASE_QUIMICA, ID_CLASE_QUIMICA, ID_METABOLITO
+      # factores de contraste: ID_CLASE_TAXONOMICA, ID_ORDEN, ID_FAMILIA, ID_PARTE_ESTUDIADA, ID_TIPO_MUESTRA,
+      #   ID_ARTICULO, ID_COLUMNA_CROMATOGRAFICA, ID_METODO_EXTRACCION, ID_TIPO_CULTIVO, ID_ESPECIE
+      # filtros y agregacion: ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION,
+      #   ID_TIPO_MUESTRA, ID_PARTE_ESTUDIADA
+    registro_actividades: 05_Pivotes/Registo_Actividades_biologicas.csv
+      # variables de entrada: ID_METABOLITO
+      # factores de contraste: ID_ACTIVIDAD_BIOLOGICA
+      # filtros y agregacion: ID_MUESTRA
+    metabolitos: 03_Catalogo_Metabolito/05_Metabolitos.csv
+      # variables de entrada: ID_METABOLITO, ID_CLASE_QUIMICA
+    clases_quim: 03_Catalogo_Metabolito/03_Clases_quimicas.csv
+      # variables de entrada: ID_CLASE_QUIMICA, ID_SUPERCLASE_QUIMICA
+    familias: 02_Catalogo_Especie/05_Familias.csv
+      # filtros y agregacion: ID_FAMILIA, FAMILIA

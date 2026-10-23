@@ -30,3 +30,26 @@ interpretacion: 'La formula restringe la clase (p. ej. N para alcaloides, O/C al
   isomeros pertenecen a clases distintas: hay un techo de rendimiento irreducible sin estructura.'
 seleccion_variables:
   metodo: ninguna
+
+# Archivos y columnas usados para entrenar. Cada ejecucion los informa en consola, en ejecucion.log, en
+# datos_entrenamiento.md y en el informe (`python main.py datos M08` los muestra sin entrenar; con --variables lista tambien las variables finales).
+#   archivos: archivo -> ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta). Debajo de cada
+#             archivo se indican las columnas que se leen de el y para que se usan.
+#   variables: seleccion de las variables de entrada (X). Vacio = todas. Admite comodines (* ?) y nombres
+#              de columna de origen: excluir [FORMULA_MOLECULAR] quita todos los descriptores de formula.
+datos_entrenamiento:
+  archivos:
+    dataset: Dataset.csv
+      # filtros y agregacion: ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION
+    registro_actividades: 05_Pivotes/Registo_Actividades_biologicas.csv
+      # filtros y agregacion: ID_MUESTRA
+    metabolitos: 03_Catalogo_Metabolito/05_Metabolitos.csv
+      # variables de entrada: FORMULA_MOLECULAR
+      # grupos de validacion: FORMULA_MOLECULAR
+      # filtros y agregacion: ID_METABOLITO, ID_CLASE_QUIMICA
+    clases_quim: 03_Catalogo_Metabolito/03_Clases_quimicas.csv
+      # objetivo: ID_SUPERCLASE_QUIMICA
+      # filtros y agregacion: ID_CLASE_QUIMICA
+  variables:
+    incluir: []
+    excluir: []

@@ -70,6 +70,7 @@ Los mismos procesos sin interfaz (por ejemplo, para scripts), desde `02_Script`:
 | `python main.py hardware` | Muestra los nucleos CPU, todas las GPU NVIDIA detectadas y las que se usaran |
 | `python main.py listar` | Lista los experimentos configurados |
 | `python main.py validar [ID ...]` | Valida los YAML sin ejecutar (codigo de salida 1 si hay errores) |
+| `python main.py datos [ID ...] [--variables]` | Archivos y columnas que usa cada experimento para entrenar; con `--variables` construye el conjunto y lista las variables finales de entrada |
 | `python main.py ejecutar M05 [M13 ...] [--etiqueta X]` | Ejecuta experimentos (acepta `M05` o `M05_familia`) |
 | `python main.py ejecutar-todos` | Ejecuta todos y genera el resumen (unas 2-3 h con 4 nucleos, sobre todo por las permutaciones) |
 | `python main.py resumen` | Escribe `03_Resultados/Global/resumen_ejecutivo.md`, la grafica comparativa global y `05_Documentacion/guia_modelos.md` |
@@ -95,7 +96,8 @@ La primera lectura de Dataset.csv (~550 MB) tarda alrededor de 1 minuto y crea u
     │   ├── auditoria_datos/<run_id>/   datos del modelo: unidades, grupos, clases evaluables y descartadas,
     │   │                               descripcion de variables, unidades por grupo (auditoria_datos.md)
     │   ├── ejecuciones/<run_id>/       config_resuelta.yaml, manifiesto.json (huellas, versiones, CPU/GPU, commit),
-    │   │                               resultado.json, informe.md, ejecucion.log
+    │   │                               resultado.json, informe.md, ejecucion.log,
+    │   │                               datos_entrenamiento.md/.json (archivos, columnas y variables usadas)
     │   ├── metricas/<run_id>/          metricas por modelo y particion (con la GPU usada), por clase, importancias,
     │   │                               permutaciones
     │   ├── graficas/<run_id>/          graficas con titulo, ejes, leyenda y nota interpretativa
@@ -167,7 +169,29 @@ evaluation:
   n_permutations: 30
 variables_prohibidas: []        # prefijos adicionales a excluir de X
 interpretacion: "..."
+datos_entrenamiento:            # archivos y columnas usados para entrenar (ver 4.2.1)
+  archivos:
+    dataset: Dataset.csv
+  variables:
+    incluir: []
+    excluir: []
 ```
+
+#### 4.2.1 Archivos y columnas de entrenamiento (`datos_entrenamiento`)
+Cada YAML de `config/modelos` indica que archivos lee el experimento y, en comentarios debajo de cada archivo, que
+columnas toma de el y para que (variables de entrada, objetivo, grupos de validacion, control instrumental, filtros).
+- `archivos`: nombre logico -> ruta. Las rutas relativas se resuelven contra `datos.catalogos` de `config/rutas.yaml`;
+  tambien se admiten rutas absolutas. Nombres validos: `dataset` y los catalogos (`metabolitos`, `clases_quim`,
+  `registro_actividades`, `familias`, ...). Cambiar una ruta hace que ese experimento lea otro archivo; antes de
+  entrenar se comprueba que exista y que tenga las columnas que necesita.
+- `variables.incluir` / `variables.excluir`: seleccionan las variables de entrada (X) ya construidas. Vacio = todas.
+  Admiten comodines (`*`, `?`) y se comparan con el nombre de la variable (`ID_FAMILIA_6`, `clase_240`, `dbe`) y con la
+  columna de origen (`ID_SUPERCLASE_QUIMICA`, `FORMULA_MOLECULAR`). Ejemplo: `excluir: [ID_SUPERCLASE_QUIMICA]` en M10
+  entrena con la formula y el modo de ionizacion, sin la superclase.
+
+Al entrenar, la consola y `ejecucion.log` muestran los archivos, las columnas y la lista de variables; se guardan en
+`ejecuciones/<run_id>/datos_entrenamiento.md` y `.json`, y el informe incluye la seccion "Archivos y columnas de
+entrenamiento". `python main.py datos M05` lo muestra sin entrenar.
 
 Modelos disponibles: `baseline_mayoritaria`, `baseline_prior`, `baseline_estratificada`, `logistica`,
 `random_forest`, `extra_trees`, `hist_gradient_boosting`, `lightgbm`, `xgboost` (GPU), `catboost` (GPU), `knn`. Los hiperparametros se pasan tal cual

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from orquideas.evaluation.validacion import filtrar_clases, filtrar_etiquetas, particiones
+from src.evaluation.validacion import filtrar_clases, filtrar_etiquetas, particiones
 
 
 def test_filtrar_clases_por_grupos():

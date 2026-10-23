@@ -4,8 +4,8 @@ import logging
 import numpy as np
 import pandas as pd
 
-from orquideas.features.conjuntos import Conjunto
-from orquideas.tasks import supervisado
+from src.features.conjuntos import Conjunto
+from src.tasks import supervisado
 
 
 def _cfg():

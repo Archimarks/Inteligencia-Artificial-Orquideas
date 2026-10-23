@@ -7,7 +7,7 @@ from typing import Any
 
 import yaml
 
-SCRIPT_DIR = Path(__file__).resolve().parents[3]          # .../02_Script
+SCRIPT_DIR = Path(__file__).resolve().parents[2]          # .../02_Script
 CONFIG_DIR = SCRIPT_DIR / "config"
 
 

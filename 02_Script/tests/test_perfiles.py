@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from orquideas.features.perfiles import clr
+from src.features.perfiles import clr
 
 
 def test_clr_centrado_e_invariante_a_escala():

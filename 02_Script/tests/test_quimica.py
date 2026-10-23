@@ -2,7 +2,7 @@ import math
 
 import pandas as pd
 
-from orquideas.features.quimica import descriptores, matriz_descriptores, parsear_formula
+from src.features.quimica import descriptores, matriz_descriptores, parsear_formula
 
 
 def test_parseo_basico():

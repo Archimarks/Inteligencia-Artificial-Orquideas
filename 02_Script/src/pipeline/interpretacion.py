@@ -109,6 +109,19 @@ def _nombrar_importancias(cfg: dict[str, Any], r: dict[str, Any], salida: dict[s
                              "Indica asociacion predictiva, no causalidad.")
 
 
+def _seccion_datos_entrenamiento(d: dict[str, Any]) -> list[str]:
+    L = ["## Archivos y columnas de entrenamiento",
+         "Parametrizable en el bloque `datos_entrenamiento` del YAML; detalle en `datos_entrenamiento.md`.", ""]
+    for a in d.get("archivos", []):
+        L.append(f"- `{a['ruta']}` ({a['nombre']}): " + "; ".join(f"{rol}: {', '.join(cols)}" for rol, cols in a["roles"].items()))
+    if d.get("variables"):
+        origenes = list(dict.fromkeys(v["columna_origen"] for v in d["variables"]))
+        L.append(f"- Variables de entrada: {len(d['variables'])} (columnas de origen: {', '.join(origenes)})")
+    if d.get("variables_descartadas"):
+        L.append(f"- Variables descartadas por la configuracion: {len(d['variables_descartadas'])}")
+    return L + [""]
+
+
 def escribir_informe(cfg: dict[str, Any], r: dict[str, Any], man: dict[str, Any], salida: dict[str, Path]) -> Path:
     r.setdefault("tarea", cfg["tarea"])
     if r.get("estado") == "completado" and cfg["tarea"] == "supervisado":
@@ -131,6 +144,8 @@ def escribir_informe(cfg: dict[str, Any], r: dict[str, Any], man: dict[str, Any]
               f"- Clases/etiquetas evaluables: {r.get('clases_evaluables')} (descartadas: {r.get('clases_descartadas')}; "
               "ver `tablas/clases_descartadas.csv`)",
               f"- Variables predictoras: {r.get('variables')}", ""]
+    if r.get("datos_entrenamiento"):
+        L += _seccion_datos_entrenamiento(r["datos_entrenamiento"])
     if r.get("estado") == "completado" and cfg["tarea"] == "supervisado":
         tabla = pd.read_csv(salida["metricas"] / "metricas_modelos.csv", sep=";")
         cols = [c for c in tabla.columns if not c.endswith("_particiones") and c not in ("es_baseline",)]

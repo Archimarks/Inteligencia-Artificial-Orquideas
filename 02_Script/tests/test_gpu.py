@@ -2,9 +2,9 @@
 import numpy as np
 import pytest
 
-from orquideas.models.registro_modelos import XGBoostGPU, construir_pipeline
-from orquideas.tasks.supervisado import asignar_gpus
-from orquideas.utils.gpu import ErrorGPU, seleccionar_gpus
+from src.models.registro_modelos import XGBoostGPU, construir_pipeline
+from src.tasks.supervisado import asignar_gpus
+from src.utils.gpu import ErrorGPU, seleccionar_gpus
 
 DOS = [{"indice": 0, "nombre": "GPU A"}, {"indice": 1, "nombre": "GPU B"}]
 
@@ -38,7 +38,7 @@ def test_catboost_configura_todas_las_gpu():
 
 
 def test_catboost_cpu_una_sola_clase_y_multietiqueta():
-    from orquideas.models.registro_modelos import CatBoostGPU
+    from src.models.registro_modelos import CatBoostGPU
     X = np.random.default_rng(0).normal(size=(40, 3))
     m = CatBoostGPU(parametros={"iterations": 10}).fit(X, np.zeros(40, int))
     assert m.predict_proba(X).shape == (40, 1)
@@ -61,7 +61,7 @@ def test_xgboost_cpu_con_clases_no_contiguas():
 
 @pytest.mark.parametrize("multi", [False, True])
 def test_todos_los_modelos_entrenan(multi):
-    from orquideas.models.registro_modelos import MODELOS
+    from src.models.registro_modelos import MODELOS
     rng = np.random.default_rng(0)
     X = rng.normal(size=(60, 4))
     y = np.c_[(X[:, 0] > 0), (X[:, 1] > 0)].astype(int) if multi else (X[:, 0] > 0).astype(int) + (X[:, 1] > 1)

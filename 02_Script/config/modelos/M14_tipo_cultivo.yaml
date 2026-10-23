@@ -35,3 +35,25 @@ evaluation:
 interpretacion: El tipo de cultivo suele ser constante dentro de un estudio; la senal puede deberse al estudio.
 seleccion_variables:
   metodo: ninguna
+
+# Archivos y columnas usados para entrenar. Cada ejecucion los informa en consola, en ejecucion.log, en
+# datos_entrenamiento.md y en el informe (`python main.py datos M14` los muestra sin entrenar; con --variables lista tambien las variables finales).
+#   archivos: archivo -> ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta). Debajo de cada
+#             archivo se indican las columnas que se leen de el y para que se usan.
+#   variables: seleccion de las variables de entrada (X). Vacio = todas. Admite comodines (* ?) y nombres
+#              de columna de origen: excluir [FORMULA_MOLECULAR] quita todos los descriptores de formula.
+datos_entrenamiento:
+  archivos:
+    dataset: Dataset.csv
+      # variables de entrada: ID_CLASE_QUIMICA, ID_METABOLITO
+      # objetivo: ID_TIPO_CULTIVO
+      # grupos de validacion: ID_ARTICULO
+      # control instrumental: ID_COLUMNA_CROMATOGRAFICA, ID_MODO_IONIZACION, ID_METABOLITO,
+      #   ID_NIVEL_IDENTIFICACION
+      # filtros y agregacion: ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION,
+      #   ID_TIPO_MUESTRA
+    registro_actividades: 05_Pivotes/Registo_Actividades_biologicas.csv
+      # filtros y agregacion: ID_MUESTRA
+  variables:
+    incluir: []
+    excluir: []

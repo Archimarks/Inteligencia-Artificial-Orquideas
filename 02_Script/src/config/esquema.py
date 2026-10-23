@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ..data.catalogos import NOMBRES_ARCHIVO
 from ..features.conjuntos import CONSTRUCTORES
 from ..models.registro_modelos import MODELOS
 from ..utils.es import leer_yaml
@@ -116,8 +117,38 @@ def validar(cfg: dict[str, Any], p: Path | str = "<config>") -> None:
         objetivo = (conj or {}).get("parametros", {}).get("objetivo") if isinstance(conj, dict) else None
         if objetivo and objetivo in (cfg.get("variables_permitidas") or []):
             errores.append(f"el objetivo {objetivo} no puede figurar en variables_permitidas")
+    errores += _validar_datos_entrenamiento(cfg.get("datos_entrenamiento"))
     if errores:
         raise ErrorConfiguracion(f"Configuracion invalida en {p}:\n  - " + "\n  - ".join(errores))
+
+
+def _validar_datos_entrenamiento(de: Any) -> list[str]:
+    """Bloque opcional `datos_entrenamiento` (archivos y variables usados para entrenar)."""
+    if de is None:
+        return []
+    if not isinstance(de, dict):
+        return ["datos_entrenamiento debe ser un diccionario con 'archivos' y/o 'variables'"]
+    errores = [f"datos_entrenamiento.{k} no es una clave valida (use 'archivos' o 'variables')"
+               for k in de if k not in ("archivos", "variables")]
+    arch = de.get("archivos") or {}
+    if not isinstance(arch, dict):
+        errores.append("datos_entrenamiento.archivos debe ser un diccionario archivo -> ruta")
+    else:
+        for k, v in arch.items():
+            if k not in NOMBRES_ARCHIVO:
+                errores.append(f"datos_entrenamiento.archivos.{k} no existe; opciones: {NOMBRES_ARCHIVO}")
+            if not isinstance(v, str) or not v.strip():
+                errores.append(f"datos_entrenamiento.archivos.{k} debe ser una ruta (texto)")
+    var = de.get("variables") or {}
+    if not isinstance(var, dict):
+        errores.append("datos_entrenamiento.variables debe ser un diccionario con 'incluir' y/o 'excluir'")
+    else:
+        for k, v in var.items():
+            if k not in ("incluir", "excluir"):
+                errores.append(f"datos_entrenamiento.variables.{k} no es valida (use 'incluir' o 'excluir')")
+            elif v is not None and (not isinstance(v, list) or not all(isinstance(x, str) for x in v)):
+                errores.append(f"datos_entrenamiento.variables.{k} debe ser una lista de nombres o patrones")
+    return errores
 
 
 def verificar_fuga(cfg: dict[str, Any], columnas: list[str], instrumentales: list[str] | None = None) -> None:

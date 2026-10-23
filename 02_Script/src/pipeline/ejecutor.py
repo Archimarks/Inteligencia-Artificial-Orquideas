@@ -96,16 +96,23 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
         "salidas": {k: str(v) for k, v in salida.items()},
     }
     t0 = time.time()
+    datos_ent: dict[str, Any] | None = None
     try:
+        from ..features import fuentes
+        fuentes.fijar_archivos(cfg)
         if cfg["tarea"] == "supervisado":
             from ..features.conjuntos import construir
             from ..tasks import supervisado
+            fuentes.describir_archivos(cfg, estricto=True)
             conj = construir(cfg["conjunto"]["nombre"], cfg["conjunto"].get("parametros", {}))
+            descartadas = fuentes.seleccionar_variables(conj, cfg)
             verificar_fuga(cfg, list(conj.X.columns),
                            list(conj.X_instrumental.columns) if conj.X_instrumental is not None else None)
+            datos_ent = _registrar_datos_entrenamiento(fuentes.describir(cfg, conj, descartadas), salida, log)
             resultado = supervisado.ejecutar(conj, cfg, salida, log)
         else:
             from ..tasks import patrones
+            datos_ent = _registrar_datos_entrenamiento(fuentes.describir(cfg, estricto=True), salida, log)
             resultado = patrones.ejecutar(cfg, salida, log)
         manifiesto["estado"] = resultado.get("estado", "completado")
     except ErrorConfiguracion:
@@ -118,12 +125,25 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
     manifiesto["segundos"] = round(time.time() - t0, 1)
     resultado["run_id"] = run_id
     resultado["id_experimento"] = cfg["id"]
+    if datos_ent is not None:
+        resultado["datos_entrenamiento"] = datos_ent
+        manifiesto["archivos_entrenamiento"] = {a["nombre"]: a["ruta"] for a in datos_ent["archivos"]}
     guardar_json(resultado, salida["ejecucion"] / "resultado.json")
     guardar_json(manifiesto, salida["ejecucion"] / "manifiesto.json")
     interpretacion.escribir_informe(cfg, resultado, manifiesto, salida)
     log.info(f"Estado: {manifiesto['estado']} ({manifiesto['segundos']} s). Informe: {salida['ejecucion'] / 'informe.md'}")
     cerrar_archivos(log)
     return resultado
+
+
+def _registrar_datos_entrenamiento(d: dict[str, Any], salida: dict[str, Path], log) -> dict[str, Any]:
+    """Muestra en consola/log los archivos y columnas usados y los guarda en la carpeta de la ejecucion."""
+    from ..features import fuentes
+    for linea in fuentes.texto(d).splitlines():
+        log.info(linea)
+    guardar_json(d, salida["ejecucion"] / "datos_entrenamiento.json")
+    (salida["ejecucion"] / "datos_entrenamiento.md").write_text(fuentes.markdown(d), encoding="utf-8")
+    return d
 
 
 def ultimas_ejecuciones() -> pd.DataFrame:

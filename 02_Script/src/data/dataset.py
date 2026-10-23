@@ -15,7 +15,7 @@ import pandas as pd
 from ..utils.huella import sha256_archivo
 from ..utils.registro import obtener_logger
 from ..utils.rutas import asegurar_dir, config_global, ruta
-from .catalogos import ErrorDatos, verificar_archivo_datos
+from .catalogos import ErrorDatos, ruta_archivo, verificar_archivo_datos
 
 COLUMNAS_ESPERADAS = [
     "ID_ARTICULO", "ID_BATCH", "ID_MUESTRA", "ID_REINO", "ID_FILO", "ID_CLASE_TAXONOMICA", "ID_ORDEN", "ID_FAMILIA",
@@ -40,7 +40,7 @@ def _dtypes() -> dict[str, str]:
 @lru_cache(maxsize=1)
 def cargar_dataset() -> pd.DataFrame:
     """Lee Dataset.csv (con cache Parquet indexada por la huella SHA-256 del archivo)."""
-    p = ruta("datos", "dataset")
+    p = ruta_archivo("dataset")
     verificar_archivo_datos(p)
     huella = sha256_archivo(p)
     cache = asegurar_dir(ruta("salidas", "cache")) / f"dataset_{huella[:16]}.parquet"

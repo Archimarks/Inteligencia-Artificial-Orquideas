@@ -76,8 +76,24 @@ def verificar_archivo_datos(p: Path) -> None:
                          "procesados (ZIP de datos entregado) o ejecute `git lfs pull`.")
 
 
-def ruta_catalogo(nombre: str) -> Path:
+# Archivos fijados por `datos_entrenamiento.archivos` del experimento en curso (nombre logico -> ruta absoluta)
+ARCHIVOS_FIJADOS: dict[str, Path] = {}
+NOMBRES_ARCHIVO = ["dataset"] + list(CATALOGOS)
+
+
+def ruta_archivo(nombre: str) -> Path:
+    """Ruta del archivo logico `nombre` ('dataset' o un catalogo), respetando la del experimento si la fijo."""
+    if nombre in ARCHIVOS_FIJADOS:
+        return ARCHIVOS_FIJADOS[nombre]
+    if nombre == "dataset":
+        return ruta("datos", "dataset")
+    if nombre not in CATALOGOS:
+        raise ErrorDatos(f"Archivo desconocido: {nombre!r}. Opciones: {NOMBRES_ARCHIVO}")
     return ruta("datos", "catalogos") / CATALOGOS[nombre].archivo
+
+
+def ruta_catalogo(nombre: str) -> Path:
+    return ruta_archivo(nombre)
 
 
 @lru_cache(maxsize=None)

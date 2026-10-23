@@ -8,6 +8,8 @@ Uso por comandos (desde la carpeta 02_Script):
     python main.py listar                    # experimentos configurados
     python main.py hardware                  # CPU y GPU detectadas y GPU que se usaran
     python main.py validar [ID ...]          # valida configuraciones YAML sin ejecutar
+    python main.py datos [ID ...]            # archivos y columnas que usa cada experimento para entrenar
+    python main.py datos M05 --variables     # ademas construye el conjunto y lista las variables de entrada
     python main.py ejecutar M12 [M13 ...]    # ejecuta uno o varios experimentos
     python main.py ejecutar-todos            # ejecuta todos (M01..M18)
     python main.py resumen                   # tabla ejecutiva con la ultima ejecucion de cada experimento
@@ -58,23 +60,23 @@ def verificar_dependencias() -> None:
 
 
 verificar_dependencias()
-sys.path.insert(0, str(SCRIPT_DIR / "src"))
+sys.path.insert(0, str(SCRIPT_DIR))
 
-from orquideas.config.esquema import ErrorConfiguracion, cargar_config, listar_configs  # noqa: E402
-from orquideas.data.catalogos import ErrorDatos  # noqa: E402
-from orquideas.utils.gpu import ErrorGPU  # noqa: E402
+from src.config.esquema import ErrorConfiguracion, cargar_config, listar_configs  # noqa: E402
+from src.data.catalogos import ErrorDatos  # noqa: E402
+from src.utils.gpu import ErrorGPU  # noqa: E402
 
 
 def cmd_auditoria(a: argparse.Namespace) -> None:
     from datetime import datetime
 
-    from orquideas.audit.auditoria import ejecutar_auditoria
+    from src.audit.auditoria import ejecutar_auditoria
     run = a.etiqueta or datetime.now().strftime("%Y%m%d-%H%M%S")
     print(ejecutar_auditoria(run))
 
 
 def cmd_hardware(_: argparse.Namespace) -> None:
-    from orquideas.utils.gpu import resumen_hardware
+    from src.utils.gpu import resumen_hardware
     hw = resumen_hardware()
     print(f"Nucleos CPU: {hw['cpu_nucleos']}")
     print(f"GPU detectadas: {len(hw['gpus'])}")
@@ -94,7 +96,7 @@ def cmd_listar(_: argparse.Namespace) -> None:
 
 
 def cmd_validar(a: argparse.Namespace) -> None:
-    from orquideas.config.esquema import buscar_config
+    from src.config.esquema import buscar_config
     rutas = [buscar_config(i) for i in a.ids] if a.ids else listar_configs()
     errores = 0
     for p in rutas:
@@ -107,8 +109,24 @@ def cmd_validar(a: argparse.Namespace) -> None:
     sys.exit(1 if errores else 0)
 
 
+def cmd_datos(a: argparse.Namespace) -> None:
+    """Archivos y columnas de entrenamiento (bloque `datos_entrenamiento` de config/modelos/*.yaml)."""
+    from src.config.esquema import buscar_config
+    from src.features import fuentes
+    from src.features.conjuntos import construir
+    rutas = [buscar_config(i) for i in a.ids] if a.ids else listar_configs()
+    for p in rutas:
+        cfg = cargar_config(p)
+        fuentes.fijar_archivos(cfg)
+        conj, descartadas = None, None
+        if a.variables and cfg["tarea"] == "supervisado":
+            conj = construir(cfg["conjunto"]["nombre"], cfg["conjunto"].get("parametros", {}))
+            descartadas = fuentes.seleccionar_variables(conj, cfg)
+        print(fuentes.texto(fuentes.describir(cfg, conj, descartadas)) + "\n")
+
+
 def cmd_ejecutar(a: argparse.Namespace) -> None:
-    from orquideas.pipeline.ejecutor import ejecutar_experimento
+    from src.pipeline.ejecutor import ejecutar_experimento
     for i in a.ids:
         r = ejecutar_experimento(i, a.etiqueta)
         print(f"{r['id_experimento']}: {r.get('estado')} | {r.get('veredicto', '')} | {r['run_id']}")
@@ -121,8 +139,8 @@ def cmd_ejecutar_todos(a: argparse.Namespace) -> None:
 
 
 def cmd_resumen(_: argparse.Namespace) -> None:
-    from orquideas.pipeline.ejecutor import ultimas_ejecuciones
-    from orquideas.pipeline.interpretacion import guia_modelos, resumen_ejecutivo
+    from src.pipeline.ejecutor import ultimas_ejecuciones
+    from src.pipeline.interpretacion import guia_modelos, resumen_ejecutivo
     df = ultimas_ejecuciones()
     print(guia_modelos(df))
     if df.empty:
@@ -135,10 +153,10 @@ def cmd_reinformar(_: argparse.Namespace) -> None:
     """Regenera informe.md de todas las ejecuciones a partir de sus resultados guardados (sin reentrenar)."""
     from pathlib import Path as P
 
-    from orquideas.config.esquema import cargar_config
-    from orquideas.pipeline.interpretacion import completar, escribir_informe
-    from orquideas.utils.es import guardar_json, leer_json
-    from orquideas.utils.rutas import ruta
+    from src.config.esquema import cargar_config
+    from src.pipeline.interpretacion import completar, escribir_informe
+    from src.utils.es import guardar_json, leer_json
+    from src.utils.rutas import ruta
     for d in sorted(ruta("salidas", "modelos").glob("*/ejecuciones/*/resultado.json")):
         r, man = completar(leer_json(d), d.parent), leer_json(d.parent / "manifiesto.json")
         cfg = cargar_config(P(man["archivo_config"]))
@@ -153,7 +171,7 @@ def cmd_predecir(a: argparse.Namespace) -> None:
     import joblib
     import pandas as pd
 
-    from orquideas.utils.rutas import ruta
+    from src.utils.rutas import ruta
     cand = list(ruta("salidas", "modelos").glob(f"*/modelo_entrenado/{a.run_id}/modelo.joblib"))
     if not cand:
         sys.exit(f"No se encontro modelo para la ejecucion {a.run_id}")
@@ -190,6 +208,10 @@ def construir_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("hardware", help="CPU y GPU detectadas"); s.set_defaults(f=cmd_hardware)
     s = sub.add_parser("validar", help="valida las configuraciones YAML"); s.add_argument("ids", nargs="*")
     s.set_defaults(f=cmd_validar)
+    s = sub.add_parser("datos", help="archivos y columnas que usa cada experimento para entrenar")
+    s.add_argument("ids", nargs="*")
+    s.add_argument("--variables", action="store_true", help="construye el conjunto y lista las variables de entrada")
+    s.set_defaults(f=cmd_datos)
     s = sub.add_parser("ejecutar", help="entrena uno o varios experimentos"); s.add_argument("ids", nargs="+")
     s.add_argument("--etiqueta"); s.set_defaults(f=cmd_ejecutar)
     s = sub.add_parser("ejecutar-todos", help="entrena todos los experimentos"); s.add_argument("--etiqueta")
@@ -220,7 +242,7 @@ def main(argv: list[str] | None = None) -> int:
     if not (sys.stdin is not None and sys.stdin.isatty()):
         construir_parser().print_help()
         return 0
-    from orquideas.interfaz.consola import ejecutar as interfaz
+    from src.interfaz.consola import ejecutar as interfaz
     return interfaz()
 
 

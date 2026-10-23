@@ -1,6 +1,6 @@
 """Interfaz de consola: seleccion de modelos, ajustes del modo rapido y pantalla de entrenamiento (sin entrenar)."""
-from orquideas.config.esquema import cargar_config, listar_configs
-from orquideas.interfaz import consola
+from src.config.esquema import cargar_config, listar_configs
+from src.interfaz import consola
 
 
 def _cfgs():
@@ -35,8 +35,8 @@ def test_pantalla_entrenamiento_sin_entrenar(monkeypatch):
         return {"id_experimento": id_exp, "estado": "completado", "veredicto": "senal debil", "mejor_modelo": "xgboost",
                 "metrica_principal": "balanced_accuracy", "valor_mejor": 0.5, "valor_baseline": 0.3}
 
-    import orquideas.pipeline.ejecutor as ej
-    import orquideas.pipeline.interpretacion as it
+    import src.pipeline.ejecutor as ej
+    import src.pipeline.interpretacion as it
     monkeypatch.setattr(ej, "ejecutar_experimento", falso)
     # no tocar 03_Resultados ni 05_Documentacion durante la prueba
     monkeypatch.setattr(it, "guia_modelos", lambda df: None)
