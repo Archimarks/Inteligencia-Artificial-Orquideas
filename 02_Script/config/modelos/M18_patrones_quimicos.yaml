@@ -11,7 +11,7 @@ descripcion: >
   identificados por superclase (o clase) quimica, transformado con CLR. Contrastes Mann-Whitney con correccion BH,
   coocurrencias con Fisher exacto + BH, FP-growth, K-means con estabilidad bootstrap, PERMANOVA (R2 marginal con
   permutaciones; version intra-articulo centrando por estudio), Isolation Forest, enriquecimiento superclase-actividad
-  y firma descriptiva de Orchidaceae.
+  y firma descriptiva de cada familia botanica con >= 2 articulos.
 conjunto: {}
 patrones:
   alfa: 0.05
@@ -20,6 +20,7 @@ patrones:
   min_articulos_clase: 5
   max_clases: 60
   max_aristas: 120
+  min_articulos_familia: 2   # familias con al menos estos articulos reciben firma descriptiva
   n_permutaciones: 499
   factores_enriquecimiento: [ID_CLASE_TAXONOMICA, ID_ORDEN, ID_FAMILIA, ID_PARTE_ESTUDIADA, ID_TIPO_MUESTRA]
   n_nulos: 300               # aleatorizaciones curveball para la coocurrencia
@@ -39,4 +40,4 @@ interpretacion: >
   Un patron es candidato a hallazgo solo si (1) aparece en varios articulos independientes, (2) sobrevive a la
   correccion por comparaciones multiples y (3) no se explica mejor por columna/plataforma (comparar R2 de articulo y
   columna con el de orden/familia). Las coocurrencias pueden deberse a bibliotecas compartidas (p. ej. MRM de
-  Metware). La firma de orquideas es descriptiva: solo hay dos estudios de Orchidaceae.
+  Metware). Las firmas por familia son descriptivas: cada familia tiene pocos estudios.

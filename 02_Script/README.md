@@ -1,4 +1,4 @@
-# 02_Script - Sistema de IA para el descubrimiento de patrones quimicos en orquideas
+# 02_Script - Sistema de IA para el descubrimiento de patrones quimicos en plantas
 
 Sistema modular y reproducible que audita `01_Datos/Base` y entrena y evalua 18 experimentos de aprendizaje
 supervisado y no supervisado. Todo resultado lleva su configuracion, sus huellas de datos y su informe.

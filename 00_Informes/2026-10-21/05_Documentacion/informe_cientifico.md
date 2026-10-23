@@ -1,4 +1,4 @@
-# Informe cientifico: patrones quimicos en orquideas y plantas medicinales
+# Informe cientifico: patrones quimicos en plantas
 
 Ejecuciones del 2026-10-22, semilla 42 (commit `4968a18`, antes de reorganizar las salidas en `03_Resultados` y de
 anadir XGBoost/CatBoost; esos resultados siguen en el historial de git). Al reejecutar (`python main.py ejecutar-todos`)
@@ -65,7 +65,7 @@ usa quimica: max(baseline, control solo-plataforma).
   incluida **Orchidaceae (recall 0)**, no se reconocen en articulos no vistos. No hay evidencia de una firma
   quimica de familia transferible entre laboratorios, salvo quiza Rubiaceae.
 - **Orden (M04).** Ganancia de solo 0.06 sobre el control de plataforma: senal debil.
-- **Clase taxonomica (M03).** Ningun modelo separa Liliopsida (monocotiledoneas, incluidas las orquideas) de
+- **Clase taxonomica (M03).** Ningun modelo separa Liliopsida (monocotiledoneas) de
   Magnoliopsida.
 - **Columna (M11).** Se predice desde el perfil (0.40 vs 0.20). Es una medida directa del efecto de plataforma: el
   perfil de metabolitos identificados delata el metodo analitico.
@@ -108,7 +108,7 @@ Unidad: especie x articulo x parte (111 unidades, 51 articulos).
 - **Agrupamiento.** Tres grupos estables (silueta 0.50, ARI bootstrap 0.81) con concordancia baja y similar con
   orden (AMI 0.13), columna (0.12) y articulo (0.16): los grupos no son taxonomicos.
 - **Quimica-actividad.** Ninguna superclase esta enriquecida en una actividad tras BH.
-- **Orquideas.** Dos estudios: *Gastrodia elata* y *Dendrobium officinale*.
+- **Firma descriptiva de una familia (ejemplo: Orchidaceae).** Dos estudios: *Gastrodia elata* y *Dendrobium officinale*.
   - 73 metabolitos aparecen en ambos.
   - 5 de ellos estan en <= 10 % de los otros 49 articulos: dihidroresveratrol, isorhapontigenina, pterostilbeno
     (estilbenos), equol y grosamida.
@@ -127,8 +127,8 @@ Unidad: especie x articulo x parte (111 unidades, 51 articulos).
 3. **Patrones con respaldo.** Los patrones quimicos con respaldo independiente del estudio son coocurrencias de
    clases biosinteticamente relacionadas y unas pocas reglas taxon -> quimica (Solanaceae y Lamiaceae -> aminas;
    Moraceae -> fenilpropanoides).
-4. **Orquideas.** No se distinguen quimicamente en validacion entre estudios (recall 0 en M05). Los estilbenos
-   compartidos por *Gastrodia* y *Dendrobium* son la pista mas especifica y deben verificarse con un protocolo
-   comun.
-5. **Para avanzar** (ver `limitaciones_cientificas.md`): mas especies de Orchidaceae medidas con el mismo metodo,
+4. **Familias poco representadas.** La mayoria de las familias (p. ej. Orchidaceae, recall 0 en M05) no se
+   distinguen quimicamente en validacion entre estudios. Las firmas descriptivas por familia (como los estilbenos
+   compartidos por *Gastrodia* y *Dendrobium*) deben verificarse con un protocolo comun.
+5. **Para avanzar** (ver `limitaciones_cientificas.md`): mas especies por familia medidas con el mismo metodo,
    muestras puente entre laboratorios, espectros MS/MS y ensayos de actividad con controles negativos.

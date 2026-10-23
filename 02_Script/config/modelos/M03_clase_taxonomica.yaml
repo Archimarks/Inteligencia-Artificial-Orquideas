@@ -2,7 +2,7 @@ id: M03_clase_taxonomica
 nombre: Clase taxonomica a partir del perfil quimico
 tarea: supervisado
 prioridad: normal
-pregunta_cientifica: ¿El perfil quimico separa Magnoliopsida de Liliopsida (monocotiledoneas, incluidas las orquideas)
+pregunta_cientifica: ¿El perfil quimico separa Magnoliopsida de Liliopsida (monocotiledoneas)
   en articulos no vistos?
 descripcion: Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos
   de metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por articulo

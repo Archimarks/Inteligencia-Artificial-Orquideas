@@ -318,10 +318,10 @@ y especie). `categorias_con_>=2_articulos` indica cuantas categorias pueden eval
    Magnoliophyta). Regresion de valores de actividad (muy pocos grupos con valor medido y escalas/ensayos distintos).
    Identificacion de un metabolito desconocido: no hay espectros MS/MS en el conjunto.
 7. **Limitaciones para generalizar.** Confusion total entre especie, articulo, plataforma analitica y laboratorio; cobertura
-   desigual de familias (muy pocas orquideas: Gastrodia y Dendrobium); bibliotecas de anotacion distintas entre plataformas
+   desigual de familias (la mayoria representada por uno o dos articulos); bibliotecas de anotacion distintas entre plataformas
    (los MRM de Metware comparten biblioteca y eso induce coocurrencias artificiales); intensidades no comparables; actividades
    mayoritariamente bibliograficas (etiquetas positivas sin negativos verificados).
-8. **Informacion adicional necesaria.** Espectros MS/MS y RT estandarizados (indices de retencion), mas especies de orquideas,
+8. **Informacion adicional necesaria.** Espectros MS/MS y RT estandarizados (indices de retencion), mas especies por familia,
    varias especies analizadas con un mismo protocolo, muestras compartidas entre laboratorios (puente de lotes), ensayos de
    actividad con controles negativos y valores cuantitativos homogeneos, y el mapeo pozo-especie de BAT0005/0006.
 

@@ -1,4 +1,4 @@
-"""Punto de entrada del sistema de IA para patrones quimicos en orquideas y plantas medicinales.
+"""Punto de entrada del sistema de IA para patrones quimicos en plantas (diversas especies y familias botanicas).
 
 Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) abre la interfaz: maquina -> datos -> modelos ->
 opciones -> entrenamiento -> resultados.
@@ -181,7 +181,7 @@ def cmd_predecir(a: argparse.Namespace) -> None:
 
 
 def construir_parser() -> argparse.ArgumentParser:
-    ap = argparse.ArgumentParser(description="IA para el descubrimiento de patrones quimicos en orquideas. "
+    ap = argparse.ArgumentParser(description="IA para el descubrimiento de patrones quimicos en plantas. "
                                              "Sin argumentos abre un menu.")
     sub = ap.add_subparsers(dest="comando", required=True)
     s = sub.add_parser("auditoria", help="auditoria general de 01_Datos/Base"); s.add_argument("--etiqueta")
