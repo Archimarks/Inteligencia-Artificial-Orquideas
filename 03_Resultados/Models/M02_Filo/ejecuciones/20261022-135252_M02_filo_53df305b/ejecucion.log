@@ -1,4 +1,0 @@
-2026-10-22 13:52:52,124 | INFO    | orquideas.20261022-135252_M02_filo_53df305b | Ejecucion 20261022-135252_M02_filo_53df305b | Filo a partir del perfil quimico
-2026-10-22 13:52:52,124 | INFO    | orquideas.20261022-135252_M02_filo_53df305b | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
-2026-10-22 13:52:53,707 | WARNING | orquideas.20261022-135252_M02_filo_53df305b | Tras exigir >= 2 grupos y >= 10 unidades por clase quedan 1 clases y 48 grupos; no es posible una evaluacion agrupada honesta.
-2026-10-22 13:52:53,711 | INFO    | orquideas.20261022-135252_M02_filo_53df305b | Estado: no_viable (1.6 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M02_Filo\ejecuciones\20261022-135252_M02_filo_53df305b\informe.md
