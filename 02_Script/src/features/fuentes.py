@@ -249,6 +249,13 @@ def _archivo_de(columna: str, roles_por_archivo: dict[str, dict[str, list[str]]]
     return "dataset"
 
 
+def _nombre_legible(col: str) -> str:
+    try:
+        return nombre_variable(col)
+    except ErrorDatos:   # sin catalogos (p. ej. punteros de Git LFS) se usa el nombre tecnico
+        return col
+
+
 def describir(cfg: dict[str, Any], conj: Any = None, descartadas: list[str] | None = None,
               estricto: bool = False) -> dict[str, Any]:
     """Resumen de archivos y columnas de entrenamiento (y, si hay conjunto, de las variables finales)."""
@@ -257,7 +264,7 @@ def describir(cfg: dict[str, Any], conj: Any = None, descartadas: list[str] | No
                          "seleccion_variables": (cfg.get("datos_entrenamiento") or {}).get("variables") or {}}
     if conj is not None:
         roles = {a["nombre"]: a["roles"] for a in archivos}
-        d["variables"] = [{"variable": c, "nombre": nombre_variable(c), "columna_origen": columna_de_variable(c),
+        d["variables"] = [{"variable": c, "nombre": _nombre_legible(c), "columna_origen": columna_de_variable(c),
                            "archivo": ruta_archivo(_archivo_de(columna_de_variable(c), roles)).name}
                           for c in conj.X.columns]
         d["variables_descartadas"] = list(descartadas or [])
