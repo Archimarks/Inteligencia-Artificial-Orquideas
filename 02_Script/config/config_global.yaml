@@ -1,6 +1,6 @@
 # Configuracion global compartida por todos los experimentos.
 # Cada experimento (config/modelos/*.yaml) puede sobreescribir cualquier clave de `defaults`.
-proyecto: "IA para el descubrimiento de patrones quimicos en orquideas y plantas medicinales"
+proyecto: "IA para el descubrimiento de patrones quimicos en plantas"
 semilla: 42
 n_jobs: -1                    # -1 = todos los nucleos
 

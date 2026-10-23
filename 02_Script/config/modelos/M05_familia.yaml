@@ -2,7 +2,7 @@ id: M05_familia
 nombre: Familia botanica a partir del perfil quimico
 tarea: supervisado
 prioridad: normal
-pregunta_cientifica: ¿El perfil composicional permite reconocer la familia botanica (p. ej. Orchidaceae) de una
+pregunta_cientifica: ¿El perfil composicional permite reconocer la familia botanica de una
   planta de un estudio no visto?
 descripcion: Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos
   de metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por articulo
@@ -32,6 +32,7 @@ modelos:
 - nombre: catboost
 evaluation:
   n_permutations: 30
-interpretacion: Orchidaceae tiene dos articulos (Gastrodia elata y Dendrobium officinale) con plataformas distintas.
+interpretacion: La mayoria de las familias tiene uno o dos articulos, cada uno con su propia plataforma; un acierto puede
+  reflejar el protocolo del estudio y no la quimica de la familia.
 seleccion_variables:
   metodo: ninguna

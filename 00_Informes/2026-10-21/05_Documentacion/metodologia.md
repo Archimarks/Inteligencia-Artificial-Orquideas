@@ -110,9 +110,9 @@ capacidad de reconocer el articulo, no la quimica. Por eso:
     cultivo y especie.
 - **Atipicos.** Isolation Forest sobre los perfiles.
 - **Red quimica-actividad.** Fisher (superclase del metabolito x actividad citada) con BH, y heatmap de conteos.
-- **Firma de Orchidaceae** (descriptiva):
-  - metabolitos presentes en todos los estudios de orquideas y su frecuencia en el resto;
-  - diferencia de composicion por superclase.
+- **Firmas por familia** (descriptivas, para cada familia botanica con >= 2 articulos):
+  - metabolitos presentes en todos los estudios de la familia y su frecuencia en el resto;
+  - diferencia de composicion por superclase frente al resto de plantas.
 
 ## 6. Reproducibilidad
 

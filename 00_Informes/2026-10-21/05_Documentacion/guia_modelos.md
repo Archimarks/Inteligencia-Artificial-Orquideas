@@ -32,7 +32,7 @@ Generada por `python main.py resumen` a partir de `02_Script/config/modelos/*.ya
 
 ## M03_clase_taxonomica - Clase taxonomica a partir del perfil quimico
 
-**Pregunta.** ¿El perfil quimico separa Magnoliopsida de Liliopsida (monocotiledoneas, incluidas las orquideas) en articulos no vistos?
+**Pregunta.** ¿El perfil quimico separa Magnoliopsida de Liliopsida (monocotiledoneas) en articulos no vistos?
 
 **Diseno.** Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos de metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por articulo (StratifiedGroupKFold, 5 particiones); solo clases presentes en >= 2 articulos. Pesos 1/n por articulo. Se compara con baselines, con un control que usa solo variables de plataforma (columna, modos, n de senales/identificados), con una validacion no agrupada (optimista) y con una prueba de permutacion.
 
@@ -60,7 +60,7 @@ Generada por `python main.py resumen` a partir de `02_Script/config/modelos/*.ya
 
 ## M05_familia - Familia botanica a partir del perfil quimico
 
-**Pregunta.** ¿El perfil composicional permite reconocer la familia botanica (p. ej. Orchidaceae) de una planta de un estudio no visto?
+**Pregunta.** ¿El perfil composicional permite reconocer la familia botanica de una planta de un estudio no visto?
 
 **Diseno.** Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos de metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por articulo (StratifiedGroupKFold, 5 particiones); solo clases presentes en >= 2 articulos. Pesos 1/n por articulo. Se compara con baselines, con un control que usa solo variables de plataforma (columna, modos, n de senales/identificados), con una validacion no agrupada (optimista) y con una prueba de permutacion.
 
@@ -70,7 +70,7 @@ Generada por `python main.py resumen` a partir de `02_Script/config/modelos/*.ya
 - Ultima ejecucion: `20261022-084620_M05_familia_27a28475` - estado **completado**, veredicto **senal robusta**
 - Resultado: balanced_accuracy = 0.263 frente a 0.111 del baseline y 0.074 del control solo-plataforma (ganancia sobre la mejor referencia +0.151); p de permutacion = 0.032 (minimo alcanzable con 30 permutaciones: ninguna permutacion igualo el valor observado); evaluacion sin agrupar = 1.000. Sin agrupar por ID_ARTICULO la metrica sube +0.737: la evaluacion ingenua sobrestimaria el rendimiento.
 
-**Como interpretarlo.** Orchidaceae tiene dos articulos (Gastrodia elata y Dendrobium officinale) con plataformas distintas.
+**Como interpretarlo.** La mayoria de las familias tiene uno o dos articulos, cada uno con su propia plataforma; un acierto puede reflejar el protocolo del estudio y no la quimica de la familia.
 
 ## M06_genero - Genero a partir del perfil quimico
 
@@ -258,7 +258,7 @@ Generada por `python main.py resumen` a partir de `02_Script/config/modelos/*.ya
 
 **Pregunta.** ¿Que patrones quimicos (categorias enriquecidas por taxon u organo, categorias que coaparecen, reglas taxon -> quimica, grupos de especies con perfil similar, perfiles atipicos y asociaciones quimica-actividad) se sostienen cuando se controla que cada articulo aporta su propia plataforma y biblioteca de anotacion?
 
-**Diseno.** Unidad = especie x articulo x parte de la planta (suma de muestras biologicas). Perfil = numero de metabolitos identificados por superclase (o clase) quimica, transformado con CLR. Contrastes Mann-Whitney con correccion BH, coocurrencias con Fisher exacto + BH, FP-growth, K-means con estabilidad bootstrap, PERMANOVA (R2 marginal con permutaciones; version intra-articulo centrando por estudio), Isolation Forest, enriquecimiento superclase-actividad y firma descriptiva de Orchidaceae.
+**Diseno.** Unidad = especie x articulo x parte de la planta (suma de muestras biologicas). Perfil = numero de metabolitos identificados por superclase (o clase) quimica, transformado con CLR. Contrastes Mann-Whitney con correccion BH, coocurrencias con Fisher exacto + BH, FP-growth, K-means con estabilidad bootstrap, PERMANOVA (R2 marginal con permutaciones; version intra-articulo centrando por estudio), Isolation Forest, enriquecimiento superclase-actividad y firma descriptiva de cada familia botanica con >= 2 articulos.
 
 - Ultima ejecucion: `20261022-092519_M18_patrones_quimicos_2e13e5d1` - estado **completado**, veredicto **descriptivo**
 - Resultado: Analisis no supervisado / de asociacion; ver hallazgos.
@@ -279,4 +279,4 @@ Generada por `python main.py resumen` a partir de `02_Script/config/modelos/*.ya
   - Red quimica-actividad: 102 metabolitos con actividad citada; 0 asociaciones superclase-actividad enriquecidas (q < 0.05).
   - Orquideas: 2 articulos de Orchidaceae; 2783 metabolitos identificados en ellas, 73 presentes en todos sus articulos; de estos, 5 aparecen en <= 10 % de los otros 49 articulos (candidatos a marcadores, a confirmar).
 
-**Como interpretarlo.** Un patron es candidato a hallazgo solo si (1) aparece en varios articulos independientes, (2) sobrevive a la correccion por comparaciones multiples y (3) no se explica mejor por columna/plataforma (comparar R2 de articulo y columna con el de orden/familia). Las coocurrencias pueden deberse a bibliotecas compartidas (p. ej. MRM de Metware). La firma de orquideas es descriptiva: solo hay dos estudios de Orchidaceae.
+**Como interpretarlo.** Un patron es candidato a hallazgo solo si (1) aparece en varios articulos independientes, (2) sobrevive a la correccion por comparaciones multiples y (3) no se explica mejor por columna/plataforma (comparar R2 de articulo y columna con el de orden/familia). Las coocurrencias pueden deberse a bibliotecas compartidas (p. ej. MRM de Metware). Las firmas por familia son descriptivas: cada familia tiene pocos estudios.

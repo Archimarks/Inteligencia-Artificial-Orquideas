@@ -1,7 +1,15 @@
 # Inteligencia Artificial 
 
+<<<<<<< HEAD
+Sistema de IA para descubrir patrones quimicos en plantas a partir de 52 articulos y 57 lotes de metabolomica
+(LC/GC-MS) que abarcan especies de muchas familias botanicas (cultivos, plantas medicinales, frutales, cereales, etc.).
+
+> **Sobre el nombre.** "Orquideas" es solo el nombre del proyecto. El estudio **no se centra en las orquideas**: analiza
+> diferentes especies de plantas, y las orquideas (Orchidaceae) son apenas una familia mas dentro del conjunto de datos.
+=======
 Sistema de IA para descubrir patrones quimicos en plantas medicinales a partir de 52 articulos y 57 lotes
 de metabolomica (LC/GC-MS).
+>>>>>>> origin/main
 
 | Carpeta | Contenido |
 |---|---|

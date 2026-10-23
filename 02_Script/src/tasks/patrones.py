@@ -395,47 +395,57 @@ def red_actividades(salida: dict[str, Path], alfa: float, hall: list[str]) -> No
                                               if len(sig) else ".") )
 
 
-def firma_orquideas(c: pd.DataFrame, m: pd.DataFrame, salida: dict[str, Path], hall: list[str]) -> None:
-    """Descriptivo: metabolitos presentes en las orquideas (Orchidaceae) y su especificidad frente al resto."""
-    fam = cargar_catalogo("familias")
-    ids = fam.loc[fam["FAMILIA"].str.contains("Orchidaceae", case=False, na=False), "ID_FAMILIA"].tolist()
+def firma_familias(c: pd.DataFrame, m: pd.DataFrame, salida: dict[str, Path], hall: list[str],
+                   min_articulos: int = 2) -> None:
+    """Descriptivo: para cada familia botanica con >= min_articulos articulos, metabolitos presentes en todos sus
+    articulos y su especificidad frente al resto de plantas."""
+    fam = cargar_catalogo("familias").set_index("ID_FAMILIA")["FAMILIA"]
     tm = tabla_muestras()
     tm = tm[~tm["ID_TIPO_MUESTRA"].isin([9, 10])]
-    orq = tm[tm["ID_FAMILIA"].isin(ids)]
-    if orq.empty:
-        hall.append("Firma de orquideas: no hay muestras de Orchidaceae con metabolitos identificados.")
+    arts_fam = tm.groupby("ID_FAMILIA")["ID_ARTICULO"].unique()
+    arts_fam = arts_fam[arts_fam.map(len) >= min_articulos]
+    if arts_fam.empty:
+        hall.append(f"Firmas por familia: ninguna familia tiene >= {min_articulos} articulos con metabolitos identificados.")
         return
     p = presencias().merge(tm[["ID_ARTICULO", "ID_FAMILIA"]], left_on="ID_MUESTRA", right_index=True)
-    arts_orq = sorted(orq["ID_ARTICULO"].unique())
-    n_otros = p.loc[~p["ID_ARTICULO"].isin(arts_orq), "ID_ARTICULO"].nunique()
-    por_met = p.groupby("ID_METABOLITO").agg(
-        articulos_orquidea=("ID_ARTICULO", lambda s: s[s.isin(arts_orq)].nunique()),
-        articulos_otros=("ID_ARTICULO", lambda s: s[~s.isin(arts_orq)].nunique()))
-    por_met = por_met[por_met["articulos_orquidea"] > 0]
-    por_met["frac_otros_articulos"] = por_met["articulos_otros"] / max(n_otros, 1)
     metn = cargar_catalogo("metabolitos").set_index("ID_METABOLITO")
-    por_met["metabolito"] = metn.loc[por_met.index, "NOMBRE_METABOLITO"]
-    por_met["formula"] = metn.loc[por_met.index, "FORMULA_MOLECULAR"]
     cq = cargar_catalogo("clases_quim").set_index("ID_CLASE_QUIMICA")
-    por_met["clase"] = metn.loc[por_met.index, "ID_CLASE_QUIMICA"].map(cq["CLASE_QUIMICA"])
-    esp = por_met[(por_met["articulos_orquidea"] == len(arts_orq))].sort_values("frac_otros_articulos")
-    guardar_tabla(por_met.sort_values(["articulos_orquidea", "frac_otros_articulos"], ascending=[False, True]).reset_index(),
-                  salida["tablas"] / "metabolitos_orquideas_especificidad.csv")
-    # composicion por superclase de las unidades de orquidea frente al resto (descriptivo)
     X = c.div(c.sum(axis=1), axis=0)
-    es_orq = m["ID_FAMILIA"].isin(ids).to_numpy()
-    comp = pd.DataFrame({"orquideas": X[es_orq].mean(), "otras_plantas": X[~es_orq].mean()})
-    comp.index = [_nombre_cat(i) for i in comp.index]
-    comp["diferencia"] = comp["orquideas"] - comp["otras_plantas"]
-    guardar_tabla(comp.sort_values("diferencia").reset_index(names="superclase"), salida["tablas"] / "composicion_orquideas.csv")
-    graficas.barras(comp["diferencia"].sort_values(), salida["graficas"] / "composicion_orquideas_vs_resto.png",
-                    "Orquideas vs resto: diferencia en la fraccion de metabolitos por superclase", "Superclase",
-                    "Fraccion en orquideas - fraccion en otras plantas", top=None,
-                    nota=f"Descriptivo: {len(arts_orq)} articulos de Orchidaceae (Gastrodia, Dendrobium) frente a {n_otros}; "
-                         "con tan pocos estudios no se puede separar la quimica de la orquidea del protocolo del laboratorio.")
-    hall.append(f"Orquideas: {len(arts_orq)} articulos de Orchidaceae; {len(por_met)} metabolitos identificados en ellas, "
-                f"{len(esp)} presentes en todos sus articulos; de estos, {int((esp['frac_otros_articulos'] <= 0.1).sum())} "
-                f"aparecen en <= 10 % de los otros {n_otros} articulos (candidatos a marcadores, a confirmar).")
+    tablas, comp, resumen = [], {}, []
+    for id_fam, arts in arts_fam.items():
+        nombre = fam.get(id_fam, str(id_fam))
+        arts = sorted(arts)
+        n_otros = p.loc[~p["ID_ARTICULO"].isin(arts), "ID_ARTICULO"].nunique()
+        por_met = p.groupby("ID_METABOLITO").agg(
+            articulos_familia=("ID_ARTICULO", lambda s: s[s.isin(arts)].nunique()),
+            articulos_otros=("ID_ARTICULO", lambda s: s[~s.isin(arts)].nunique()))
+        por_met = por_met[por_met["articulos_familia"] > 0]
+        por_met["frac_otros_articulos"] = por_met["articulos_otros"] / max(n_otros, 1)
+        por_met["metabolito"] = metn.loc[por_met.index, "NOMBRE_METABOLITO"]
+        por_met["formula"] = metn.loc[por_met.index, "FORMULA_MOLECULAR"]
+        por_met["clase"] = metn.loc[por_met.index, "ID_CLASE_QUIMICA"].map(cq["CLASE_QUIMICA"])
+        por_met.insert(0, "familia", nombre)
+        por_met.insert(1, "n_articulos_familia", len(arts))
+        tablas.append(por_met.sort_values(["articulos_familia", "frac_otros_articulos"], ascending=[False, True]))
+        esp = por_met[por_met["articulos_familia"] == len(arts)]
+        resumen.append(f"{nombre} ({len(arts)} art.): {len(esp)} en todos sus articulos, "
+                       f"{int((esp['frac_otros_articulos'] <= 0.1).sum())} en <= 10 % del resto")
+        # composicion por superclase de las unidades de la familia frente al resto (descriptivo)
+        es_fam = (m["ID_FAMILIA"] == id_fam).to_numpy()
+        if es_fam.any() and (~es_fam).any():
+            comp[nombre] = X[es_fam].mean() - X[~es_fam].mean()
+    guardar_tabla(pd.concat(tablas).reset_index(), salida["tablas"] / "metabolitos_familias_especificidad.csv")
+    if comp:
+        dif = pd.DataFrame(comp)
+        dif.index = [_nombre_cat(i) for i in dif.index]
+        guardar_tabla(dif.reset_index(names="superclase"), salida["tablas"] / "composicion_familias_vs_resto.csv")
+        graficas.mapa_calor(dif.T, salida["graficas"] / "composicion_familias_vs_resto.png",
+                            "Familias vs resto: diferencia en la fraccion de metabolitos por superclase", "Superclase",
+                            "Familia", cmap="RdBu_r", center=0, cbar_label="Fraccion en la familia - fraccion en el resto",
+                            nota=f"Descriptivo: familias con >= {min_articulos} articulos. Con pocos estudios por familia no "
+                                 "se puede separar la quimica de la familia del protocolo de cada laboratorio.")
+    hall.append(f"Firmas por familia ({len(arts_fam)} familias con >= {min_articulos} articulos; candidatos a marcadores, "
+                "a confirmar): " + "; ".join(resumen) + ".")
 
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -472,7 +482,7 @@ def ejecutar(cfg: dict[str, Any], salida: dict[str, Path], log: logging.Logger) 
         "Archivos: `unidades_por_articulo.csv`, `descripcion_perfil_superclase.csv`, `resumen_datos.json`.\n",
         encoding="utf-8")
     a = pc.get("analisis", ["enriquecimiento", "coocurrencia", "reglas", "agrupamiento", "varianza", "atipicos",
-                            "actividades", "orquideas"])
+                            "actividades", "familias"])
     if "enriquecimiento" in a:
         log.info("Enriquecimiento"); enriquecimiento(c, m, pc.get("factores_enriquecimiento", ["ID_ORDEN", "ID_FAMILIA",
                                                                                          "ID_PARTE_ESTUDIADA"]), salida, alfa, hall)
@@ -513,8 +523,8 @@ def ejecutar(cfg: dict[str, Any], salida: dict[str, Path], log: logging.Logger) 
         atipicos(X, m, Z, semilla, salida, hall)
     if "actividades" in a:
         log.info("Red de actividades"); red_actividades(salida, alfa, hall)
-    if "orquideas" in a:
-        log.info("Firma de orquideas"); firma_orquideas(c, m, salida, hall)
+    if "familias" in a:
+        log.info("Firmas por familia"); firma_familias(c, m, salida, hall, pc.get("min_articulos_familia", 2))
     res["hallazgos"] = hall
     res["estado"] = "completado"
     guardar_json(res, salida["metricas"] / "resumen_patrones.json")

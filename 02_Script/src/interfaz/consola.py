@@ -75,7 +75,7 @@ ALGORITMOS_GPU = {"xgboost", "catboost"}
 # ---------------------------------------------------------------------------------------------------------------------
 def _cabecera(paso: str | None = None) -> None:
     consola.clear()
-    titulo = Text("IA para el descubrimiento de patrones quimicos en orquideas", style="bold white")
+    titulo = Text("IA para el descubrimiento de patrones quimicos en plantas", style="bold white")
     sub = Text("Metabolomica de 52 articulos y 57 lotes - validacion agrupada por articulo", style="dim")
     consola.print(Panel(Text.assemble(titulo, "\n", sub), box=box.DOUBLE, border_style="cyan", padding=(0, 2)))
     if paso:

@@ -14,10 +14,10 @@ experimentos, no de supuestos.
 - La validacion no agrupada alcanza valores cercanos a 1 en casi todos los modelos de muestra. Esa cifra mide el
   reconocimiento del estudio y no debe reportarse como rendimiento.
 
-## 2. Pocas orquideas
-- Orchidaceae esta representada por dos articulos: *Gastrodia elata* (articulo 24, Hypersil GOLD aQ) y *Dendrobium
+## 2. Pocos articulos por familia
+- La mayoria de las familias botanicas tiene uno o dos articulos. Por ejemplo, Orchidaceae esta representada por dos articulos: *Gastrodia elata* (articulo 24, Hypersil GOLD aQ) y *Dendrobium
   officinale* (articulo 39, Agilent SB-C18), con plataformas distintas.
-- Cualquier "firma de orquidea" es descriptiva y debe confirmarse con mas especies analizadas con un mismo protocolo.
+- Cualquier "firma de familia" es descriptiva y debe confirmarse con mas especies analizadas con un mismo protocolo.
 
 ## 3. Intensidades no comparables
 - ALTURA_PICO proviene de detectores, normalizaciones y escalas distintas (areas, alturas, intensidades
@@ -54,7 +54,7 @@ experimentos, no de supuestos.
 
 ## 8. Que haria falta
 - Espectros MS/MS y RT estandarizados (indices de retencion).
-- Mas especies de Orchidaceae analizadas con un protocolo comun.
+- Mas especies por familia analizadas con un protocolo comun.
 - Muestras puente compartidas entre laboratorios.
 - Ensayos de actividad con controles negativos y valores homogeneos.
 - El mapeo pozo-especie de BAT0005/BAT0006.
