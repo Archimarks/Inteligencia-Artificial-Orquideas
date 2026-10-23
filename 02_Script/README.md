@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # 02_Script - Sistema de IA para el descubrimiento de patrones quimicos en plantas
+=======
+# 02_Script - Sistema de IA para el descubrimiento de patrones quimicos
+>>>>>>> origin/main
 
 Sistema modular y reproducible que audita `01_Datos/Base` y entrena y evalua 18 experimentos de aprendizaje
 supervisado y no supervisado. Todo resultado lleva su configuracion, sus huellas de datos y su informe.
@@ -10,7 +14,7 @@ instalado (XGBoost 2.1.4 admite GPU desde compute capability 6.0, p. ej. GTX 10x
 
 **Windows (PowerShell), con el mismo Python con el que ejecutara main.py:**
 ```powershell
-cd "D:\Inteligencia Artificial Orquideas\02_Script"
+cd "D:\Inteligencia Artificial \02_Script"
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python main.py               # abre la interfaz
@@ -22,7 +26,7 @@ ofrece instalarlas.
 
 Opcional (entorno virtual):
 ```powershell
-cd "D:\Inteligencia Artificial Orquideas"
+cd "D:\Inteligencia Artificial "
 py -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r 02_Script\requirements.txt
@@ -30,13 +34,13 @@ python -m pip install -r 02_Script\requirements.txt
 
 **Linux / macOS:**
 ```bash
-cd "Inteligencia Artificial Orquideas/02_Script"
+cd "Inteligencia Artificial /02_Script"
 python3 -m pip install -r requirements.txt
 python3 main.py
 ```
 
 Las rutas se resuelven solas a partir de la carpeta padre de `02_Script` (`raiz_proyecto: auto` en
-`config/rutas.yaml`). Para fijarlas a mano: `raiz_proyecto: "D:/Inteligencia Artificial Orquideas"`.
+`config/rutas.yaml`). Para fijarlas a mano: `raiz_proyecto: "D:/Inteligencia Artificial "`.
 
 ## 2. Interfaz (recomendada)
 

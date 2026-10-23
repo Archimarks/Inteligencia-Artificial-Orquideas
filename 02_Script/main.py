@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 """Punto de entrada del sistema de IA para patrones quimicos en plantas (diversas especies y familias botanicas).
+=======
+"""Punto de entrada del sistema de IA para patrones quimicos plantas medicinales.
+>>>>>>> origin/main
 
 Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) abre la interfaz: maquina -> datos -> modelos ->
 opciones -> entrenamiento -> resultados.
