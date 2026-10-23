@@ -1,0 +1,12 @@
+2026-10-22 13:46:08,246 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 | Ejecucion 20261022-134608_M17b_actividades_metabolito_e835e018 | Actividades biologicas de un metabolito a partir de su formula y superclase
+2026-10-22 13:46:08,246 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 13:46:09,017 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 | 93 unidades, 75 grupos, 6 clases, 5 particiones (group_kfold)
+2026-10-22 13:46:09,094 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   baseline_prior: average_precision_macro=0.292 (0.1 s)
+2026-10-22 13:46:13,129 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   logistica: average_precision_macro=0.395 (4.0 s)
+2026-10-22 13:46:15,377 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   random_forest: average_precision_macro=0.419 (2.2 s)
+2026-10-22 13:46:17,172 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   knn: average_precision_macro=0.436 (1.8 s)
+2026-10-22 13:46:34,294 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   xgboost: average_precision_macro=0.408 (17.1 s)
+2026-10-22 13:52:46,382 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   catboost: average_precision_macro=0.421 (372.1 s)
+2026-10-22 13:52:46,891 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   Evaluacion no agrupada (optimista): average_precision_macro=0.499
+2026-10-22 13:52:52,098 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 |   Permutacion: p=0.039
+2026-10-22 13:52:52,115 | INFO    | orquideas.20261022-134608_M17b_actividades_metabolito_e835e018 | Estado: completado (403.8 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M17b_Actividades_Metabolito\ejecuciones\20261022-134608_M17b_actividades_metabolito_e835e018\informe.md

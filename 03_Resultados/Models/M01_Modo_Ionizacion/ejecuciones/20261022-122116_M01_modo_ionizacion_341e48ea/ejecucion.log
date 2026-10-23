@@ -1,0 +1,13 @@
+2026-10-22 12:21:16,787 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea | Ejecucion 20261022-122116_M01_modo_ionizacion_341e48ea | Modo de ionizacion (ESI+ / ESI-) a partir de la quimica del compuesto
+2026-10-22 12:21:16,787 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 12:21:18,844 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea | 69686 unidades, 46 grupos, 2 clases, 5 particiones (group_kfold)
+2026-10-22 12:21:19,889 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   baseline_mayoritaria: balanced_accuracy=0.500 (1.0 s)
+2026-10-22 12:21:20,904 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   baseline_estratificada: balanced_accuracy=0.503 (1.0 s)
+2026-10-22 12:21:22,507 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   logistica: balanced_accuracy=0.620 (1.6 s)
+2026-10-22 12:21:30,007 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   random_forest: balanced_accuracy=0.686 (7.5 s)
+2026-10-22 12:21:34,196 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   lightgbm: balanced_accuracy=0.682 (4.2 s)
+2026-10-22 12:21:42,271 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   xgboost: balanced_accuracy=0.682 (8.1 s)
+2026-10-22 12:22:17,837 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   catboost: balanced_accuracy=0.680 (35.6 s)
+2026-10-22 12:22:25,905 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   Evaluacion no agrupada (optimista): balanced_accuracy=0.702
+2026-10-22 12:25:35,176 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea |   Permutacion: p=0.048
+2026-10-22 12:25:38,897 | INFO    | orquideas.20261022-122116_M01_modo_ionizacion_341e48ea | Estado: completado (261.7 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M01_Modo_Ionizacion\ejecuciones\20261022-122116_M01_modo_ionizacion_341e48ea\informe.md

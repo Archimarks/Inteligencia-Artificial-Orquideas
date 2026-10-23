@@ -1,0 +1,14 @@
+2026-10-22 14:18:38,514 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 | Ejecucion 20261022-141838_M13_parte_planta_b6fb0605 | Parte de la planta a partir del perfil quimico
+2026-10-22 14:18:38,514 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 14:18:40,365 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 | 772 unidades, 44 grupos, 9 clases, 5 particiones (group_kfold)
+2026-10-22 14:18:40,424 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   baseline_mayoritaria: balanced_accuracy=0.111 (0.1 s)
+2026-10-22 14:18:40,493 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   baseline_estratificada: balanced_accuracy=0.093 (0.1 s)
+2026-10-22 14:18:40,776 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   logistica: balanced_accuracy=0.141 (0.3 s)
+2026-10-22 14:18:45,286 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   random_forest: balanced_accuracy=0.069 (4.5 s)
+2026-10-22 14:18:49,805 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   lightgbm: balanced_accuracy=0.077 (4.5 s)
+2026-10-22 14:19:13,358 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   xgboost: balanced_accuracy=0.039 (23.6 s)
+2026-10-22 14:19:45,248 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   catboost: balanced_accuracy=0.098 (31.9 s)
+2026-10-22 14:19:46,183 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   Evaluacion no agrupada (optimista): balanced_accuracy=0.886
+2026-10-22 14:19:46,337 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   Control instrumental: balanced_accuracy=0.086
+2026-10-22 14:19:56,410 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 |   Permutacion: p=0.065
+2026-10-22 14:19:57,360 | INFO    | orquideas.20261022-141838_M13_parte_planta_b6fb0605 | Estado: completado (78.3 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M13_Parte_Planta\ejecuciones\20261022-141838_M13_parte_planta_b6fb0605\informe.md

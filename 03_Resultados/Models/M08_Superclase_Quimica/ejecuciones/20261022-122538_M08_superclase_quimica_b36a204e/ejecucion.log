@@ -1,0 +1,13 @@
+2026-10-22 12:25:38,908 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e | Ejecucion 20261022-122538_M08_superclase_quimica_b36a204e | Superclase quimica a partir de la formula molecular
+2026-10-22 12:25:38,908 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 12:25:43,549 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e | 31055 unidades, 12851 grupos, 13 clases, 5 particiones (group_kfold)
+2026-10-22 12:25:43,805 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   baseline_mayoritaria: balanced_accuracy=0.077 (0.3 s)
+2026-10-22 12:25:44,066 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   baseline_estratificada: balanced_accuracy=0.078 (0.3 s)
+2026-10-22 12:25:51,526 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   logistica: balanced_accuracy=0.530 (7.5 s)
+2026-10-22 12:25:56,303 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   random_forest: balanced_accuracy=0.537 (4.8 s)
+2026-10-22 12:26:20,170 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   lightgbm: balanced_accuracy=0.520 (23.9 s)
+2026-10-22 12:27:30,309 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   xgboost: balanced_accuracy=0.556 (70.1 s)
+2026-10-22 12:28:12,577 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   catboost: balanced_accuracy=0.575 (42.3 s)
+2026-10-22 12:28:56,281 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   Evaluacion no agrupada (optimista): balanced_accuracy=0.589
+2026-10-22 12:43:33,802 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e |   Permutacion: p=0.048
+2026-10-22 12:43:43,222 | INFO    | orquideas.20261022-122538_M08_superclase_quimica_b36a204e | Estado: completado (1084.0 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M08_Superclase_Quimica\ejecuciones\20261022-122538_M08_superclase_quimica_b36a204e\informe.md

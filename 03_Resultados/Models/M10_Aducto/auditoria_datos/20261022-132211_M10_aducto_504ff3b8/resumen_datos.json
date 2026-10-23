@@ -1,0 +1,39 @@
+{
+  "conjunto": "metabolito_aducto",
+  "tipo": "multiclase",
+  "unidades_iniciales": 57550,
+  "unidades_evaluables": 57550,
+  "grupos_iniciales": 38,
+  "grupos_evaluables": 38,
+  "columna_grupo": "ID_ARTICULO",
+  "variables": 47,
+  "variables_constantes": 3,
+  "celdas_nulas": 0,
+  "filas_X_duplicadas": 33199,
+  "unidades_por_grupo": {
+    "min": 78,
+    "mediana": 1171.5,
+    "max": 7479
+  },
+  "clases_evaluables": [
+    "[M-H]-",
+    "[M+H]+",
+    "[M+NH4]+",
+    "[M+H-H2O]+",
+    "[M+Na]+",
+    "[M+FA-H]-",
+    "[M]+",
+    "[M-H2O-H]-",
+    "[2M-H]-",
+    "[M+K]+",
+    "[M+ACN+H]+",
+    "[M]-",
+    "[2M+H]+",
+    "[2M+Na]+",
+    "[M+CH3COO]-"
+  ],
+  "variables_instrumentales": [
+    "ID_MODO_IONIZACION_1",
+    "ID_MODO_IONIZACION_2"
+  ]
+}

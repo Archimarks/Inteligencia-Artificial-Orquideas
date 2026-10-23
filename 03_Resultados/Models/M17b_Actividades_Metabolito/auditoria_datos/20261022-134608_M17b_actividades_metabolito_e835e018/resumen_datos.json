@@ -1,0 +1,27 @@
+{
+  "conjunto": "actividad_metabolito",
+  "tipo": "multietiqueta",
+  "unidades_iniciales": 93,
+  "unidades_evaluables": 93,
+  "grupos_iniciales": 75,
+  "grupos_evaluables": 75,
+  "columna_grupo": "FORMULA_MOLECULAR",
+  "variables": 35,
+  "variables_constantes": 8,
+  "celdas_nulas": 0,
+  "filas_X_duplicadas": 16,
+  "unidades_por_grupo": {
+    "min": 1,
+    "mediana": 1.0,
+    "max": 4
+  },
+  "clases_evaluables": [
+    "Antioxidante",
+    "Antiinflamatorio",
+    "Anticancerigeno",
+    "Antimicrobiano",
+    "Neuroprotector",
+    "Antidiabetico"
+  ],
+  "variables_instrumentales": null
+}

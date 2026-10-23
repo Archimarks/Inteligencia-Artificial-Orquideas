@@ -1,0 +1,14 @@
+2026-10-22 14:15:55,950 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de | Ejecucion 20261022-141555_M12_tipo_muestra_73ef39de | Tipo de muestra a partir del perfil quimico
+2026-10-22 14:15:55,950 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 14:15:57,693 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de | 915 unidades, 47 grupos, 3 clases, 5 particiones (group_kfold)
+2026-10-22 14:15:57,754 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   baseline_mayoritaria: balanced_accuracy=0.333 (0.1 s)
+2026-10-22 14:15:57,813 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   baseline_estratificada: balanced_accuracy=0.325 (0.1 s)
+2026-10-22 14:15:57,969 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   logistica: balanced_accuracy=0.295 (0.2 s)
+2026-10-22 14:16:02,281 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   random_forest: balanced_accuracy=0.313 (4.3 s)
+2026-10-22 14:16:04,405 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   lightgbm: balanced_accuracy=0.327 (2.1 s)
+2026-10-22 14:16:11,404 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   xgboost: balanced_accuracy=0.326 (7.0 s)
+2026-10-22 14:16:34,997 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   catboost: balanced_accuracy=0.295 (23.6 s)
+2026-10-22 14:16:37,930 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   Evaluacion no agrupada (optimista): balanced_accuracy=0.998
+2026-10-22 14:16:39,366 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   Control instrumental: balanced_accuracy=0.287
+2026-10-22 14:18:37,029 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de |   Permutacion: p=0.710
+2026-10-22 14:18:38,504 | INFO    | orquideas.20261022-141555_M12_tipo_muestra_73ef39de | Estado: completado (162.0 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M12_Tipo_Muestra\ejecuciones\20261022-141555_M12_tipo_muestra_73ef39de\informe.md

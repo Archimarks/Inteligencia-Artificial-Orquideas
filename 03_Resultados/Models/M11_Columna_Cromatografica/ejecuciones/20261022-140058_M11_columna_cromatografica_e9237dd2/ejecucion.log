@@ -1,0 +1,14 @@
+2026-10-22 14:00:58,399 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 | Ejecucion 20261022-140058_M11_columna_cromatografica_e9237dd2 | Columna cromatografica a partir del perfil quimico
+2026-10-22 14:00:58,399 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 14:01:00,138 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 | 649 unidades, 38 grupos, 5 clases, 5 particiones (group_kfold)
+2026-10-22 14:01:00,194 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   baseline_mayoritaria: balanced_accuracy=0.200 (0.1 s)
+2026-10-22 14:01:00,250 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   baseline_estratificada: balanced_accuracy=0.191 (0.1 s)
+2026-10-22 14:01:00,367 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   logistica: balanced_accuracy=0.401 (0.1 s)
+2026-10-22 14:01:04,659 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   random_forest: balanced_accuracy=0.392 (4.3 s)
+2026-10-22 14:01:06,822 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   lightgbm: balanced_accuracy=0.355 (2.2 s)
+2026-10-22 14:01:15,275 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   xgboost: balanced_accuracy=0.357 (8.5 s)
+2026-10-22 14:01:43,446 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   catboost: balanced_accuracy=0.510 (28.2 s)
+2026-10-22 14:02:11,871 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 14:02:34,878 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   Control instrumental: balanced_accuracy=0.136
+2026-10-22 14:15:49,677 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 |   Permutacion: p=0.032
+2026-10-22 14:15:55,924 | INFO    | orquideas.20261022-140058_M11_columna_cromatografica_e9237dd2 | Estado: completado (897.0 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M11_Columna_Cromatografica\ejecuciones\20261022-140058_M11_columna_cromatografica_e9237dd2\informe.md

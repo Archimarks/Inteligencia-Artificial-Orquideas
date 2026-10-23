@@ -1,0 +1,63 @@
+{
+  "conjunto": "actividad_metabolito",
+  "tipo": "multietiqueta",
+  "notas": [
+    "Etiquetas positivas-no etiquetadas (PU): una actividad no registrada no significa inactividad. Solo hay metabolitos con alguna actividad citada, de modo que el modelo aprende que actividad, no si es activo."
+  ],
+  "unidades_iniciales": 93,
+  "grupos_iniciales": 75,
+  "columna_grupo": "FORMULA_MOLECULAR",
+  "unidades": 93,
+  "grupos": 75,
+  "clases_evaluables": 6,
+  "clases": [
+    "Antioxidante",
+    "Antiinflamatorio",
+    "Anticancerigeno",
+    "Antimicrobiano",
+    "Neuroprotector",
+    "Antidiabetico"
+  ],
+  "clases_descartadas": 0,
+  "variables": 35,
+  "filas_X_duplicadas": 16,
+  "particiones": 5,
+  "metrica_principal": "average_precision_macro",
+  "mejor_modelo": "knn",
+  "valor_mejor": 0.43634835257221827,
+  "valor_baseline": 0.291914241726533,
+  "metricas_mejor": {
+    "segundos": 1.8,
+    "f1_micro": 0.521505376344086,
+    "f1_micro_media_particiones": 0.5237555010892185,
+    "f1_micro_de_particiones": 0.10775997261340549,
+    "f1_macro": 0.3745696136154682,
+    "f1_macro_media_particiones": 0.3629395546310247,
+    "f1_macro_de_particiones": 0.10915915196335901,
+    "hamming_loss": 0.31899641577060933,
+    "hamming_loss_media_particiones": 0.31717436974789914,
+    "hamming_loss_de_particiones": 0.08991216770635227,
+    "subset_accuracy": 0.17204301075268819,
+    "subset_accuracy_media_particiones": 0.17735760971055087,
+    "subset_accuracy_de_particiones": 0.10299917275629097,
+    "roc_auc_macro": 0.6079057291576089,
+    "roc_auc_macro_media_particiones": 0.6434086123524825,
+    "roc_auc_macro_de_particiones": 0.05476798545321116,
+    "average_precision_macro": 0.43634835257221827,
+    "average_precision_macro_media_particiones": 0.5512764879837239,
+    "average_precision_macro_de_particiones": 0.0484734788043874,
+    "prevalencia_media": 0.34050179211469533,
+    "prevalencia_media_media_particiones": 0.3477186430127607,
+    "prevalencia_media_de_particiones": 0.07533361116324805
+  },
+  "valor_optimista_sin_agrupar": 0.49903637246430077,
+  "permutacion": {
+    "n": 50,
+    "media_nula": 0.3507657554950018,
+    "p95_nula": 0.390593335108255,
+    "p_valor": 0.0392156862745098
+  },
+  "archivo_modelo": "C:\\Users\\Dev-Marcos\\Desktop\\Inteligencia Artificial Orquideas\\03_Resultados\\Models\\M17b_Actividades_Metabolito\\modelo_entrenado\\20261022-134608_M17b_actividades_metabolito_e835e018\\modelo.joblib",
+  "estado": "completado",
+  "segundos": 403.8
+}

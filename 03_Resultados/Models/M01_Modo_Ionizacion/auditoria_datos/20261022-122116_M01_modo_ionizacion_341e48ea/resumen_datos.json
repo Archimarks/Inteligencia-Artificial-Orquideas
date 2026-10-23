@@ -1,0 +1,23 @@
+{
+  "conjunto": "metabolito_modo",
+  "tipo": "multiclase",
+  "unidades_iniciales": 69686,
+  "unidades_evaluables": 69686,
+  "grupos_iniciales": 46,
+  "grupos_evaluables": 46,
+  "columna_grupo": "ID_ARTICULO",
+  "variables": 46,
+  "variables_constantes": 4,
+  "celdas_nulas": 0,
+  "filas_X_duplicadas": 47478,
+  "unidades_por_grupo": {
+    "min": 11,
+    "mediana": 1147.0,
+    "max": 7479
+  },
+  "clases_evaluables": [
+    "Positivo",
+    "Negativo"
+  ],
+  "variables_instrumentales": null
+}

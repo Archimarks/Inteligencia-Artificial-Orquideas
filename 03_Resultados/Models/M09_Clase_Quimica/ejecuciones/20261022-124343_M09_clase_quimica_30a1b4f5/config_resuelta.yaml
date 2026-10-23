@@ -1,0 +1,46 @@
+split:
+  strategy: group_kfold
+  n_splits: 5
+  group_column: ID_ARTICULO
+  min_groups_per_class: 5
+  min_samples_per_class: 50
+evaluation:
+  permutation_test: true
+  n_permutations: 20
+  confounding_control: true
+  evaluacion_optimista: true
+outputs:
+  save_model: true
+  save_predictions: true
+  save_plots: true
+  dpi: 200
+  overwrite: false
+id: M09_clase_quimica
+nombre: Clase quimica a partir de la formula molecular
+tarea: supervisado
+prioridad: normal
+pregunta_cientifica: ¿La formula molecular permite asignar la clase quimica (nivel
+  fino de la ontologia) de un metabolito?
+descripcion: Igual que M08 pero con las 40 clases quimicas mas frecuentes (>= 50 metabolitos
+  y >= 5 formulas). Grupos = formula.
+conjunto:
+  nombre: metabolito_quimica
+  parametros:
+    objetivo: ID_CLASE_QUIMICA
+max_clases: 40
+modelos:
+- nombre: baseline_mayoritaria
+- nombre: baseline_estratificada
+- nombre: logistica
+- nombre: random_forest
+  hiperparametros:
+    n_estimators: 200
+- nombre: lightgbm
+- nombre: xgboost
+- nombre: catboost
+interpretacion: Problema mas dificil que M08 por el numero de clases y los isomeros;
+  comparar con top3_accuracy.
+seleccion_variables:
+  metodo: ninguna
+semilla: 42
+n_jobs: -1

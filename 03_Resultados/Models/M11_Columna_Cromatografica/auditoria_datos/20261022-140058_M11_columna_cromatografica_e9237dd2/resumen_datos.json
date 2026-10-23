@@ -1,0 +1,34 @@
+{
+  "conjunto": "perfil_muestra[ID_COLUMNA_CROMATOGRAFICA|clase]",
+  "tipo": "multiclase",
+  "unidades_iniciales": 868,
+  "unidades_evaluables": 649,
+  "grupos_iniciales": 47,
+  "grupos_evaluables": 38,
+  "columna_grupo": "ID_ARTICULO",
+  "variables": 61,
+  "variables_constantes": 0,
+  "celdas_nulas": 0,
+  "filas_X_duplicadas": 537,
+  "unidades_por_grupo": {
+    "min": 5,
+    "mediana": 12.0,
+    "max": 120
+  },
+  "clases_evaluables": [
+    "Waters ACQUITY Premier HSS T3 (1.8 um, 2.1 x 100 mm)",
+    "Agilent SB-C18 (1.8 um, 2.1 x 100 mm)",
+    "Waters ACQUITY UPLC HSS T3 (1.8 um, 2.1 x 100 mm)",
+    "Hypersil GOLD (1.9 um, 100 x 2.1 mm)",
+    "Waters ACQUITY UPLC BEH C18 (1.7 um, 2.1 x 100 mm)"
+  ],
+  "variables_instrumentales": [
+    "MODOS_0",
+    "MODOS_1",
+    "MODOS_1+2",
+    "MODOS_1+2+3",
+    "MODOS_2",
+    "log_n_identificados",
+    "log_n_senales"
+  ]
+}

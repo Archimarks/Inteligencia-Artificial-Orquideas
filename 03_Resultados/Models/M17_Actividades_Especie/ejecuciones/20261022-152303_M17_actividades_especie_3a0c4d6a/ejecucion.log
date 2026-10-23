@@ -1,0 +1,11 @@
+2026-10-22 15:23:03,929 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a | Ejecucion 20261022-152303_M17_actividades_especie_3a0c4d6a | Actividades biologicas de una especie a partir de su perfil quimico
+2026-10-22 15:23:03,929 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 15:23:05,067 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a | 60 unidades, 44 grupos, 16 clases, 5 particiones (group_kfold)
+2026-10-22 15:23:05,208 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   baseline_prior: average_precision_macro=0.300 (0.1 s)
+2026-10-22 15:23:05,417 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   logistica: average_precision_macro=0.396 (0.2 s)
+2026-10-22 15:23:07,795 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   random_forest: average_precision_macro=0.416 (2.4 s)
+2026-10-22 15:23:07,957 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   knn: average_precision_macro=0.405 (0.2 s)
+2026-10-22 15:23:42,377 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   xgboost: average_precision_macro=0.450 (34.4 s)
+2026-10-22 15:34:14,420 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   catboost: average_precision_macro=0.452 (632.0 s)
+2026-10-22 15:45:03,481 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   Evaluacion no agrupada (optimista): average_precision_macro=0.723
+2026-10-22 15:58:25,289 | INFO    | orquideas.20261022-152303_M17_actividades_especie_3a0c4d6a |   Control instrumental: average_precision_macro=0.458

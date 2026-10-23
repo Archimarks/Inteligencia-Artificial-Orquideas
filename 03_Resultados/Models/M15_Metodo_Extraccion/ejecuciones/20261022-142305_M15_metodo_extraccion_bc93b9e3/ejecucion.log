@@ -1,0 +1,14 @@
+2026-10-22 14:23:05,697 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 | Ejecucion 20261022-142305_M15_metodo_extraccion_bc93b9e3 | Metodo de extraccion a partir del perfil quimico
+2026-10-22 14:23:05,698 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 14:23:07,389 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 | 541 unidades, 32 grupos, 6 clases, 5 particiones (group_kfold)
+2026-10-22 14:23:07,450 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   baseline_mayoritaria: balanced_accuracy=0.167 (0.1 s)
+2026-10-22 14:23:07,512 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   baseline_estratificada: balanced_accuracy=0.136 (0.1 s)
+2026-10-22 14:23:07,677 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   logistica: balanced_accuracy=0.515 (0.2 s)
+2026-10-22 14:23:11,574 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   random_forest: balanced_accuracy=0.349 (3.9 s)
+2026-10-22 14:23:13,720 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   lightgbm: balanced_accuracy=0.468 (2.1 s)
+2026-10-22 14:23:23,769 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   xgboost: balanced_accuracy=0.444 (10.0 s)
+2026-10-22 14:23:52,889 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   catboost: balanced_accuracy=0.468 (29.1 s)
+2026-10-22 14:23:53,676 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 14:23:53,813 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   Control instrumental: balanced_accuracy=0.543
+2026-10-22 14:24:02,123 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 |   Permutacion: p=0.032
+2026-10-22 14:24:03,013 | INFO    | orquideas.20261022-142305_M15_metodo_extraccion_bc93b9e3 | Estado: completado (56.8 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M15_Metodo_Extraccion\ejecuciones\20261022-142305_M15_metodo_extraccion_bc93b9e3\informe.md

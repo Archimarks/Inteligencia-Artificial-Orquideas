@@ -1,0 +1,13 @@
+2026-10-22 14:24:03,023 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 | Ejecucion 20261022-142403_M16_metabolitos_27840f44 | Presencia de metabolitos frecuentes a partir de taxonomia y tipo de muestra
+2026-10-22 14:24:03,023 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 14:24:06,572 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 | 129 unidades, 49 grupos, 60 clases, 5 particiones (group_kfold)
+2026-10-22 14:24:06,967 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   baseline_prior: average_precision_macro=0.364 (0.4 s)
+2026-10-22 14:24:10,052 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   logistica: average_precision_macro=0.499 (3.1 s)
+2026-10-22 14:24:14,489 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   random_forest: average_precision_macro=0.413 (4.4 s)
+2026-10-22 14:24:14,935 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   knn: average_precision_macro=0.424 (0.4 s)
+2026-10-22 14:27:50,979 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   xgboost: average_precision_macro=0.443 (216.0 s)
+2026-10-22 15:22:38,828 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   catboost: average_precision_macro=0.473 (3287.8 s)
+2026-10-22 15:22:42,690 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   Evaluacion no agrupada (optimista): average_precision_macro=0.881
+2026-10-22 15:22:43,327 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   Control instrumental: average_precision_macro=0.591
+2026-10-22 15:23:02,960 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 |   Permutacion: p=0.032
+2026-10-22 15:23:03,915 | INFO    | orquideas.20261022-142403_M16_metabolitos_27840f44 | Estado: completado (3540.4 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M16_Metabolitos\ejecuciones\20261022-142403_M16_metabolitos_27840f44\informe.md

@@ -1,0 +1,14 @@
+2026-10-22 13:55:01,878 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 | Ejecucion 20261022-135501_M04_orden_cb32bf85 | Orden taxonomico a partir del perfil quimico
+2026-10-22 13:55:01,878 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 | Hardware: 16 nucleos CPU; GPU detectadas: 2 | GPU 0: NVIDIA GeForce GTX 1050 Ti (4096 MB) | GPU 1: NVIDIA GeForce GTX 1050 Ti (4096 MB); GPU usadas para entrenar: [0, 1]
+2026-10-22 13:55:03,645 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 | 746 unidades, 38 grupos, 9 clases, 5 particiones (group_kfold)
+2026-10-22 13:55:03,709 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   baseline_mayoritaria: balanced_accuracy=0.111 (0.1 s)
+2026-10-22 13:55:03,777 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   baseline_estratificada: balanced_accuracy=0.116 (0.1 s)
+2026-10-22 13:55:03,973 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   logistica: balanced_accuracy=0.225 (0.2 s)
+2026-10-22 13:55:08,320 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   random_forest: balanced_accuracy=0.253 (4.3 s)
+2026-10-22 13:55:12,000 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   lightgbm: balanced_accuracy=0.236 (3.7 s)
+2026-10-22 13:55:29,625 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   xgboost: balanced_accuracy=0.209 (17.6 s)
+2026-10-22 13:56:01,335 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   catboost: balanced_accuracy=0.203 (31.7 s)
+2026-10-22 13:56:06,306 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   Evaluacion no agrupada (optimista): balanced_accuracy=1.000
+2026-10-22 13:56:10,614 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   Control instrumental: balanced_accuracy=0.189
+2026-10-22 13:58:22,043 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 |   Permutacion: p=0.032
+2026-10-22 13:58:23,967 | INFO    | orquideas.20261022-135501_M04_orden_cb32bf85 | Estado: completado (201.5 s). Informe: C:\Users\Dev-Marcos\Desktop\Inteligencia Artificial Orquideas\03_Resultados\Models\M04_Orden\ejecuciones\20261022-135501_M04_orden_cb32bf85\informe.md
