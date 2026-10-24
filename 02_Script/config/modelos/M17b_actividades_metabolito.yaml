@@ -1,38 +1,72 @@
+# ==============================================================================================================
+# M17b_actividades_metabolito - Actividades biologicas de un metabolito a partir de su formula y superclase
+# Entrenamientos: supervisado (multietiqueta) + no supervisado (agrupamiento)
+# Ejecutar: python main.py ejecutar M17b | Ver datos y variables sin entrenar: python main.py datos M17b --variables
+# ==============================================================================================================
 id: M17b_actividades_metabolito
 nombre: Actividades biologicas de un metabolito a partir de su formula y superclase
-tarea: supervisado
-prioridad: alta
-pregunta_cientifica: ¿La composicion elemental y la superclase de un metabolito con actividad citada permiten anticipar
-  que tipo de actividad se le atribuye?
-descripcion: Unidad = metabolito con actividad registrada en la literatura citada por los articulos. Y = actividades
-  con >= 6 metabolitos. X = descriptores de formula + superclase. Grupos = formula.
+tarea: supervisado                  # entrenamiento principal: supervisado | patrones (no supervisado)
+prioridad: alta                     # normal | alta | central (orden en la interfaz)
+pregunta_cientifica: >-
+  ¿La composicion elemental y la superclase de un metabolito con actividad citada permiten anticipar que tipo de
+  actividad se le atribuye?
+descripcion: >-
+  Unidad = metabolito con actividad registrada en la literatura citada por los articulos. Y = actividades con >=
+  6 metabolitos. X = descriptores de formula + superclase. Grupos = formula.
+interpretacion: >-
+  Muy pocos metabolitos (~40 con actividad citada) y sesgo de publicacion: compuestos famosos acumulan muchas
+  actividades citadas. Con min_positivos 6 quedan ~5 actividades; resultados exploratorios.
+
+# --- Conjunto: unidad de analisis y construccion de las variables ---------------------------------------------
+# El objetivo se indica en datos_entrenamiento.objetivo (abajo).
 conjunto:
-  nombre: actividad_metabolito
+  nombre: actividad_metabolito      # constructor en src/features/conjuntos.py
   parametros:
-    min_positivos: 6
+    min_positivos: 6                # solo etiquetas con >= N unidades positivas
+
+# --- Validacion cruzada agrupada (entrenamiento supervisado) --------------------------------------------------
 split:
-  n_splits: 5
-  min_groups_per_class: 3
-  min_samples_per_class: 5
+  strategy: group_kfold             # group_kfold | leave_one_group_out (un grupo nunca se reparte)
+  n_splits: 5                       # numero de particiones de la validacion cruzada
+  min_groups_per_class: 3           # una clase se evalua solo si aparece en >= N grupos
+  min_samples_per_class: 5          # ... y en >= N unidades
+
+# --- Entrenamiento supervisado: algoritmos --------------------------------------------------------------------
+# Los baselines no aprenden de la quimica: un algoritmo util debe superarlos.
 modelos:
-- nombre: baseline_prior
-- nombre: logistica
-  hiperparametros:
-    C: 0.3
-- nombre: random_forest
-  hiperparametros:
-    n_estimators: 300
-    class_weight: null
-- nombre: knn
-- nombre: xgboost
-- nombre: catboost
-evaluation:
-  n_permutations: 50
-  confounding_control: false
-interpretacion: 'Muy pocos metabolitos (~40 con actividad citada) y sesgo de publicacion: compuestos famosos acumulan
-  muchas actividades citadas. Con min_positivos 6 quedan ~5 actividades; resultados exploratorios.'
+- nombre: baseline_prior            # referencia: predice la prevalencia de cada etiqueta
+- nombre: logistica                 # regresion logistica (lineal, interpretable)
+  hiperparametros: {C: 0.3}
+- nombre: random_forest             # bosque aleatorio
+  hiperparametros: {class_weight: null, n_estimators: 300}
+- nombre: knn                       # k vecinos mas cercanos
+- nombre: xgboost                   # gradient boosting (GPU si hay)
+- nombre: catboost                  # gradient boosting (GPU si hay)
 seleccion_variables:
-  metodo: ninguna
+  metodo: ninguna                   # ninguna | anova | informacion_mutua (con k = numero de variables)
+
+# --- Evaluacion del entrenamiento supervisado -----------------------------------------------------------------
+evaluation:
+  permutation_test: true            # prueba de permutacion de la etiqueta (p-valor)
+  n_permutations: 50                # mas permutaciones = p mas preciso y entrenamiento mas largo
+  confounding_control: false        # modelo con solo variables de plataforma: el quimico debe superarlo
+  evaluacion_optimista: true        # repite sin agrupar para medir cuanto inflaria una validacion ingenua
+
+# --- Entrenamiento no supervisado: mismas unidades, sin usar el objetivo --------------------------------------
+# Agrupa las unidades (PCA + K-means/jerarquico), mide la estabilidad de los grupos y busca atipicos;
+# despues compara los grupos con las referencias. Si siguen al articulo y no al objetivo, domina el
+# efecto de estudio/plataforma. Resultados en metricas/<run_id>/no_supervisado/.
+no_supervisado:
+  activo: true                      # false = solo el entrenamiento supervisado
+  matriz: entrada                   # entrada = variables X | objetivo = matriz multietiqueta (presencias, actividades)
+  referencias: [objetivo]           # con que se comparan los grupos: objetivo, grupos o columnas de la unidad
+  componentes: 10                   # componentes principales (PCA) tras estandarizar
+  metodos: [kmeans, jerarquico]     # kmeans | jerarquico (Ward; se omite con > 12000 unidades)
+  k_min: 2                          # numero de grupos a probar; se elige el de mayor silueta
+  k_max: 6
+  n_bootstrap: 20                   # remuestreos para medir la estabilidad de los grupos
+  contaminacion: 0.05               # fraccion esperada de unidades atipicas (Isolation Forest)
+  max_unidades: 30000               # submuestra estratificada si hay mas unidades
 
 # --- Datos de entrenamiento (supervisado) ---------------------------------------------------------------------
 # tipo_aprendizaje: supervisado -> el modelo aprende a predecir una variable objetivo
@@ -44,9 +78,11 @@ seleccion_variables:
 #   control_instrumental: variables de plataforma del modelo de control (quitar = no usarlas)
 #   filtros_agregacion: columnas para filtrar muestras y agregar (informativo)
 # variables.incluir / excluir: seleccion fina de las variables X ya construidas (comodines * ?)
+# Con dos entrenamientos, el no supervisado usa las mismas variables de entrada y solo mira el objetivo
+#   despues, para evaluar los grupos que encontro (nunca para entrenar).
 # Ver sin entrenar: python main.py datos M17b [--variables] | Regenerar: python main.py datos M17b --escribir-yaml
 datos_entrenamiento:
-  tipo_aprendizaje: supervisado
+  tipo_aprendizaje: [supervisado, no_supervisado]
   objetivo: ID_ACTIVIDAD_BIOLOGICA
   grupos_validacion: FORMULA_MOLECULAR
   archivos:
@@ -62,6 +98,15 @@ datos_entrenamiento:
     clases_quim:
       ruta: 06_Quimica_Analitica/03_Clases_quimicas.csv
       entrada: [ID_CLASE_QUIMICA, ID_SUPERCLASE_QUIMICA]
-  variables:
+  variables:                    # seleccion fina de las variables X ya construidas
+    # Vacio = se usan TODAS las variables disponibles (recomendado). Para probar otra combinacion:
+    #   incluir: solo estas variables | excluir: todas menos estas (nombre, comodin * ? o columna de origen)
     incluir: []
     excluir: []
+    # Variables disponibles:
+    # - FORMULA_MOLECULAR -> 24 descriptores de la formula: n_C, n_H, n_N, n_O, n_P, n_S, n_F, n_Cl, n_Br,
+    #     n_I, n_otros, dbe, masa_formula, n_atomos_pesados, H_C, O_C, N_C, S_C, P_C, dbe_C, heteroatomos,
+    #     halogenado, ai_mod, regla_nitrogeno_par
+    # - ID_SUPERCLASE_QUIMICA -> ID_SUPERCLASE_QUIMICA_<id>: una variable 0/1 por categoria
+    # Ejemplos: incluir: [n_C, n_H, n_N, n_O, dbe, H_C, O_C]; excluir: [ID_SUPERCLASE_QUIMICA]
+    # Lista exacta con nombres: python main.py datos M17b --variables

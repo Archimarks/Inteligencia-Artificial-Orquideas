@@ -122,6 +122,8 @@ def validar(cfg: dict[str, Any], p: Path | str = "<config>") -> None:
     errores += _validar_datos_entrenamiento(cfg.get("datos_entrenamiento"))
     if not errores:
         from ..features import fuentes
+        from ..tasks import no_supervisado
+        errores += no_supervisado.validar(cfg)
         errores += fuentes.sincronizar(cfg)
         errores += fuentes.validar_declaracion(cfg)
     if errores:
@@ -137,8 +139,10 @@ def _validar_datos_entrenamiento(de: Any) -> list[str]:
         return ["datos_entrenamiento debe ser un diccionario con 'archivos' y/o 'variables'"]
     validas = ("tipo_aprendizaje", "objetivo", "grupos_validacion", "archivos", "variables")
     errores = [f"datos_entrenamiento.{k} no es una clave valida (use {', '.join(validas)})" for k in de if k not in validas]
-    if "tipo_aprendizaje" in de and de["tipo_aprendizaje"] not in ("supervisado", "no_supervisado"):
-        errores.append("datos_entrenamiento.tipo_aprendizaje debe ser 'supervisado' o 'no_supervisado'")
+    tipos = de.get("tipo_aprendizaje")
+    tipos = [tipos] if isinstance(tipos, str) else tipos
+    if "tipo_aprendizaje" in de and (not isinstance(tipos, list) or set(tipos) - {"supervisado", "no_supervisado"}):
+        errores.append("datos_entrenamiento.tipo_aprendizaje debe ser supervisado, no_supervisado o una lista de ambos")
     arch = de.get("archivos") or {}
     if not isinstance(arch, dict):
         errores.append("datos_entrenamiento.archivos debe ser un diccionario archivo -> {ruta, columnas por rol}")

@@ -1,32 +1,70 @@
+# ==============================================================================================================
+# M09_clase_quimica - Clase quimica a partir de la formula molecular
+# Entrenamientos: supervisado (clasificacion) + no supervisado (agrupamiento)
+# Ejecutar: python main.py ejecutar M09 | Ver datos y variables sin entrenar: python main.py datos M09 --variables
+# ==============================================================================================================
 id: M09_clase_quimica
 nombre: Clase quimica a partir de la formula molecular
-tarea: supervisado
-prioridad: normal
-pregunta_cientifica: ¿La formula molecular permite asignar la clase quimica (nivel fino de la ontologia) de un metabolito?
-descripcion: Igual que M08 pero con las 40 clases quimicas mas frecuentes (>= 50 metabolitos y >= 5 formulas). Grupos
-  = formula.
+tarea: supervisado                  # entrenamiento principal: supervisado | patrones (no supervisado)
+prioridad: normal                   # normal | alta | central (orden en la interfaz)
+pregunta_cientifica: >-
+  ¿La formula molecular permite asignar la clase quimica (nivel fino de la ontologia) de un metabolito?
+descripcion: >-
+  Igual que M08 pero con las 40 clases quimicas mas frecuentes (>= 50 metabolitos y >= 5 formulas). Grupos =
+  formula.
+interpretacion: >-
+  Problema mas dificil que M08 por el numero de clases y los isomeros; comparar con top3_accuracy.
+
+# --- Conjunto: unidad de analisis y construccion de las variables ---------------------------------------------
+# El objetivo se indica en datos_entrenamiento.objetivo (abajo).
 conjunto:
-  nombre: metabolito_quimica
+  nombre: metabolito_quimica        # constructor en src/features/conjuntos.py
+  parametros: {}
+
+# --- Validacion cruzada agrupada (entrenamiento supervisado) --------------------------------------------------
 split:
-  n_splits: 5
-  min_groups_per_class: 5
-  min_samples_per_class: 50
-max_clases: 40
+  strategy: group_kfold             # group_kfold | leave_one_group_out (un grupo nunca se reparte)
+  n_splits: 5                       # numero de particiones de la validacion cruzada
+  min_groups_per_class: 5           # una clase se evalua solo si aparece en >= N grupos
+  min_samples_per_class: 50         # ... y en >= N unidades
+max_clases: 40                      # solo las N clases mas frecuentes
+
+# --- Entrenamiento supervisado: algoritmos --------------------------------------------------------------------
+# Los baselines no aprenden de la quimica: un algoritmo util debe superarlos.
 modelos:
-- nombre: baseline_mayoritaria
-- nombre: baseline_estratificada
-- nombre: logistica
-- nombre: random_forest
-  hiperparametros:
-    n_estimators: 200
-- nombre: lightgbm
-- nombre: xgboost
-- nombre: catboost
-evaluation:
-  n_permutations: 20
-interpretacion: Problema mas dificil que M08 por el numero de clases y los isomeros; comparar con top3_accuracy.
+- nombre: baseline_mayoritaria      # referencia: siempre predice la clase mas frecuente
+- nombre: baseline_estratificada    # referencia: azar con las proporciones de clase
+- nombre: logistica                 # regresion logistica (lineal, interpretable)
+- nombre: random_forest             # bosque aleatorio
+  hiperparametros: {n_estimators: 200}
+- nombre: lightgbm                  # gradient boosting (CPU)
+- nombre: xgboost                   # gradient boosting (GPU si hay)
+- nombre: catboost                  # gradient boosting (GPU si hay)
 seleccion_variables:
-  metodo: ninguna
+  metodo: ninguna                   # ninguna | anova | informacion_mutua (con k = numero de variables)
+
+# --- Evaluacion del entrenamiento supervisado -----------------------------------------------------------------
+evaluation:
+  permutation_test: true            # prueba de permutacion de la etiqueta (p-valor)
+  n_permutations: 20                # mas permutaciones = p mas preciso y entrenamiento mas largo
+  confounding_control: true         # modelo con solo variables de plataforma: el quimico debe superarlo
+  evaluacion_optimista: true        # repite sin agrupar para medir cuanto inflaria una validacion ingenua
+
+# --- Entrenamiento no supervisado: mismas unidades, sin usar el objetivo --------------------------------------
+# Agrupa las unidades (PCA + K-means/jerarquico), mide la estabilidad de los grupos y busca atipicos;
+# despues compara los grupos con las referencias. Si siguen al articulo y no al objetivo, domina el
+# efecto de estudio/plataforma. Resultados en metricas/<run_id>/no_supervisado/.
+no_supervisado:
+  activo: true                      # false = solo el entrenamiento supervisado
+  matriz: entrada                   # entrada = variables X | objetivo = matriz multietiqueta (presencias, actividades)
+  referencias: [objetivo, ID_SUPERCLASE_QUIMICA]  # con que se comparan los grupos: objetivo, grupos o columnas de la unidad
+  componentes: 10                   # componentes principales (PCA) tras estandarizar
+  metodos: [kmeans, jerarquico]     # kmeans | jerarquico (Ward; se omite con > 12000 unidades)
+  k_min: 2                          # numero de grupos a probar; se elige el de mayor silueta
+  k_max: 10
+  n_bootstrap: 20                   # remuestreos para medir la estabilidad de los grupos
+  contaminacion: 0.05               # fraccion esperada de unidades atipicas (Isolation Forest)
+  max_unidades: 30000               # submuestra estratificada si hay mas unidades
 
 # --- Datos de entrenamiento (supervisado) ---------------------------------------------------------------------
 # tipo_aprendizaje: supervisado -> el modelo aprende a predecir una variable objetivo
@@ -38,9 +76,11 @@ seleccion_variables:
 #   control_instrumental: variables de plataforma del modelo de control (quitar = no usarlas)
 #   filtros_agregacion: columnas para filtrar muestras y agregar (informativo)
 # variables.incluir / excluir: seleccion fina de las variables X ya construidas (comodines * ?)
+# Con dos entrenamientos, el no supervisado usa las mismas variables de entrada y solo mira el objetivo
+#   despues, para evaluar los grupos que encontro (nunca para entrenar).
 # Ver sin entrenar: python main.py datos M09 [--variables] | Regenerar: python main.py datos M09 --escribir-yaml
 datos_entrenamiento:
-  tipo_aprendizaje: supervisado
+  tipo_aprendizaje: [supervisado, no_supervisado]
   objetivo: ID_CLASE_QUIMICA
   grupos_validacion: FORMULA_MOLECULAR
   archivos:
@@ -59,6 +99,14 @@ datos_entrenamiento:
       ruta: 06_Quimica_Analitica/03_Clases_quimicas.csv
       objetivo: [ID_CLASE_QUIMICA]
       filtros_agregacion: [ID_CLASE_QUIMICA]
-  variables:
+  variables:                    # seleccion fina de las variables X ya construidas
+    # Vacio = se usan TODAS las variables disponibles (recomendado). Para probar otra combinacion:
+    #   incluir: solo estas variables | excluir: todas menos estas (nombre, comodin * ? o columna de origen)
     incluir: []
     excluir: []
+    # Variables disponibles:
+    # - FORMULA_MOLECULAR -> 24 descriptores de la formula: n_C, n_H, n_N, n_O, n_P, n_S, n_F, n_Cl, n_Br,
+    #     n_I, n_otros, dbe, masa_formula, n_atomos_pesados, H_C, O_C, N_C, S_C, P_C, dbe_C, heteroatomos,
+    #     halogenado, ai_mod, regla_nitrogeno_par
+    # Ejemplos: incluir: [n_C, n_H, n_N, n_O, dbe, H_C, O_C]
+    # Lista exacta con nombres: python main.py datos M09 --variables

@@ -83,6 +83,8 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
     random.seed(cfg["semilla"])
     np.random.seed(cfg["semilla"])
     log.info(f"Ejecucion {run_id} | {cfg['nombre']}")
+    from ..features import fuentes as _f
+    log.info(f"Entrenamientos: {' + '.join(t.replace('_', ' ') for t in _f.tipos_aprendizaje(cfg))}")
     hw = resumen_hardware()
     log.info(f"Hardware: {hw['cpu_nucleos']} nucleos CPU; GPU detectadas: {len(hw['gpus'])}"
              + "".join(f" | GPU {g['indice']}: {g['nombre']} ({g['memoria_mb']} MB)" for g in hw["gpus"])
@@ -110,6 +112,14 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
                            list(conj.X_instrumental.columns) if conj.X_instrumental is not None else None)
             datos_ent = _registrar_datos_entrenamiento(fuentes.describir(cfg, conj, descartadas), salida, log)
             resultado = supervisado.ejecutar(conj, cfg, salida, log)
+            from ..tasks import no_supervisado
+            if no_supervisado.activo(cfg):
+                log.info("[+] Entrenamiento no supervisado: agrupar las mismas unidades sin usar el objetivo")
+                try:
+                    resultado["no_supervisado"] = no_supervisado.ejecutar(conj, cfg, salida, log)
+                except Exception as e:  # noqa: BLE001  (no anula los resultados del supervisado)
+                    log.error(traceback.format_exc())
+                    resultado["no_supervisado"] = {"estado": "error", "motivo": f"{type(e).__name__}: {e}"}
         else:
             from ..tasks import patrones
             datos_ent = _registrar_datos_entrenamiento(fuentes.describir(cfg, estricto=True), salida, log)
@@ -131,6 +141,8 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
     guardar_json(resultado, salida["ejecucion"] / "resultado.json")
     guardar_json(manifiesto, salida["ejecucion"] / "manifiesto.json")
     interpretacion.escribir_informe(cfg, resultado, manifiesto, salida)
+    for linea in interpretacion.resumen_consola(resultado):
+        log.info(linea)
     log.info(f"Estado: {manifiesto['estado']} ({manifiesto['segundos']} s). Informe: {salida['ejecucion'] / 'informe.md'}")
     cerrar_archivos(log)
     return resultado
@@ -139,8 +151,11 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
 def _registrar_datos_entrenamiento(d: dict[str, Any], salida: dict[str, Path], log) -> dict[str, Any]:
     """Muestra en consola/log los archivos y columnas usados y los guarda en la carpeta de la ejecucion."""
     from ..features import fuentes
-    for linea in fuentes.texto(d).splitlines():
-        log.info(linea)
+    for linea in fuentes.texto(d).splitlines():   # detalle completo: solo en ejecucion.log
+        log.debug(linea)
+    log.info(fuentes.resumen_corto(d))
+    for a in d.get("avisos") or []:
+        log.warning(a)
     guardar_json(d, salida["ejecucion"] / "datos_entrenamiento.json")
     (salida["ejecucion"] / "datos_entrenamiento.md").write_text(fuentes.markdown(d), encoding="utf-8")
     return d

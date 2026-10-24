@@ -128,6 +128,52 @@ def _seccion_datos_entrenamiento(d: dict[str, Any]) -> list[str]:
     return L + [""]
 
 
+def resumen_consola(r: dict[str, Any]) -> list[str]:
+    """Lineas finales para la consola: como le fue a cada entrenamiento."""
+    L = ["=" * 100]
+    et, tx = veredicto(r)
+    if r.get("tarea", "supervisado") != "patrones" and r.get("estado") in ("completado", "no_viable"):
+        L.append(f"SUPERVISADO -> {et.upper()}")
+        if r.get("valor_mejor") is not None:
+            L.append(f"  Mejor algoritmo: {r.get('mejor_modelo')} | {r.get('metrica_principal')} = {r['valor_mejor']:.3f} | "
+                     f"baseline {r.get('valor_baseline') or float('nan'):.3f}"
+                     + (f" | solo plataforma {r['valor_control_instrumental']:.3f}"
+                        if r.get("valor_control_instrumental") is not None else "")
+                     + (f" | p = {r['permutacion']['p_valor']:.3f}" if isinstance(r.get("permutacion"), dict) else ""))
+        L.append(f"  {tx}")
+    ns = r.get("no_supervisado")
+    if isinstance(ns, dict):
+        from ..tasks.no_supervisado import veredicto as v_ns
+        e2, t2 = v_ns(ns)
+        L.append(f"NO SUPERVISADO -> {e2.upper()}")
+        L.append(f"  {t2}")
+    if r.get("estado") == "error":
+        L.append(f"ERROR: {r.get('motivo')}")
+    return L + ["=" * 100]
+
+
+def _seccion_no_supervisado(ns: dict[str, Any]) -> list[str]:
+    from ..tasks.no_supervisado import veredicto as v_ns
+    et, tx = v_ns(ns)
+    L = ["## Entrenamiento no supervisado (mismas unidades, sin usar el objetivo)",
+         f"Veredicto: **{et}**. {tx}", ""]
+    if ns.get("estado") == "completado":
+        L += [f"- Matriz agrupada: `{ns['matriz']}` ({ns['unidades']} unidades de {ns['unidades_totales']}, "
+              f"{ns['variables']} variables; PCA explica {ns['varianza_explicada_pca']:.0%})",
+              f"- Metodo elegido por silueta: {ns['metodo']} con k = {ns['k']} (silueta {ns['silueta']:.3f}); "
+              f"tamanos {ns.get('tamano_grupos')}",
+              f"- Estabilidad: ARI bootstrap {ns['estabilidad_ari']:.3f} +/- {ns['estabilidad_ari_de']:.3f}",
+              f"- Atipicos (Isolation Forest): {ns['atipicos']}", "",
+              "| referencia | AMI | ARI | V de Cramer | pureza |", "|---|---|---|---|---|"]
+        f = lambda v: "-" if v != v else f"{v:.3f}"  # noqa: E731
+        L += [f"| {k} | {f(a['ami'])} | {f(a['ari'])} | {f(a['v_cramer'])} | {f(a['pureza'])} |"
+              for k, a in ns.get("asociacion", {}).items()]
+        L += ["", "AMI/ARI = 0 indica grupos independientes de la referencia y 1 coincidencia perfecta. Si la concordancia con "
+              "el articulo supera a la del objetivo, la estructura natural refleja el estudio/plataforma. Tablas en "
+              "`metricas/<run_id>/no_supervisado/` y graficas en `graficas/<run_id>/no_supervisado/`.", ""]
+    return L
+
+
 def escribir_informe(cfg: dict[str, Any], r: dict[str, Any], man: dict[str, Any], salida: dict[str, Path]) -> Path:
     r.setdefault("tarea", cfg["tarea"])
     if r.get("estado") == "completado" and cfg["tarea"] == "supervisado":
@@ -162,13 +208,15 @@ def escribir_informe(cfg: dict[str, Any], r: dict[str, Any], man: dict[str, Any]
                   ", ".join(f"`{k}` ({v:.3f})" for k, v in list(r["variables_principales"].items())[:8]) + ".", ""]
     if r.get("estado") == "no_viable":
         L += ["## Resultado", f"No viable: {r.get('motivo')}", ""]
+    if isinstance(r.get("no_supervisado"), dict):
+        L += _seccion_no_supervisado(r["no_supervisado"])
     if r.get("estado") == "error":
         L += ["## Error", f"`{r.get('motivo')}` (ver `ejecucion.log`).", ""]
     if r.get("hallazgos"):
         L += ["## Hallazgos"] + [f"- {h}" for h in r["hallazgos"]] + [""]
     if cfg.get("interpretacion"):
         L += ["## Como interpretar", cfg["interpretacion"].strip(), ""]
-    graf = sorted(salida["graficas"].glob("*.png"))
+    graf = sorted(salida["graficas"].rglob("*.png"))
     if graf:
         L += ["## Graficas"] + [f"- `{g.relative_to(salida['graficas'].parent.parent)}`" for g in graf] + [""]
     L += ["## Reproducibilidad",
@@ -197,6 +245,7 @@ def resumen_ejecutivo(df: pd.DataFrame) -> Path:
             "metrica": rr.get("metrica_principal"), "valor": rr.get("valor_mejor"), "baseline": rr.get("valor_baseline"),
             "control_plataforma": rr.get("valor_control_instrumental"), "sin_agrupar": rr.get("valor_optimista_sin_agrupar"),
             "p_permutacion": perm.get("p_valor"), "veredicto": et,
+            "no_supervisado": _veredicto_ns(rr.get("no_supervisado")),
             "carpeta": f"Models/{carpeta_modelo(str(rr.get('id_experimento')))}", "run_id": rr.get("run_id"),
         })
     t = pd.DataFrame(filas)
@@ -209,11 +258,19 @@ def resumen_ejecutivo(df: pd.DataFrame) -> Path:
           "Veredictos (ganancia = valor - max(baseline, control_plataforma)): **senal robusta** (ganancia >= 0.15 y p < 0.05); "
           "**senal debil** (ganancia 0.05-0.15 y p < 0.05); **confundido con plataforma** (el control instrumental rinde igual); **sin senal**; "
           "**evidencia insuficiente** (< 10 grupos independientes o mediana < 3 grupos por clase); **no viable** (clases/grupos "
-          "insuficientes para evaluar).", "", _tabla_md(t.drop(columns=["run_id"]), 100), ""]
+          "insuficientes para evaluar). Columna `no_supervisado`: veredicto del agrupamiento de las mismas unidades sin usar el "
+          "objetivo (estructura alineada con el objetivo / estructura del articulo / no relacionada / sin estructura clara).", "", _tabla_md(t.drop(columns=["run_id"]), 100), ""]
     p = d / "resumen_ejecutivo.md"
     p.write_text("\n".join(md), encoding="utf-8")
     _grafica_global(t, d)
     return p
+
+
+def _veredicto_ns(ns: Any) -> str | None:
+    if not isinstance(ns, dict):
+        return None
+    from ..tasks.no_supervisado import veredicto as v_ns
+    return v_ns(ns)[0]
 
 
 def _grafica_global(t: pd.DataFrame, d: Path) -> None:

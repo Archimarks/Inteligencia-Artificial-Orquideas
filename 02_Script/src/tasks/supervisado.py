@@ -166,9 +166,34 @@ def _lote_permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, 
                                columnas, gpus, principal) for yp in ys]
 
 
+class Progreso:
+    """Registra el avance de una tarea larga cada ~10 % con tiempo transcurrido y estimado."""
+
+    def __init__(self, log: logging.Logger | None, total: int, texto: str):
+        self.log, self.total, self.texto = log, total, texto
+        self.hechas, self.t0, self.ultimo = 0, time.time(), -1
+
+    def avanzar(self, n: int = 1, extra: str = "") -> None:
+        self.hechas += n
+        tramo = int(10 * self.hechas / max(self.total, 1))
+        if self.log is None or (tramo == self.ultimo and self.hechas < self.total):
+            return
+        self.ultimo = tramo
+        t = time.time() - self.t0
+        resto = t / self.hechas * (self.total - self.hechas) if self.hechas else 0
+        self.log.info(f"    {self.texto}: {self.hechas}/{self.total} ({100 * self.hechas // max(self.total, 1)} %) "
+                      f"- {_tiempo(t)} transcurrido, ~{_tiempo(resto)} restante{extra}")
+
+
+def _tiempo(s: float) -> str:
+    s = int(round(s))
+    return f"{s // 3600}h{s % 3600 // 60:02d}m" if s >= 3600 else (f"{s // 60}m{s % 60:02d}s" if s >= 60 else f"{s}s")
+
+
 def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
                   splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
-                  columnas: list[str], n_perm: int, principal: str) -> np.ndarray:
+                  columnas: list[str], n_perm: int, principal: str, log: logging.Logger | None = None,
+                  observado: float | None = None) -> np.ndarray:
     """Distribucion nula de la metrica principal. Las permutaciones se generan primero (mismo generador y orden que
     en serie) y luego se reparten: modelos GPU entre las GPU (y la CPU si hardware.cpu_ayuda_gpu), modelos de CPU
     entre procesos con su parte de los nucleos."""
@@ -180,12 +205,24 @@ def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.
     args = (nombre, cfg_modelo, X)
     resto = (w, splits, tipo, n_clases, semilla)
     sel_cols = (seleccion, columnas)
+    prog = Progreso(log, n_perm, "permutaciones")
+
+    def recoger(iterable) -> list[float]:
+        out = []
+        for v in iterable:
+            out.append(v)
+            mayores = sum(x >= observado for x in out) if observado is not None else None
+            prog.avanzar(extra="" if mayores is None else f"; nulos >= observado: {mayores}")
+        return out
+
     if not paralelo_interno() or n_perm < 2:
-        nulos = [_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, gpus, principal) for pi in perms]
+        nulos = recoger(_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, gpus, principal) for pi in perms)
     elif nombre in GPU_POR_PROCESO and gpus:
         # un proceso por GPU con sus permutaciones en serie (CatBoost: una GPU por proceso)
         nj = max(1, total // len(gpus))
         lotes = repartir_por_gpu(n_perm, gpus)
+        if log:
+            log.info(f"    permutaciones: {n_perm} en {len(gpus)} GPU (un proceso por GPU; el avance se informa al terminar)")
         res = Parallel(n_jobs=len(gpus), backend="loky")(
             delayed(_lote_permutaciones)(*args, [y[perms[i]] for i in lotes[g]], *resto, nj, *sel_cols, [g], principal)
             for g in gpus)
@@ -193,6 +230,7 @@ def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.
         for g, r in zip(gpus, res):
             for i, v in zip(lotes[g], r):
                 nulos[i] = v
+        prog.avanzar(n_perm)
     elif nombre in MODELOS_GPU and gpus:
         dispositivos = [[g] for g in gpus] + ([[]] if cpu_ayuda_gpu() and total > len(gpus) else [])
         cola = ColaDispositivos(dispositivos)
@@ -201,14 +239,14 @@ def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.
         def una(pi: np.ndarray) -> float:
             with cola.tomar() as d:
                 return _valor_permutacion(*args, y[pi], *resto, 1 if d else nj_cpu, *sel_cols, d, principal)
-        nulos = Parallel(n_jobs=cola.n, backend="threading")(delayed(una)(pi) for pi in perms)
+        nulos = recoger(Parallel(n_jobs=cola.n, backend="threading", return_as="generator")(delayed(una)(pi) for pi in perms))
     elif total > 1:
         procesos = min(n_perm, total)
         nj = max(1, total // procesos)
-        nulos = Parallel(n_jobs=procesos, backend="loky")(
-            delayed(_valor_permutacion)(*args, y[pi], *resto, nj, *sel_cols, [], principal) for pi in perms)
+        nulos = recoger(Parallel(n_jobs=procesos, backend="loky", return_as="generator")(
+            delayed(_valor_permutacion)(*args, y[pi], *resto, nj, *sel_cols, [], principal) for pi in perms))
     else:
-        nulos = [_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, [], principal) for pi in perms]
+        nulos = recoger(_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, [], principal) for pi in perms)
     return np.array(nulos, dtype=float)
 
 
@@ -362,7 +400,8 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
     g = grupos.astype(str).to_numpy()
     splits = particiones(sp["strategy"], y_estrat, g, sp["n_splits"], semilla, multi)
     res["particiones"] = len(splits)
-    log.info(f"{len(X)} unidades, {grupos.nunique()} grupos, {n_clases} clases, {len(splits)} particiones ({sp['strategy']})")
+    log.info(f"[1/5] Datos listos: {len(X)} unidades de {grupos.nunique()} grupos ({grupos.name}), {X.shape[1]} variables, "
+             f"{n_clases} {'etiquetas' if multi else 'clases'}, {len(splits)} particiones ({sp['strategy']})")
 
     # 3. Modelos -------------------------------------------------------------------------------------------------------
     principal = metricas.METRICA_PRINCIPAL[tipo]
@@ -373,6 +412,11 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
         log.warning(f"Modelos omitidos porque su libreria no esta instalada: {omitidos} "
                     "(python -m pip install -r requirements.txt)")
     cfg = {**cfg, "modelos": [mc for mc in cfg["modelos"] if mc["nombre"] not in omitidos]}
+
+    import threading
+    candado, hechos_n = threading.Lock(), [0]
+    log.info(f"[2/5] Validacion cruzada agrupada: {len(cfg['modelos'])} algoritmos x {len(splits)} particiones "
+             "(metrica sobre articulos/grupos no vistos)")
 
     def evaluar(mc: dict[str, Any], nj: int) -> tuple[dict[str, Any], pd.DataFrame, np.ndarray, np.ndarray]:
         nombre = mc["nombre"]
@@ -388,7 +432,14 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
                 fila[f"{k}_media_particiones"] = dfp[k].mean()
                 fila[f"{k}_de_particiones"] = dfp[k].std(ddof=1)
         dfp.insert(0, "modelo", nombre)
-        log.info(f"  {nombre}: {principal}={glob.get(principal, np.nan):.3f} ({fila['segundos']} s)")
+        with candado:
+            hechos_n[0] += 1
+            n = hechos_n[0]
+        por_p = " ".join(f"{v:.2f}" for v in dfp[principal]) if principal in dfp else "-"
+        de = f" +/- {dfp[principal].std(ddof=1):.3f}" if principal in dfp and len(dfp) > 1 else ""
+        dispositivo = "GPU" if any(str(x) != "cpu" for x in dfp.get("gpu", [])) else "CPU"
+        log.info(f"  [{n}/{len(cfg['modelos'])}] {nombre:<24} {principal} = {glob.get(principal, np.nan):.3f}{de}  "
+                 f"(particiones: {por_p})  {fila['segundos']} s en {dispositivo}")
         return fila, dfp, proba, pred
 
     # Con GPU, XGBoost/CatBoost se entrenan en un hilo aparte mientras la CPU entrena los demas modelos.
@@ -411,6 +462,10 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
         oof[mc["nombre"]] = (proba, pred)
     tabla = pd.DataFrame(filas)
     guardar_tabla(tabla, salida["metricas"] / "metricas_modelos.csv")
+    orden_t = tabla.sort_values(principal, ascending=False)
+    mejor_base = tabla.loc[tabla["es_baseline"], principal].max() if tabla["es_baseline"].any() else float("nan")
+    log.info("  Ranking: " + " > ".join(f"{r.modelo} {getattr(r, principal):.3f}" for r in orden_t.itertuples()
+                                        if not r.es_baseline) + f"  | mejor baseline {mejor_base:.3f}")
     guardar_tabla(pd.concat(por_part_todas), salida["metricas"] / "metricas_por_particion.csv")
 
     candidatos = tabla[~tabla["es_baseline"]]
@@ -473,7 +528,8 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
         p2, pr2, _ = validar_cruzado(mejor, cfg_mejor, Xn, y, w, sp_opt, tipo, n_clases, semilla, n_jobs,
                                      cfg.get("seleccion_variables"), list(X.columns))
         res["valor_optimista_sin_agrupar"] = _metricas_globales(tipo, y, pr2, p2, n_clases).get(principal)
-        log.info(f"  Evaluacion no agrupada (optimista): {principal}={res['valor_optimista_sin_agrupar']:.3f}")
+        log.info(f"[3/5] Evaluacion sin agrupar (optimista, solo referencia): {principal} = "
+                 f"{res['valor_optimista_sin_agrupar']:.3f} frente a {res['valor_mejor']:.3f} agrupada")
 
     # 6. Control de confusion: solo variables instrumentales ------------------------------------------------------------
     if ev.get("confounding_control", True) and Xi is not None and Xi.shape[1] > 0:
@@ -481,14 +537,17 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
                                      None, list(Xi.columns))
         res["valor_control_instrumental"] = _metricas_globales(tipo, y, pr3, p3, n_clases).get(principal)
         res["variables_instrumentales"] = list(Xi.columns)[:50]
-        log.info(f"  Control instrumental: {principal}={res['valor_control_instrumental']:.3f}")
+        log.info(f"[4/5] Control solo-plataforma ({Xi.shape[1]} variables instrumentales): {principal} = "
+                 f"{res['valor_control_instrumental']:.3f} (el modelo quimico debe superarlo)")
 
     # 7. Prueba de permutacion -----------------------------------------------------------------------------------------
     n_perm = int(ev.get("n_permutations", 0)) if ev.get("permutation_test", True) else 0
     if n_perm > 0:
         t = time.time()
+        log.info(f"[5/5] Prueba de permutacion: {n_perm} permutaciones de la etiqueta con {mejor}")
         nulos = permutaciones(mejor, cfg_mejor, Xn, y, w, splits, tipo, n_clases, semilla, n_jobs,
-                              cfg.get("seleccion_variables"), list(X.columns), n_perm, principal)
+                              cfg.get("seleccion_variables"), list(X.columns), n_perm, principal, log,
+                              res["valor_mejor"])
         log.info(f"  {n_perm} permutaciones en {time.time() - t:.0f} s")
         obs = res["valor_mejor"]
         res["permutacion"] = {"n": n_perm, "media_nula": float(np.nanmean(nulos)), "p95_nula": float(np.nanpercentile(nulos, 95)),
@@ -504,9 +563,11 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
             graficas.guardar(fig, salida["graficas"] / "prueba_permutacion.png",
                              nota=f"p = {res['permutacion']['p_valor']:.3f} con {n_perm} permutaciones. Las etiquetas se "
                                   "permutan entre unidades y se repite la misma validacion agrupada.")
-        log.info(f"  Permutacion: p={res['permutacion']['p_valor']:.3f}")
+        log.info(f"  Permutacion: p = {res['permutacion']['p_valor']:.3f} (media nula {res['permutacion']['media_nula']:.3f}, "
+                 f"percentil 95 {res['permutacion']['p95_nula']:.3f}, observado {res['valor_mejor']:.3f})")
 
     # 8. Modelo final con todos los datos -------------------------------------------------------------------------------
+    log.info(f"Modelo final: {mejor} con todas las unidades")
     final = construir_pipeline(mejor, semilla, nucleos(n_jobs), multi, cfg.get("seleccion_variables"), cfg_mejor.get("hiperparametros"),
                                X.shape[1], gpus=asignar_gpus(mejor, 1, seleccionar_gpus())[0])
     with warnings.catch_warnings():

@@ -1,40 +1,78 @@
+# ==============================================================================================================
+# M05_familia - Familia botanica a partir del perfil quimico
+# Entrenamientos: supervisado (clasificacion) + no supervisado (agrupamiento)
+# Ejecutar: python main.py ejecutar M05 | Ver datos y variables sin entrenar: python main.py datos M05 --variables
+# ==============================================================================================================
 id: M05_familia
 nombre: Familia botanica a partir del perfil quimico
-tarea: supervisado
-prioridad: normal
-pregunta_cientifica: ¿El perfil composicional permite reconocer la familia botanica (p. ej. Orchidaceae) de una
-  planta de un estudio no visto?
-descripcion: Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos
-  de metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por articulo
-  (StratifiedGroupKFold, 5 particiones); solo clases presentes en >= 2 articulos. Pesos 1/n por articulo. Se compara
-  con baselines, con un control que usa solo variables de plataforma (columna, modos, tecnica de separacion,
-  instrumento, analizador, n de senales/identificados), con una validacion no agrupada (optimista) y con una
-  prueba de permutacion.
+tarea: supervisado                  # entrenamiento principal: supervisado | patrones (no supervisado)
+prioridad: normal                   # normal | alta | central (orden en la interfaz)
+pregunta_cientifica: >-
+  ¿El perfil composicional permite reconocer la familia botanica (p. ej. Orchidaceae) de una planta de un
+  estudio no visto?
+descripcion: >-
+  Unidad = muestra biologica (sin QC ni blancos) con >= 20 metabolitos clasificados. X = CLR de los conteos de
+  metabolitos por clase quimica (60 clases presentes en >= 5 articulos + 'otras'). Validacion agrupada por
+  articulo (StratifiedGroupKFold, 5 particiones); solo clases presentes en >= 2 articulos. Pesos 1/n por
+  articulo. Se compara con baselines, con un control que usa solo variables de plataforma (columna, modos,
+  tecnica de separacion, instrumento, analizador, n de senales/identificados), con una validacion no agrupada
+  (optimista) y con una prueba de permutacion.
+interpretacion: >-
+  Orchidaceae tiene dos articulos (Gastrodia elata y Dendrobium officinale) con plataformas distintas.
+
+# --- Conjunto: unidad de analisis y construccion de las variables ---------------------------------------------
+# El objetivo se indica en datos_entrenamiento.objetivo (abajo).
 conjunto:
-  nombre: perfil_muestra
+  nombre: perfil_muestra            # constructor en src/features/conjuntos.py
   parametros:
-    nivel: clase
-    transformacion: clr
-    min_metabolitos: 20
-    min_articulos_categoria: 5
-    max_categorias: 60
+    nivel: clase                    # superclase | clase: nivel quimico del perfil
+    transformacion: clr             # clr | fraccion | conteo
+    min_metabolitos: 20             # excluye unidades con menos metabolitos clasificados
+    min_articulos_categoria: 5      # solo categorias quimicas presentes en >= N articulos
+    max_categorias: 60              # maximo de categorias quimicas (el resto se suma en 'otras')
+
+# --- Validacion cruzada agrupada (entrenamiento supervisado) --------------------------------------------------
 split:
-  n_splits: 5
-  min_groups_per_class: 2
-  min_samples_per_class: 10
+  strategy: group_kfold             # group_kfold | leave_one_group_out (un grupo nunca se reparte)
+  n_splits: 5                       # numero de particiones de la validacion cruzada
+  min_groups_per_class: 2           # una clase se evalua solo si aparece en >= N grupos
+  min_samples_per_class: 10         # ... y en >= N unidades
+
+# --- Entrenamiento supervisado: algoritmos --------------------------------------------------------------------
+# Los baselines no aprenden de la quimica: un algoritmo util debe superarlos.
 modelos:
-- nombre: baseline_mayoritaria
-- nombre: baseline_estratificada
-- nombre: logistica
-- nombre: random_forest
-- nombre: lightgbm
-- nombre: xgboost
-- nombre: catboost
-evaluation:
-  n_permutations: 30
-interpretacion: Orchidaceae tiene dos articulos (Gastrodia elata y Dendrobium officinale) con plataformas distintas.
+- nombre: baseline_mayoritaria      # referencia: siempre predice la clase mas frecuente
+- nombre: baseline_estratificada    # referencia: azar con las proporciones de clase
+- nombre: logistica                 # regresion logistica (lineal, interpretable)
+- nombre: random_forest             # bosque aleatorio
+- nombre: lightgbm                  # gradient boosting (CPU)
+- nombre: xgboost                   # gradient boosting (GPU si hay)
+- nombre: catboost                  # gradient boosting (GPU si hay)
 seleccion_variables:
-  metodo: ninguna
+  metodo: ninguna                   # ninguna | anova | informacion_mutua (con k = numero de variables)
+
+# --- Evaluacion del entrenamiento supervisado -----------------------------------------------------------------
+evaluation:
+  permutation_test: true            # prueba de permutacion de la etiqueta (p-valor)
+  n_permutations: 30                # mas permutaciones = p mas preciso y entrenamiento mas largo
+  confounding_control: true         # modelo con solo variables de plataforma: el quimico debe superarlo
+  evaluacion_optimista: true        # repite sin agrupar para medir cuanto inflaria una validacion ingenua
+
+# --- Entrenamiento no supervisado: mismas unidades, sin usar el objetivo --------------------------------------
+# Agrupa las unidades (PCA + K-means/jerarquico), mide la estabilidad de los grupos y busca atipicos;
+# despues compara los grupos con las referencias. Si siguen al articulo y no al objetivo, domina el
+# efecto de estudio/plataforma. Resultados en metricas/<run_id>/no_supervisado/.
+no_supervisado:
+  activo: true                      # false = solo el entrenamiento supervisado
+  matriz: entrada                   # entrada = variables X | objetivo = matriz multietiqueta (presencias, actividades)
+  referencias: [objetivo, grupos, ID_COLUMNA_CROMATOGRAFICA]  # con que se comparan los grupos: objetivo, grupos o columnas de la unidad
+  componentes: 10                   # componentes principales (PCA) tras estandarizar
+  metodos: [kmeans, jerarquico]     # kmeans | jerarquico (Ward; se omite con > 12000 unidades)
+  k_min: 2                          # numero de grupos a probar; se elige el de mayor silueta
+  k_max: 10
+  n_bootstrap: 20                   # remuestreos para medir la estabilidad de los grupos
+  contaminacion: 0.05               # fraccion esperada de unidades atipicas (Isolation Forest)
+  max_unidades: 30000               # submuestra estratificada si hay mas unidades
 
 # --- Datos de entrenamiento (supervisado) ---------------------------------------------------------------------
 # tipo_aprendizaje: supervisado -> el modelo aprende a predecir una variable objetivo
@@ -46,9 +84,11 @@ seleccion_variables:
 #   control_instrumental: variables de plataforma del modelo de control (quitar = no usarlas)
 #   filtros_agregacion: columnas para filtrar muestras y agregar (informativo)
 # variables.incluir / excluir: seleccion fina de las variables X ya construidas (comodines * ?)
+# Con dos entrenamientos, el no supervisado usa las mismas variables de entrada y solo mira el objetivo
+#   despues, para evaluar los grupos que encontro (nunca para entrenar).
 # Ver sin entrenar: python main.py datos M05 [--variables] | Regenerar: python main.py datos M05 --escribir-yaml
 datos_entrenamiento:
-  tipo_aprendizaje: supervisado
+  tipo_aprendizaje: [supervisado, no_supervisado]
   objetivo: ID_FAMILIA
   grupos_validacion: ID_ARTICULO
   archivos:
@@ -64,6 +104,12 @@ datos_entrenamiento:
     registro_actividades:
       ruta: 09_Hechos/04_Registro_actividades.csv
       filtros_agregacion: [ID_MUESTRA]
-  variables:
+  variables:                    # seleccion fina de las variables X ya construidas
+    # Vacio = se usan TODAS las variables disponibles (recomendado). Para probar otra combinacion:
+    #   incluir: solo estas variables | excluir: todas menos estas (nombre, comodin * ? o columna de origen)
     incluir: []
     excluir: []
+    # Variables disponibles:
+    # - ID_CLASE_QUIMICA -> clase_<id> y clase_otras: CLR del numero de metabolitos de cada clase quimica
+    # Ejemplos: excluir: [clase_otras]
+    # Lista exacta con nombres: python main.py datos M05 --variables

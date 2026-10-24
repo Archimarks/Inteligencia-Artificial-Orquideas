@@ -168,7 +168,33 @@ def _bloque(cfg: dict[str, Any]) -> dict[str, Any]:
 
 
 def tipo_aprendizaje(cfg: dict[str, Any]) -> str:
+    """Tipo del entrenamiento principal (el que fija `tarea`)."""
     return TIPO_DE_TAREA.get(str(cfg.get("tarea")), "supervisado")
+
+
+def tipos_aprendizaje(cfg: dict[str, Any]) -> list[str]:
+    """Entrenamientos del experimento: el principal y, si hay bloque no_supervisado activo, el no supervisado."""
+    from ..tasks.no_supervisado import activo
+    tipos = [tipo_aprendizaje(cfg)]
+    if activo(cfg) and "no_supervisado" not in tipos:
+        tipos.append("no_supervisado")
+    return tipos
+
+
+def resumen_corto(d: dict[str, Any]) -> str:
+    """Una linea con lo esencial de los datos (el detalle va a ejecucion.log y datos_entrenamiento.md)."""
+    partes = [f"Datos: {', '.join(a['nombre'] for a in d['archivos'])}"]
+    if d.get("objetivo_configurado"):
+        partes.append(f"objetivo {d['objetivo_configurado']}, grupos {d.get('grupos_configurados')}")
+    if "variables" in d:
+        por: dict[str, int] = {}
+        for v in d["variables"]:
+            por[v["columna_origen"]] = por.get(v["columna_origen"], 0) + 1
+        partes.append(f"{d['unidades']} unidades, {len(d['variables'])} variables ("
+                      + ", ".join(f"{k} {n}" for k, n in por.items()) + ")")
+        if d.get("variables_descartadas"):
+            partes.append(f"{len(d['variables_descartadas'])} descartadas por la configuracion")
+    return " | ".join(partes) + " (detalle en datos_entrenamiento.md)"
 
 
 def archivos_configurados(cfg: dict[str, Any]) -> dict[str, str]:
@@ -237,12 +263,17 @@ def validar_declaracion(cfg: dict[str, Any]) -> list[str]:
         return []
     errores: list[str] = []
     tipo = tipo_aprendizaje(cfg)
+    esperados = tipos_aprendizaje(cfg)
     completo = bool(roles_declarados(cfg)) or "tipo_aprendizaje" in de
-    if "tipo_aprendizaje" in de and de["tipo_aprendizaje"] != tipo:
-        errores.append(f"datos_entrenamiento.tipo_aprendizaje='{de['tipo_aprendizaje']}' no corresponde a "
-                       f"tarea: {cfg.get('tarea')} (debe ser '{tipo}')")
-    elif completo and "tipo_aprendizaje" not in de:
-        errores.append(f"falta datos_entrenamiento.tipo_aprendizaje (debe ser '{tipo}')")
+    if "tipo_aprendizaje" in de:
+        declarado = de["tipo_aprendizaje"]
+        declarado = [declarado] if isinstance(declarado, str) else list(declarado or [])
+        if sorted(declarado) != sorted(esperados):
+            errores.append(f"datos_entrenamiento.tipo_aprendizaje={declarado} no corresponde a tarea: {cfg.get('tarea')}"
+                           + (" con bloque no_supervisado activo" if len(esperados) > 1 else "")
+                           + f" (debe ser {esperados if len(esperados) > 1 else esperados[0]})")
+    elif completo:
+        errores.append(f"falta datos_entrenamiento.tipo_aprendizaje (debe ser {esperados})")
     if tipo == "no_supervisado":
         for k in ("objetivo", "grupos_validacion"):
             if k in de:
@@ -631,9 +662,13 @@ def bloque_yaml(cfg: dict[str, Any], completo: bool = False) -> str:
     L = [MARCA_BLOQUE + f" ({tipo.replace('_', ' ')}) " + "-" * (_ANCHO - len(MARCA_BLOQUE) - len(tipo) - 4)]
     L += [f"# {t}" for t in _AYUDA[tipo]]
     corto = str(cfg.get("id", "")).split("_")[0]
+    tipos = tipos_aprendizaje(cfg)
+    if len(tipos) > 1:
+        L.append("# Con dos entrenamientos, el no supervisado usa las mismas variables de entrada y solo mira el objetivo")
+        L.append("#   despues, para evaluar los grupos que encontro (nunca para entrenar).")
     L += [f"# Ver sin entrenar: python main.py datos {corto} [--variables] | Regenerar: python main.py datos {corto} "
           "--escribir-yaml", "datos_entrenamiento:",
-          f"  tipo_aprendizaje: {tipo}"]
+          f"  tipo_aprendizaje: {tipos[0] if len(tipos) == 1 else '[' + ', '.join(tipos) + ']'}"]
     if tipo == "supervisado":
         L.append(f"  objetivo: {next(iter(_computado(cfg, 'y')), '')}")
         L.append(f"  grupos_validacion: {next(iter(_computado(cfg, 'grupos')), '')}")
@@ -645,10 +680,40 @@ def bloque_yaml(cfg: dict[str, Any], completo: bool = False) -> str:
             if rr.get(rol):
                 L += _lista_yaml(CLAVE_DE_ROL[rol], rr[rol], 6)
     if tipo == "supervisado":
-        L.append("  variables:")
+        L.append("  variables:                    # seleccion fina de las variables X ya construidas")
+        L.append("    # Vacio = se usan TODAS las variables disponibles (recomendado). Para probar otra combinacion:")
+        L.append("    #   incluir: solo estas variables | excluir: todas menos estas (nombre, comodin * ? o columna de origen)")
         L += _lista_yaml("incluir", list(sel.get("incluir") or []), 4)
         L += _lista_yaml("excluir", list(sel.get("excluir") or []), 4)
+        L += ["    # " + t for t in ayuda_variables(cfg, roles)]
     return "\n".join(L) + "\n"
+
+
+def ayuda_variables(cfg: dict[str, Any], roles: dict[str, dict[str, list[str]]]) -> list[str]:
+    """Comentario con las variables de entrada que existen, por columna de origen, y ejemplos."""
+    import textwrap
+    conj = cfg.get("conjunto", {}).get("nombre")
+    nivel = (cfg.get("conjunto", {}).get("parametros") or {}).get("nivel", "superclase")
+    estructurales = {"ID_METABOLITO"} | ({"ID_CLASE_QUIMICA"} if conj == "actividad_metabolito" else set())
+    L, ejemplo_inc, ejemplo_exc = ["Variables disponibles:"], None, None
+    for origen in dict.fromkeys(c for r in roles.values() for c in r.get("X", [])):
+        if origen == "FORMULA_MOLECULAR":
+            txt = f"{len(DESCRIPTORES_FORMULA)} descriptores de la formula: " + ", ".join(DESCRIPTORES_FORMULA)
+            ejemplo_inc = ejemplo_inc or "[n_C, n_H, n_N, n_O, dbe, H_C, O_C]"
+        elif conj in ("perfil_muestra", "actividad_especie") and origen == NIVEL_QUIMICO.get(nivel):
+            txt = f"{nivel}_<id> y {nivel}_otras: CLR del numero de metabolitos de cada {nivel} quimica"
+            ejemplo_exc = ejemplo_exc or f"[{nivel}_otras]"
+        elif origen in estructurales:
+            continue
+        else:
+            txt = f"{origen}_<id>: una variable 0/1 por categoria"
+            ejemplo_exc = ejemplo_exc or f"[{origen}]"
+        L += textwrap.wrap(f"- {origen} -> {txt}", 104, subsequent_indent="    ")
+    if ejemplo_inc or ejemplo_exc:
+        L.append("Ejemplos: " + "; ".join(x for x in [f"incluir: {ejemplo_inc}" if ejemplo_inc else "",
+                                                   f"excluir: {ejemplo_exc}" if ejemplo_exc else ""] if x))
+    L.append("Lista exacta con nombres: python main.py datos " + str(cfg.get("id", "")).split("_")[0] + " --variables")
+    return L
 
 
 def _ruta_relativa(archivo: str) -> str:
@@ -660,27 +725,6 @@ def _ruta_relativa(archivo: str) -> str:
 
 
 def escribir_yaml(p: Path, cfg: dict[str, Any], completo: bool = False) -> bool:
-    """Sustituye el bloque `datos_entrenamiento` (y su comentario) al final del YAML. Devuelve True si cambio."""
-    texto_original = p.read_text(encoding="utf-8")
-    lineas = texto_original.splitlines()
-    corte = len(lineas)
-    for i, ln in enumerate(lineas):
-        if ln.startswith("datos_entrenamiento:"):
-            corte = i
-            break
-    # sube por los comentarios y lineas vacias que preceden al bloque
-    while corte > 0 and (lineas[corte - 1].startswith("#") or not lineas[corte - 1].strip()):
-        corte -= 1
-    # el bloque debe ser lo ultimo del archivo: si hay otras claves despues, se conservan
-    fin = len(lineas)
-    for j in range(corte, len(lineas)):
-        if j > corte and lineas[j] and not lineas[j][0].isspace() and not lineas[j].startswith(("#", "datos_entrenamiento:")):
-            fin = j
-            break
-    nuevo = "\n".join(lineas[:corte]).rstrip() + "\n\n" + bloque_yaml(cfg, completo)
-    if fin < len(lineas):
-        nuevo += "\n" + "\n".join(lineas[fin:]).rstrip() + "\n"
-    if nuevo == texto_original:
-        return False
-    p.write_text(nuevo, encoding="utf-8")
-    return True
+    """Reescribe el YAML completo en el formato comentado comun (src/config/plantilla.py)."""
+    from ..config.plantilla import escribir
+    return escribir(p, completo)

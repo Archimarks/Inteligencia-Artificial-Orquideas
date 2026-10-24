@@ -1,38 +1,74 @@
+# ==============================================================================================================
+# M01_modo_ionizacion - Modo de ionizacion (ESI+ / ESI-) a partir de la quimica del compuesto
+# Entrenamientos: supervisado (clasificacion) + no supervisado (agrupamiento)
+# Ejecutar: python main.py ejecutar M01 | Ver datos y variables sin entrenar: python main.py datos M01 --variables
+# ==============================================================================================================
 id: M01_modo_ionizacion
 nombre: Modo de ionizacion (ESI+ / ESI-) a partir de la quimica del compuesto
-tarea: supervisado
-prioridad: normal
-pregunta_cientifica: ¿La composicion elemental y la superclase de un metabolito permiten anticipar si se detecta
-  en ESI positivo o negativo, en articulos no vistos?
-descripcion: Unidad = (articulo, metabolito) detectado en un solo modo, solo en articulos que adquirieron ambos
-  modos. X = descriptores de la formula (C, H, N, O, P, S, DBE, H/C, O/C, indice de aromaticidad...) + superclase.
-  Sin m/z, aducto ni RT (fuga). Grupos = articulo.
+tarea: supervisado                  # entrenamiento principal: supervisado | patrones (no supervisado)
+prioridad: normal                   # normal | alta | central (orden en la interfaz)
+pregunta_cientifica: >-
+  ¿La composicion elemental y la superclase de un metabolito permiten anticipar si se detecta en ESI positivo o
+  negativo, en articulos no vistos?
+descripcion: >-
+  Unidad = (articulo, metabolito) detectado en un solo modo, solo en articulos que adquirieron ambos modos. X =
+  descriptores de la formula (C, H, N, O, P, S, DBE, H/C, O/C, indice de aromaticidad...) + superclase. Sin m/z,
+  aducto ni RT (fuga). Grupos = articulo.
+interpretacion: >-
+  Los acidos (carboxilos, fenoles, fosfatos) tienden a ionizar en negativo y las bases nitrogenadas en positivo.
+  Un rendimiento moderado es esperable: muchos compuestos ionizan en ambos modos y la eleccion depende del
+  metodo.
+
+# --- Conjunto: unidad de analisis y construccion de las variables ---------------------------------------------
+# El objetivo se indica en datos_entrenamiento.objetivo (abajo).
 conjunto:
-  nombre: metabolito_modo
+  nombre: metabolito_modo           # constructor en src/features/conjuntos.py
   parametros:
-    incluir_superclase: true
+    incluir_superclase: true        # anade la superclase quimica como variable de entrada
+
+# --- Validacion cruzada agrupada (entrenamiento supervisado) --------------------------------------------------
 split:
-  n_splits: 5
-  min_groups_per_class: 2
-  min_samples_per_class: 10
+  strategy: group_kfold             # group_kfold | leave_one_group_out (un grupo nunca se reparte)
+  n_splits: 5                       # numero de particiones de la validacion cruzada
+  min_groups_per_class: 2           # una clase se evalua solo si aparece en >= N grupos
+  min_samples_per_class: 10         # ... y en >= N unidades
+
+# --- Entrenamiento supervisado: algoritmos --------------------------------------------------------------------
+# Los baselines no aprenden de la quimica: un algoritmo util debe superarlos.
 modelos:
-- nombre: baseline_mayoritaria
-- nombre: baseline_estratificada
-- nombre: logistica
-- nombre: random_forest
-  hiperparametros:
-    n_estimators: 200
-    min_samples_leaf: 5
-- nombre: lightgbm
-- nombre: xgboost
-- nombre: catboost
-evaluation:
-  n_permutations: 20
-interpretacion: 'Los acidos (carboxilos, fenoles, fosfatos) tienden a ionizar en negativo y las bases nitrogenadas
-  en positivo. Un rendimiento moderado es esperable: muchos compuestos ionizan en ambos modos y la eleccion depende
-  del metodo.'
+- nombre: baseline_mayoritaria      # referencia: siempre predice la clase mas frecuente
+- nombre: baseline_estratificada    # referencia: azar con las proporciones de clase
+- nombre: logistica                 # regresion logistica (lineal, interpretable)
+- nombre: random_forest             # bosque aleatorio
+  hiperparametros: {min_samples_leaf: 5, n_estimators: 200}
+- nombre: lightgbm                  # gradient boosting (CPU)
+- nombre: xgboost                   # gradient boosting (GPU si hay)
+- nombre: catboost                  # gradient boosting (GPU si hay)
 seleccion_variables:
-  metodo: ninguna
+  metodo: ninguna                   # ninguna | anova | informacion_mutua (con k = numero de variables)
+
+# --- Evaluacion del entrenamiento supervisado -----------------------------------------------------------------
+evaluation:
+  permutation_test: true            # prueba de permutacion de la etiqueta (p-valor)
+  n_permutations: 20                # mas permutaciones = p mas preciso y entrenamiento mas largo
+  confounding_control: true         # modelo con solo variables de plataforma: el quimico debe superarlo
+  evaluacion_optimista: true        # repite sin agrupar para medir cuanto inflaria una validacion ingenua
+
+# --- Entrenamiento no supervisado: mismas unidades, sin usar el objetivo --------------------------------------
+# Agrupa las unidades (PCA + K-means/jerarquico), mide la estabilidad de los grupos y busca atipicos;
+# despues compara los grupos con las referencias. Si siguen al articulo y no al objetivo, domina el
+# efecto de estudio/plataforma. Resultados en metricas/<run_id>/no_supervisado/.
+no_supervisado:
+  activo: true                      # false = solo el entrenamiento supervisado
+  matriz: entrada                   # entrada = variables X | objetivo = matriz multietiqueta (presencias, actividades)
+  referencias: [objetivo, grupos]   # con que se comparan los grupos: objetivo, grupos o columnas de la unidad
+  componentes: 10                   # componentes principales (PCA) tras estandarizar
+  metodos: [kmeans, jerarquico]     # kmeans | jerarquico (Ward; se omite con > 12000 unidades)
+  k_min: 2                          # numero de grupos a probar; se elige el de mayor silueta
+  k_max: 10
+  n_bootstrap: 20                   # remuestreos para medir la estabilidad de los grupos
+  contaminacion: 0.05               # fraccion esperada de unidades atipicas (Isolation Forest)
+  max_unidades: 30000               # submuestra estratificada si hay mas unidades
 
 # --- Datos de entrenamiento (supervisado) ---------------------------------------------------------------------
 # tipo_aprendizaje: supervisado -> el modelo aprende a predecir una variable objetivo
@@ -44,9 +80,11 @@ seleccion_variables:
 #   control_instrumental: variables de plataforma del modelo de control (quitar = no usarlas)
 #   filtros_agregacion: columnas para filtrar muestras y agregar (informativo)
 # variables.incluir / excluir: seleccion fina de las variables X ya construidas (comodines * ?)
+# Con dos entrenamientos, el no supervisado usa las mismas variables de entrada y solo mira el objetivo
+#   despues, para evaluar los grupos que encontro (nunca para entrenar).
 # Ver sin entrenar: python main.py datos M01 [--variables] | Regenerar: python main.py datos M01 --escribir-yaml
 datos_entrenamiento:
-  tipo_aprendizaje: supervisado
+  tipo_aprendizaje: [supervisado, no_supervisado]
   objetivo: ID_MODO_IONIZACION
   grupos_validacion: ID_ARTICULO
   archivos:
@@ -59,6 +97,15 @@ datos_entrenamiento:
     registro_actividades:
       ruta: 09_Hechos/04_Registro_actividades.csv
       filtros_agregacion: [ID_MUESTRA]
-  variables:
+  variables:                    # seleccion fina de las variables X ya construidas
+    # Vacio = se usan TODAS las variables disponibles (recomendado). Para probar otra combinacion:
+    #   incluir: solo estas variables | excluir: todas menos estas (nombre, comodin * ? o columna de origen)
     incluir: []
     excluir: []
+    # Variables disponibles:
+    # - FORMULA_MOLECULAR -> 24 descriptores de la formula: n_C, n_H, n_N, n_O, n_P, n_S, n_F, n_Cl, n_Br,
+    #     n_I, n_otros, dbe, masa_formula, n_atomos_pesados, H_C, O_C, N_C, S_C, P_C, dbe_C, heteroatomos,
+    #     halogenado, ai_mod, regla_nitrogeno_par
+    # - ID_SUPERCLASE_QUIMICA -> ID_SUPERCLASE_QUIMICA_<id>: una variable 0/1 por categoria
+    # Ejemplos: incluir: [n_C, n_H, n_N, n_O, dbe, H_C, O_C]; excluir: [ID_SUPERCLASE_QUIMICA]
+    # Lista exacta con nombres: python main.py datos M01 --variables
