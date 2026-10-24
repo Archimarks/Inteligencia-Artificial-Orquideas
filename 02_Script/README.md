@@ -1,6 +1,6 @@
 # 02_Script - Sistema de IA para el descubrimiento de patrones quimicos
 
-Sistema modular y reproducible que audita `01_Datos/Base` y entrena y evalua 18 experimentos de aprendizaje
+Sistema modular y reproducible que audita `01_Datos/Dataset` y entrena y evalua 18 experimentos de aprendizaje
 supervisado y no supervisado. Todo resultado lleva su configuracion, sus huellas de datos y su informe.
 
 ## 1. Instalacion
@@ -46,7 +46,7 @@ Las rutas se resuelven solas a partir de la carpeta padre de `02_Script` (`raiz_
    1. *Maquina:* muestra CPU, RAM, sistema y todas las GPU NVIDIA, y prueba cada una con un entrenamiento corto en
       CUDA (OK/FALLO). Despues se elige con que entrenar: todas las GPU que pasaron la prueba (recomendado),
       algunas, o solo CPU.
-   2. *Datos:* comprueba que los 24 CSV de `01_Datos/Base` existan y no sean punteros de Git LFS.
+   2. *Datos:* comprueba que los CSV de `01_Datos/Dataset` existan y no sean punteros de Git LFS.
    3. *Modelos:* tabla de los 19 experimentos por categoria, con su ultimo resultado. Se eligen por numero
       (`1,3`), rango (`2-7`), categoria (`A B`), ID (`M05`) o `todos`.
    4. *Opciones:*
@@ -87,7 +87,7 @@ La primera lectura de Dataset.csv (~550 MB) tarda alrededor de 1 minuto y crea u
 ```
 03_Resultados/
 ├── Global/
-│   ├── auditoria_datos/<run>/          auditoria general de 01_Datos/Base (informe_auditoria.md, tablas, graficas)
+│   ├── auditoria_datos/<run>/          auditoria general de 01_Datos/Dataset (informe_auditoria.md, tablas, graficas)
 │   ├── resumen_ejecutivo.md / .csv     ultima ejecucion de cada modelo con su veredicto
 │   ├── informe_cientifico.md
 │   └── graficas/comparacion_global_modelos.png
@@ -223,3 +223,13 @@ Copie un YAML parecido, cambie `id` y el nombre del archivo, ajuste `conjunto.pa
 
 En `../05_Documentacion`: `arquitectura.md`, `diccionario_datos.md`, `metodologia.md`, `guia_modelos.md`,
 `limitaciones_cientificas.md` e `informe_cientifico.md`.
+
+## Construccion de 01_Datos/Dataset
+
+`python main.py construir-dataset` lee los 57 lotes de `01_Datos/Data/Batch` y la curacion de los 52 articulos
+(`src/construccion/curacion.py` y `referencias.py`) y escribe las 40 tablas normalizadas de `01_Datos/Dataset`
+(trazabilidad, taxonomia, geografia, muestra, plataforma analitica, quimica, metabolitos, actividad biologica,
+hechos y `10_Dataset_final/Dataset.csv`) junto con `INFORME_CONSTRUCCION.md`. Si los CSV ya existen con cabecera,
+se respeta el orden de sus columnas y las columnas nuevas se agregan al final (`--ignorar-plantillas` lo desactiva).
+Opciones: `--salida`, `--lotes 1 2 3`, `--sin-dataset`.
+

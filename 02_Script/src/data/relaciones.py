@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from .catalogos import CATALOGOS, FK_DATASET, cargar_catalogo
+from .catalogos import CATALOGOS, FK_DATASET, FK_DATASET_OPCIONALES, cargar_catalogo
 from .dataset import cargar_dataset
 
 
@@ -26,7 +26,8 @@ def verificar_fks_catalogos() -> pd.DataFrame:
 def verificar_fks_dataset() -> pd.DataFrame:
     df = cargar_dataset()
     filas = []
-    for col, ref in FK_DATASET.items():
+    fks = dict(FK_DATASET, **{c: r for c, r in FK_DATASET_OPCIONALES.items() if c in df.columns})
+    for col, ref in fks.items():
         pks = set(cargar_catalogo(ref)[CATALOGOS[ref].pk])
         vals = pd.Series(df[col].unique())
         huerf = sorted(set(vals) - pks)
@@ -56,7 +57,7 @@ def verificar_consistencia_jerarquica() -> pd.DataFrame:
     d2 = df.loc[df["ID_MUESTRA"] > 0, ["ID_MUESTRA"] + attrs].drop_duplicates().set_index("ID_MUESTRA")
     comun = d2.index.intersection(mu.index)
     dif = (d2.loc[comun, attrs] != mu.loc[comun, attrs]).any(axis=1).sum()
-    res.append({"chequeo": "atributos de muestra iguales en Dataset y 06_Muestras_Batch (ID_MUESTRA>0)", "inconsistencias": int(dif)})
+    res.append({"chequeo": "atributos de muestra iguales en Dataset y 09_Hechos/01_Muestras (ID_MUESTRA>0)", "inconsistencias": int(dif)})
     res.append({"chequeo": "filas con ID_MUESTRA=0 (senal sin valores por muestra; atributos a nivel de lote)",
                 "inconsistencias": int((df["ID_MUESTRA"] == 0).sum())})
     art = dict(zip(cargar_catalogo("batches")["ID_BATCH"], cargar_catalogo("batches")["ID_ARTICULO"]))

@@ -1,4 +1,4 @@
-"""Pruebas de integridad sobre los datos reales de 01_Datos/Base (se omiten si no estan disponibles)."""
+"""Pruebas de integridad sobre los datos reales de 01_Datos/Dataset (se omiten si no estan disponibles)."""
 from conftest import requiere_datos
 
 

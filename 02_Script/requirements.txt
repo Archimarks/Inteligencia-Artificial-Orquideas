@@ -117,3 +117,12 @@ rich==14.1.0
 # pytest: suite de pruebas (02_Script/tests).
 PyYAML==6.0.3
 pytest==9.1.1
+
+
+# -----------------------------------------------------------------------------
+# 08. LECTURA DE LOTES (construir-dataset)
+# -----------------------------------------------------------------------------
+# openpyxl: archivos .xlsx de 01_Datos/Data/Batch.
+# xlrd:     archivos .xls antiguos (BAT0021).
+openpyxl==3.1.5
+xlrd==2.0.2

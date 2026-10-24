@@ -1,4 +1,4 @@
-"""Auditoria exhaustiva de los CSV de 01_Datos/Base.
+"""Auditoria exhaustiva de los CSV de 01_Datos/Dataset.
 
 Genera en 03_Resultados/Global/auditoria_datos/<run_id>/:
   tablas/   perfiles por archivo, claves foraneas, cardinalidades, distribuciones, calidad
@@ -279,7 +279,7 @@ filas replicadas. La vista quimica sin replicacion tiene {R['observaciones_quimi
 Jerarquia: articulo (1) -> lote (1..3) -> muestra (n) -> observacion (senal x muestra). Especie, parte, tipo de muestra,
 cultivo y metodo de extraccion son atributos de la muestra; columna cromatografica es atributo del lote; modo, aducto,
 nivel y metabolito son atributos de la observacion; las actividades biologicas se registran por articulo/especie,
-por metabolito (literatura) o por muestra (ensayo experimental) en `05_Pivotes/Registo_Actividades_biologicas.csv`.
+por metabolito (literatura) o por muestra (ensayo experimental) en `09_Hechos/04_Registro_actividades.csv`.
 
 ## 2. Integridad referencial
 Claves foraneas huerfanas (catalogos + Dataset): **{R['fk_huerfanos_total']}**.

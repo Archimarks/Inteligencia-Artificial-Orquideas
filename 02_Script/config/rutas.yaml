@@ -3,9 +3,10 @@
 # Para fijarla manualmente en Windows: raiz_proyecto: "D:/Inteligencia Artificial Orquideas"
 raiz_proyecto: auto
 
+# 01_Datos/Dataset se genera con `python main.py construir-dataset` a partir de 01_Datos/Data (articulos y lotes)
 datos:
   base: 01_Datos/Dataset
-  dataset: 01_Datos/Dataset/Dataset.csv
+  dataset: 01_Datos/Dataset/10_Dataset_final/Dataset.csv
   catalogos: 01_Datos/Dataset
 
 # Todos los resultados quedan en 03_Resultados:

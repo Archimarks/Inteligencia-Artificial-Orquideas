@@ -26,6 +26,6 @@ def sha256_archivo(p: Path, bloque: int = 1 << 22) -> str:
 
 
 def huellas_datos() -> dict[str, str]:
-    """Huella de cada CSV de 01_Datos/Base."""
+    """Huella de cada CSV de 01_Datos/Dataset."""
     base = ruta("datos", "base")
     return {str(p.relative_to(base)).replace("\\", "/"): sha256_archivo(p) for p in sorted(base.rglob("*.csv"))}

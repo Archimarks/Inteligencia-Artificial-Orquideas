@@ -4,7 +4,7 @@ Sin argumentos (`python main.py` o el boton Ejecutar de VS Code) abre la interfa
 opciones -> entrenamiento -> resultados.
 
 Uso por comandos (desde la carpeta 02_Script):
-    python main.py auditoria                 # auditoria completa de 01_Datos/Base
+    python main.py auditoria                 # auditoria completa de 01_Datos/Dataset
     python main.py listar                    # experimentos configurados
     python main.py hardware                  # CPU y GPU detectadas y GPU que se usaran
     python main.py validar [ID ...]          # valida configuraciones YAML sin ejecutar
@@ -15,6 +15,7 @@ Uso por comandos (desde la carpeta 02_Script):
     python main.py resumen                   # tabla ejecutiva con la ultima ejecucion de cada experimento
     python main.py reinformar                # regenera los informes de todas las ejecuciones sin reentrenar
     python main.py predecir RUN_ID datos.csv # aplica un modelo guardado a un CSV con las mismas variables
+    python main.py construir-dataset         # llena 01_Datos/Dataset (40 CSV) desde 01_Datos/Data (articulos y lotes)
 """
 from __future__ import annotations
 
@@ -32,7 +33,7 @@ DEPENDENCIAS = {
     "yaml": "PyYAML", "pandas": "pandas", "numpy": "numpy", "pyarrow": "pyarrow", "sklearn": "scikit-learn",
     "lightgbm": "lightgbm", "joblib": "joblib", "xgboost": "xgboost", "catboost": "catboost", "scipy": "scipy",
     "statsmodels": "statsmodels", "mlxtend": "mlxtend", "networkx": "networkx", "umap": "umap-learn",
-    "matplotlib": "matplotlib", "seaborn": "seaborn", "rich": "rich",
+    "matplotlib": "matplotlib", "seaborn": "seaborn", "rich": "rich", "openpyxl": "openpyxl", "xlrd": "xlrd",
 }
 
 
@@ -198,11 +199,22 @@ def cmd_predecir(a: argparse.Namespace) -> None:
     print(destino)
 
 
+def cmd_construir_dataset(a: argparse.Namespace) -> None:
+    from src.construccion.constructor import ejecutar
+    from src.utils.rutas import raiz_proyecto, ruta
+    base = Path(a.lotes_dir) if a.lotes_dir else raiz_proyecto() / "01_Datos" / "Data" / "Batch"
+    salida = Path(a.salida) if a.salida else ruta("datos", "base")
+    print(f"Lotes: {base}\nSalida: {salida}")
+    r = ejecutar(base, salida, lotes=a.lotes or None, respetar_cabeceras=not a.ignorar_plantillas,
+                 con_dataset=not a.sin_dataset)
+    print(f"\nListo en {r['segundos']} s. Avisos: {len(r['avisos'])}. Informe: {salida / 'INFORME_CONSTRUCCION.md'}")
+
+
 def construir_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="IA para el descubrimiento de patrones quimicos en orquideas. "
                                              "Sin argumentos abre un menu.")
     sub = ap.add_subparsers(dest="comando", required=True)
-    s = sub.add_parser("auditoria", help="auditoria general de 01_Datos/Base"); s.add_argument("--etiqueta")
+    s = sub.add_parser("auditoria", help="auditoria general de 01_Datos/Dataset"); s.add_argument("--etiqueta")
     s.set_defaults(f=cmd_auditoria)
     s = sub.add_parser("listar", help="lista los experimentos configurados"); s.set_defaults(f=cmd_listar)
     s = sub.add_parser("hardware", help="CPU y GPU detectadas"); s.set_defaults(f=cmd_hardware)
@@ -220,6 +232,14 @@ def construir_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("reinformar", help="regenera informes sin reentrenar"); s.set_defaults(f=cmd_reinformar)
     s = sub.add_parser("predecir", help="aplica un modelo guardado a un CSV"); s.add_argument("run_id")
     s.add_argument("csv"); s.add_argument("--salida"); s.set_defaults(f=cmd_predecir)
+    s = sub.add_parser("construir-dataset", help="llena 01_Datos/Dataset desde los articulos y lotes de 01_Datos/Data")
+    s.add_argument("--salida", help="carpeta de salida (por defecto datos.base de rutas.yaml)")
+    s.add_argument("--lotes-dir", help="carpeta con los archivos BATxxxx (por defecto 01_Datos/Data/Batch)")
+    s.add_argument("--lotes", nargs="*", type=int, help="solo estos lotes (por defecto los 57)")
+    s.add_argument("--sin-dataset", action="store_true", help="no genera 10_Dataset_final/Dataset.csv")
+    s.add_argument("--ignorar-plantillas", action="store_true",
+                   help="no respeta las cabeceras de los CSV existentes (usa el esquema propio)")
+    s.set_defaults(f=cmd_construir_dataset)
     return ap
 
 

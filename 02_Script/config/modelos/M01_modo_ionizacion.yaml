@@ -42,12 +42,12 @@ seleccion_variables:
 #              de columna de origen: excluir [FORMULA_MOLECULAR] quita todos los descriptores de formula.
 datos_entrenamiento:
   archivos:
-    dataset: Dataset.csv
+    dataset: 10_Dataset_final/Dataset.csv
       # variables de entrada: FORMULA_MOLECULAR, ID_SUPERCLASE_QUIMICA
       # objetivo: ID_MODO_IONIZACION
       # grupos de validacion: ID_ARTICULO
       # filtros y agregacion: ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION
-    registro_actividades: 05_Pivotes/Registo_Actividades_biologicas.csv
+    registro_actividades: 09_Hechos/04_Registro_actividades.csv
       # filtros y agregacion: ID_MUESTRA
   variables:
     incluir: []

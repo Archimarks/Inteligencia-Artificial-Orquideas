@@ -4,7 +4,7 @@ Menu principal:
   1) Entrenar modelos - asistente paso a paso:
        1. Maquina: CPU, RAM, sistema y todas las GPU NVIDIA, con una prueba real de cada GPU; se elige con que
           entrenar (todas las GPU que pasan la prueba, algunas, o solo CPU).
-       2. Datos: comprueba que 01_Datos/Base tenga los CSV reales (no punteros de Git LFS).
+       2. Datos: comprueba que 01_Datos/Dataset tenga los CSV reales (no punteros de Git LFS).
        3. Modelos: tabla de los experimentos por categoria con su ultimo resultado; se eligen uno, varios o todos.
        4. Opciones: modo completo o rapido y algoritmos a entrenar.
        5. Confirmacion y entrenamiento con progreso; al final, tabla de resultados y resumen ejecutivo.
@@ -195,7 +195,7 @@ def paso_maquina() -> list[int] | None:
 # Paso 2: datos
 # ---------------------------------------------------------------------------------------------------------------------
 def paso_datos() -> bool:
-    _cabecera("Paso 2 de 4 - Comprobacion de los datos (01_Datos/Base)")
+    _cabecera("Paso 2 de 4 - Comprobacion de los datos (01_Datos/Dataset)")
     t = Table(box=box.SIMPLE)
     for c in ["Archivo", "Tamano", "Estado"]:
         t.add_column(c)
@@ -451,7 +451,7 @@ def auditoria() -> None:
     _cabecera("Auditoria de datos")
     if not paso_datos_silencioso():
         return
-    with consola.status("Auditando 01_Datos/Base (catalogos, claves, distribuciones, cobertura)..."):
+    with consola.status("Auditando 01_Datos/Dataset (catalogos, claves, distribuciones, cobertura)..."):
         out = ejecutar_auditoria(datetime.now().strftime("%Y%m%d-%H%M%S"))
     consola.print(f"[green]Auditoria terminada:[/] {out / 'informe_auditoria.md'}")
     if Confirm.ask("¿Abrir la carpeta?", default=False):
