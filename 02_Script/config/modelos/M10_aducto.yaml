@@ -34,22 +34,32 @@ interpretacion: El modo determina la polaridad del aducto ([M+H]+ vs [M-H]-); el
 seleccion_variables:
   metodo: ninguna
 
-# Archivos y columnas usados para entrenar. Cada ejecucion los informa en consola, en ejecucion.log, en
-# datos_entrenamiento.md y en el informe (`python main.py datos M10` los muestra sin entrenar; con --variables lista tambien las variables finales).
-#   archivos: archivo -> ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta). Debajo de cada
-#             archivo se indican las columnas que se leen de el y para que se usan.
-#   variables: seleccion de las variables de entrada (X). Vacio = todas. Admite comodines (* ?) y nombres
-#              de columna de origen: excluir [FORMULA_MOLECULAR] quita todos los descriptores de formula.
+# --- Datos de entrenamiento (supervisado) ---------------------------------------------------------------------
+# tipo_aprendizaje: supervisado -> el modelo aprende a predecir una variable objetivo
+# objetivo: columna a predecir | grupos_validacion: columna cuyos valores nunca se reparten entre
+#   entrenamiento y prueba en la validacion cruzada
+# archivos.<archivo>: ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta) y columnas por rol:
+#   entrada: origen de las variables X (quitar una columna elimina sus variables)
+#   objetivo / grupos_validacion: de que archivo salen (deben coincidir con lo de arriba)
+#   control_instrumental: variables de plataforma del modelo de control (quitar = no usarlas)
+#   filtros_agregacion: columnas para filtrar muestras y agregar (informativo)
+# variables.incluir / excluir: seleccion fina de las variables X ya construidas (comodines * ?)
+# Ver sin entrenar: python main.py datos M10 [--variables] | Regenerar: python main.py datos M10 --escribir-yaml
 datos_entrenamiento:
+  tipo_aprendizaje: supervisado
+  objetivo: ID_ADUCTO
+  grupos_validacion: ID_ARTICULO
   archivos:
-    dataset: 10_Dataset_final/Dataset.csv
-      # variables de entrada: FORMULA_MOLECULAR, ID_MODO_IONIZACION, ID_SUPERCLASE_QUIMICA
-      # objetivo: ID_ADUCTO
-      # grupos de validacion: ID_ARTICULO
-      # control instrumental: ID_MODO_IONIZACION
-      # filtros y agregacion: ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION
-    registro_actividades: 09_Hechos/04_Registro_actividades.csv
-      # filtros y agregacion: ID_MUESTRA
+    dataset:
+      ruta: 10_Dataset_final/Dataset.csv
+      entrada: [FORMULA_MOLECULAR, ID_MODO_IONIZACION, ID_SUPERCLASE_QUIMICA]
+      objetivo: [ID_ADUCTO]
+      grupos_validacion: [ID_ARTICULO]
+      control_instrumental: [ID_MODO_IONIZACION]
+      filtros_agregacion: [ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION]
+    registro_actividades:
+      ruta: 09_Hechos/04_Registro_actividades.csv
+      filtros_agregacion: [ID_MUESTRA]
   variables:
     incluir: []
     excluir: []

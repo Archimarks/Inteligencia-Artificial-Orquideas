@@ -105,7 +105,7 @@ def ejecutar_experimento(identificador: str | Path, etiqueta: str | None = None,
             from ..tasks import supervisado
             fuentes.describir_archivos(cfg, estricto=True)
             conj = construir(cfg["conjunto"]["nombre"], cfg["conjunto"].get("parametros", {}))
-            descartadas = fuentes.seleccionar_variables(conj, cfg)
+            descartadas = fuentes.aplicar_declaracion(conj, cfg) + fuentes.seleccionar_variables(conj, cfg)
             verificar_fuga(cfg, list(conj.X.columns),
                            list(conj.X_instrumental.columns) if conj.X_instrumental is not None else None)
             datos_ent = _registrar_datos_entrenamiento(fuentes.describir(cfg, conj, descartadas), salida, log)

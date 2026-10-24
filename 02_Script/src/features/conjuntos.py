@@ -18,7 +18,7 @@ import pandas as pd
 
 from ..data.catalogos import cargar_catalogo, mapa_etiquetas
 from ..data.dataset import identificados
-from .perfiles import (ATRIBUTOS_MUESTRA, agregar, conteos_por_muestra, matriz_presencia, perfil_muestras, tabla_muestras,
+from .perfiles import (ATRIBUTOS_MUESTRA, ATRIBUTOS_PLATAFORMA, agregar, conteos_por_muestra, matriz_presencia, perfil_muestras, tabla_muestras,
                        transformar)
 from .quimica import matriz_descriptores
 
@@ -71,7 +71,12 @@ def metabolito_quimica(objetivo: str = "ID_SUPERCLASE_QUIMICA", **_: Any) -> Con
     met = cargar_catalogo("metabolitos")
     cq = cargar_catalogo("clases_quim")[["ID_CLASE_QUIMICA", "ID_SUPERCLASE_QUIMICA"]]
     observados = identificados()["ID_METABOLITO"].unique()
-    m = met[met["ID_METABOLITO"].isin(observados) & (met["ID_CLASE_QUIMICA"] > 0)].merge(cq, on="ID_CLASE_QUIMICA")
+    m = met[met["ID_METABOLITO"].isin(observados)].copy()
+    # superclase: la de su clase quimica; si la clase no se conoce, la que trae el propio catalogo de metabolitos
+    propia = m["ID_SUPERCLASE_QUIMICA"] if "ID_SUPERCLASE_QUIMICA" in m else pd.Series(0, index=m.index)
+    m["ID_SUPERCLASE_QUIMICA"] = m["ID_CLASE_QUIMICA"].map(cq.set_index("ID_CLASE_QUIMICA")["ID_SUPERCLASE_QUIMICA"])
+    m["ID_SUPERCLASE_QUIMICA"] = m["ID_SUPERCLASE_QUIMICA"].fillna(propia).fillna(0).astype(int)
+    m = m[m[objetivo] > 0].reset_index(drop=True)
     X = matriz_descriptores(m["FORMULA_MOLECULAR"])
     ok = X.notna().all(axis=1)
     m, X = m[ok].reset_index(drop=True), X[ok].reset_index(drop=True)
@@ -159,11 +164,12 @@ def actividad_metabolito(min_positivos: int = 10, incluir_superclase: bool = Tru
 # ---------------------------------------------------------------------------------------------------------------------
 # Unidad = muestra o grupo de muestras
 # ---------------------------------------------------------------------------------------------------------------------
-INSTRUMENTALES = ["ID_COLUMNA_CROMATOGRAFICA", "MODOS"]
+INSTRUMENTALES = ["ID_COLUMNA_CROMATOGRAFICA", "MODOS"] + ATRIBUTOS_PLATAFORMA
 
 
 def _instrumental(meta: pd.DataFrame, excluir: str | None = None) -> pd.DataFrame:
-    cols = [c for c in INSTRUMENTALES if c != excluir]
+    """Covariables de plataforma (columna, modos, tecnica, instrumento, analizador, profundidad de identificacion)."""
+    cols = [c for c in INSTRUMENTALES if c != excluir and c in meta.columns]
     Xi = _one_hot(meta, cols)
     Xi["log_n_identificados"] = np.log1p(meta["N_IDENTIFICADOS"].astype(float))
     Xi["log_n_senales"] = np.log1p(meta["N_SENALES"].astype(float))

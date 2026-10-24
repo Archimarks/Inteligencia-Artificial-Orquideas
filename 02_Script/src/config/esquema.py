@@ -51,6 +51,8 @@ def cargar_config(p: Path) -> dict[str, Any]:
     cfg.setdefault("semilla", g["semilla"])
     cfg.setdefault("n_jobs", g.get("n_jobs", -1))
     cfg["_archivo"] = str(p)
+    if isinstance(cfg.get("conjunto"), dict) and cfg["conjunto"].get("parametros") is None:
+        cfg["conjunto"]["parametros"] = {}
     validar(cfg, p)
     cfg["_huella"] = huella_config(cfg)
     return cfg
@@ -114,31 +116,38 @@ def validar(cfg: dict[str, Any], p: Path | str = "<config>") -> None:
         sel = (cfg.get("seleccion_variables") or {}).get("metodo")
         if sel not in SELECCION:
             errores.append(f"seleccion_variables.metodo debe ser uno de {sorted(x for x in SELECCION if x)}")
-        objetivo = (conj or {}).get("parametros", {}).get("objetivo") if isinstance(conj, dict) else None
+        objetivo = (conj.get("parametros") or {}).get("objetivo") if isinstance(conj, dict) else None
         if objetivo and objetivo in (cfg.get("variables_permitidas") or []):
             errores.append(f"el objetivo {objetivo} no puede figurar en variables_permitidas")
     errores += _validar_datos_entrenamiento(cfg.get("datos_entrenamiento"))
+    if not errores:
+        from ..features import fuentes
+        errores += fuentes.sincronizar(cfg)
+        errores += fuentes.validar_declaracion(cfg)
     if errores:
         raise ErrorConfiguracion(f"Configuracion invalida en {p}:\n  - " + "\n  - ".join(errores))
 
 
 def _validar_datos_entrenamiento(de: Any) -> list[str]:
-    """Bloque opcional `datos_entrenamiento` (archivos y variables usados para entrenar)."""
+    """Forma del bloque opcional `datos_entrenamiento` (la coherencia con la tarea y el conjunto se comprueba en
+    features/fuentes.validar_declaracion)."""
     if de is None:
         return []
     if not isinstance(de, dict):
         return ["datos_entrenamiento debe ser un diccionario con 'archivos' y/o 'variables'"]
-    errores = [f"datos_entrenamiento.{k} no es una clave valida (use 'archivos' o 'variables')"
-               for k in de if k not in ("archivos", "variables")]
+    validas = ("tipo_aprendizaje", "objetivo", "grupos_validacion", "archivos", "variables")
+    errores = [f"datos_entrenamiento.{k} no es una clave valida (use {', '.join(validas)})" for k in de if k not in validas]
+    if "tipo_aprendizaje" in de and de["tipo_aprendizaje"] not in ("supervisado", "no_supervisado"):
+        errores.append("datos_entrenamiento.tipo_aprendizaje debe ser 'supervisado' o 'no_supervisado'")
     arch = de.get("archivos") or {}
     if not isinstance(arch, dict):
-        errores.append("datos_entrenamiento.archivos debe ser un diccionario archivo -> ruta")
+        errores.append("datos_entrenamiento.archivos debe ser un diccionario archivo -> {ruta, columnas por rol}")
     else:
         for k, v in arch.items():
             if k not in NOMBRES_ARCHIVO:
                 errores.append(f"datos_entrenamiento.archivos.{k} no existe; opciones: {NOMBRES_ARCHIVO}")
-            if not isinstance(v, str) or not v.strip():
-                errores.append(f"datos_entrenamiento.archivos.{k} debe ser una ruta (texto)")
+            if not isinstance(v, (str, dict)) or (isinstance(v, str) and not v.strip()):
+                errores.append(f"datos_entrenamiento.archivos.{k} debe ser una ruta o un diccionario con 'ruta'")
     var = de.get("variables") or {}
     if not isinstance(var, dict):
         errores.append("datos_entrenamiento.variables debe ser un diccionario con 'incluir' y/o 'excluir'")
@@ -153,7 +162,7 @@ def _validar_datos_entrenamiento(de: Any) -> list[str]:
 
 def verificar_fuga(cfg: dict[str, Any], columnas: list[str], instrumentales: list[str] | None = None) -> None:
     """Comprueba en tiempo de ejecucion que ninguna variable predictora codifique el objetivo o la plataforma."""
-    objetivo = cfg.get("conjunto", {}).get("parametros", {}).get("objetivo")
+    objetivo = ((cfg.get("conjunto") or {}).get("parametros") or {}).get("objetivo")
     prohibidas = list(PROHIBIDAS_SIEMPRE) + list(cfg.get("variables_prohibidas") or [])
     if objetivo:
         prohibidas.append(objetivo)

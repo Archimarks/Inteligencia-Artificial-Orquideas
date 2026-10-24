@@ -5,11 +5,11 @@ prioridad: alta
 pregunta_cientifica: ¿La composicion elemental y la superclase de un metabolito con actividad citada permiten anticipar
   que tipo de actividad se le atribuye?
 descripcion: Unidad = metabolito con actividad registrada en la literatura citada por los articulos. Y = actividades
-  con >= 10 metabolitos. X = descriptores de formula + superclase. Grupos = formula.
+  con >= 6 metabolitos. X = descriptores de formula + superclase. Grupos = formula.
 conjunto:
   nombre: actividad_metabolito
   parametros:
-    min_positivos: 10
+    min_positivos: 6
 split:
   n_splits: 5
   min_groups_per_class: 3
@@ -29,28 +29,39 @@ modelos:
 evaluation:
   n_permutations: 50
   confounding_control: false
-interpretacion: 'Muy pocos metabolitos (~90) y sesgo de publicacion: compuestos famosos acumulan muchas actividades
-  citadas.'
+interpretacion: 'Muy pocos metabolitos (~40 con actividad citada) y sesgo de publicacion: compuestos famosos acumulan
+  muchas actividades citadas. Con min_positivos 6 quedan ~5 actividades; resultados exploratorios.'
 seleccion_variables:
   metodo: ninguna
 
-# Archivos y columnas usados para entrenar. Cada ejecucion los informa en consola, en ejecucion.log, en
-# datos_entrenamiento.md y en el informe (`python main.py datos M17b` los muestra sin entrenar; con --variables lista tambien las variables finales).
-#   archivos: archivo -> ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta). Debajo de cada
-#             archivo se indican las columnas que se leen de el y para que se usan.
-#   variables: seleccion de las variables de entrada (X). Vacio = todas. Admite comodines (* ?) y nombres
-#              de columna de origen: excluir [FORMULA_MOLECULAR] quita todos los descriptores de formula.
+# --- Datos de entrenamiento (supervisado) ---------------------------------------------------------------------
+# tipo_aprendizaje: supervisado -> el modelo aprende a predecir una variable objetivo
+# objetivo: columna a predecir | grupos_validacion: columna cuyos valores nunca se reparten entre
+#   entrenamiento y prueba en la validacion cruzada
+# archivos.<archivo>: ruta (relativa a datos.catalogos de config/rutas.yaml, o absoluta) y columnas por rol:
+#   entrada: origen de las variables X (quitar una columna elimina sus variables)
+#   objetivo / grupos_validacion: de que archivo salen (deben coincidir con lo de arriba)
+#   control_instrumental: variables de plataforma del modelo de control (quitar = no usarlas)
+#   filtros_agregacion: columnas para filtrar muestras y agregar (informativo)
+# variables.incluir / excluir: seleccion fina de las variables X ya construidas (comodines * ?)
+# Ver sin entrenar: python main.py datos M17b [--variables] | Regenerar: python main.py datos M17b --escribir-yaml
 datos_entrenamiento:
+  tipo_aprendizaje: supervisado
+  objetivo: ID_ACTIVIDAD_BIOLOGICA
+  grupos_validacion: FORMULA_MOLECULAR
   archivos:
-    registro_actividades: 09_Hechos/04_Registro_actividades.csv
-      # objetivo: ID_ACTIVIDAD_BIOLOGICA
-      # filtros y agregacion: ID_METABOLITO
-    metabolitos: 07_Metabolitos/01_Metabolitos.csv
-      # variables de entrada: FORMULA_MOLECULAR, ID_CLASE_QUIMICA
-      # grupos de validacion: FORMULA_MOLECULAR
-      # filtros y agregacion: ID_METABOLITO
-    clases_quim: 06_Quimica_Analitica/03_Clases_quimicas.csv
-      # variables de entrada: ID_CLASE_QUIMICA, ID_SUPERCLASE_QUIMICA
+    registro_actividades:
+      ruta: 09_Hechos/04_Registro_actividades.csv
+      objetivo: [ID_ACTIVIDAD_BIOLOGICA]
+      filtros_agregacion: [ID_METABOLITO]
+    metabolitos:
+      ruta: 07_Metabolitos/01_Metabolitos.csv
+      entrada: [FORMULA_MOLECULAR, ID_CLASE_QUIMICA]
+      grupos_validacion: [FORMULA_MOLECULAR]
+      filtros_agregacion: [ID_METABOLITO]
+    clases_quim:
+      ruta: 06_Quimica_Analitica/03_Clases_quimicas.csv
+      entrada: [ID_CLASE_QUIMICA, ID_SUPERCLASE_QUIMICA]
   variables:
     incluir: []
     excluir: []

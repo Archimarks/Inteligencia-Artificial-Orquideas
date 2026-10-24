@@ -10,6 +10,7 @@ Uso por comandos (desde la carpeta 02_Script):
     python main.py validar [ID ...]          # valida configuraciones YAML sin ejecutar
     python main.py datos [ID ...]            # archivos y columnas que usa cada experimento para entrenar
     python main.py datos M05 --variables     # ademas construye el conjunto y lista las variables de entrada
+    python main.py datos --escribir-yaml     # regenera el bloque datos_entrenamiento de los YAML
     python main.py ejecutar M12 [M13 ...]    # ejecuta uno o varios experimentos
     python main.py ejecutar-todos            # ejecuta todos (M01..M18), varios a la vez segun el hardware
     python main.py ejecutar-todos --paralelo 3   # 3 experimentos a la vez (p. ej. GPU 0, GPU 1 y CPU)
@@ -125,11 +126,16 @@ def cmd_datos(a: argparse.Namespace) -> None:
     rutas = [buscar_config(i) for i in a.ids] if a.ids else listar_configs()
     for p in rutas:
         cfg = cargar_config(p)
+        if a.escribir_yaml:
+            cambio = fuentes.escribir_yaml(p, cfg, completo=a.completo)
+            cargar_config(p)   # el YAML reescrito debe seguir siendo valido
+            print(f"{'ACTUALIZADO' if cambio else 'sin cambios'}  {p.name}")
+            continue
         fuentes.fijar_archivos(cfg)
         conj, descartadas = None, None
         if a.variables and cfg["tarea"] == "supervisado":
             conj = construir(cfg["conjunto"]["nombre"], cfg["conjunto"].get("parametros", {}))
-            descartadas = fuentes.seleccionar_variables(conj, cfg)
+            descartadas = fuentes.aplicar_declaracion(conj, cfg) + fuentes.seleccionar_variables(conj, cfg)
         print(fuentes.texto(fuentes.describir(cfg, conj, descartadas)) + "\n")
 
 
@@ -251,6 +257,10 @@ def construir_parser() -> argparse.ArgumentParser:
     s = sub.add_parser("datos", help="archivos y columnas que usa cada experimento para entrenar")
     s.add_argument("ids", nargs="*")
     s.add_argument("--variables", action="store_true", help="construye el conjunto y lista las variables de entrada")
+    s.add_argument("--escribir-yaml", action="store_true",
+                   help="regenera el bloque datos_entrenamiento de cada YAML (objetivo, archivos y columnas por rol)")
+    s.add_argument("--completo", action="store_true",
+                   help="con --escribir-yaml: vuelve a incluir todas las columnas de entrada/control que admite el conjunto")
     s.set_defaults(f=cmd_datos)
     s = sub.add_parser("ejecutar", help="entrena uno o varios experimentos"); s.add_argument("ids", nargs="+")
     s.add_argument("--etiqueta"); _opciones_paralelo(s); s.set_defaults(f=cmd_ejecutar)

@@ -170,8 +170,7 @@ descripcion: "..."
 conjunto:
   nombre: perfil_muestra        # metabolito_quimica | metabolito_modo | metabolito_aducto | actividad_metabolito |
                                 # perfil_muestra | presencia_metabolitos | actividad_especie
-  parametros:
-    objetivo: ID_FAMILIA        # cualquier atributo de muestra: ID_FILO..ID_ESPECIE, ID_PARTE_ESTUDIADA, ...
+  parametros:                   # (el objetivo se indica en datos_entrenamiento.objetivo)
     nivel: clase                # superclase | clase
     transformacion: clr         # clr | fraccion | conteo
     min_metabolitos: 20
@@ -195,29 +194,57 @@ evaluation:
   n_permutations: 30
 variables_prohibidas: []        # prefijos adicionales a excluir de X
 interpretacion: "..."
-datos_entrenamiento:            # archivos y columnas usados para entrenar (ver 4.2.1)
+datos_entrenamiento:            # objetivo, archivos y columnas por rol (ver 4.2.1)
+  tipo_aprendizaje: supervisado
+  objetivo: ID_FAMILIA          # variable objetivo: ID_FILO..ID_ESPECIE, ID_PARTE_ESTUDIADA, ID_TIPO_CULTIVO, ...
+  grupos_validacion: ID_ARTICULO
   archivos:
-    dataset: Dataset.csv
+    dataset:
+      ruta: 10_Dataset_final/Dataset.csv
+      entrada: [ID_CLASE_QUIMICA, ID_METABOLITO]
+      objetivo: [ID_FAMILIA]
+      grupos_validacion: [ID_ARTICULO]
+      control_instrumental: [ID_COLUMNA_CROMATOGRAFICA, ID_MODO_IONIZACION, ID_TECNICA_SEPARACION, ID_INSTRUMENTO,
+        ID_ANALIZADOR, ID_METABOLITO, ID_NIVEL_IDENTIFICACION]
+      filtros_agregacion: [ID_MUESTRA, ID_ACTIVIDAD_BIOLOGICA, ID_METABOLITO, ID_NIVEL_IDENTIFICACION, ID_TIPO_MUESTRA]
   variables:
     incluir: []
     excluir: []
 ```
 
 #### 4.2.1 Archivos y columnas de entrenamiento (`datos_entrenamiento`)
-Cada YAML de `config/modelos` indica que archivos lee el experimento y, en comentarios debajo de cada archivo, que
-columnas toma de el y para que (variables de entrada, objetivo, grupos de validacion, control instrumental, filtros).
-- `archivos`: nombre logico -> ruta. Las rutas relativas se resuelven contra `datos.catalogos` de `config/rutas.yaml`;
-  tambien se admiten rutas absolutas. Nombres validos: `dataset` y los catalogos (`metabolitos`, `clases_quim`,
-  `registro_actividades`, `familias`, ...). Cambiar una ruta hace que ese experimento lea otro archivo; antes de
-  entrenar se comprueba que exista y que tenga las columnas que necesita.
-- `variables.incluir` / `variables.excluir`: seleccionan las variables de entrada (X) ya construidas. Vacio = todas.
-  Admiten comodines (`*`, `?`) y se comparan con el nombre de la variable (`ID_FAMILIA_6`, `clase_240`, `dbe`) y con la
-  columna de origen (`ID_SUPERCLASE_QUIMICA`, `FORMULA_MOLECULAR`). Ejemplo: `excluir: [ID_SUPERCLASE_QUIMICA]` en M10
-  entrena con la formula y el modo de ionizacion, sin la superclase.
+El bloque es YAML estructurado (no comentarios) y cambia segun el tipo de aprendizaje:
 
-Al entrenar, la consola y `ejecucion.log` muestran los archivos, las columnas y la lista de variables; se guardan en
-`ejecuciones/<run_id>/datos_entrenamiento.md` y `.json`, y el informe incluye la seccion "Archivos y columnas de
-entrenamiento". `python main.py datos M05` lo muestra sin entrenar.
+| clave | supervisado (`tarea: supervisado`) | no supervisado (`tarea: patrones`, M18) |
+|---|---|---|
+| `tipo_aprendizaje` | `supervisado` | `no_supervisado` |
+| `objetivo` | **obligatorio**: la variable que se predice | no se permite (no hay objetivo) |
+| `grupos_validacion` | obligatorio: un grupo nunca se reparte entre entrenamiento y prueba | no se permite |
+| `archivos.<archivo>.ruta` | ruta del archivo | ruta del archivo |
+| `entrada` | origen de las variables X; quitar una columna quita sus variables | columnas de los perfiles (informativo) |
+| `objetivo`, `grupos_validacion` (por archivo) | de que archivo salen; deben coincidir | - |
+| `control_instrumental` | variables de plataforma del modelo de control; quitar = no usarlas | - |
+| `factores_contraste` | - | factores con los que se contrastan los perfiles (informativo) |
+| `filtros_agregacion` | columnas para filtrar y agregar (informativo) | igual |
+| `variables.incluir/excluir` | seleccion fina de variables X (comodines `*` `?`) | - |
+
+- **Objetivo:** en `perfil_muestra` y `metabolito_quimica` el objetivo se toma de `datos_entrenamiento.objetivo`
+  (p. ej. cambie `ID_FAMILIA` por `ID_ORDEN` y el modelo pasa a predecir el orden; actualice tambien la lista
+  `objetivo` del archivo). En los demas conjuntos el objetivo es fijo y `validar` comprueba que coincida.
+- **Rutas:** relativas a `datos.catalogos` de `config/rutas.yaml`, o absolutas. Nombres validos: `dataset` y los
+  catalogos (`metabolitos`, `clases_quim`, `registro_actividades`, `familias`, ...). Antes de entrenar se comprueba que
+  el archivo exista y tenga las columnas que necesita. Se sigue aceptando la forma corta `dataset: ruta`.
+- **Validacion:** `python main.py validar` rechaza un `objetivo` en un experimento no supervisado, la falta de
+  objetivo en uno supervisado, un `tipo_aprendizaje` que no corresponda a la tarea, roles que no aplican al tipo y
+  columnas de entrada o de control que el conjunto no sabe usar. Quitar una columna que el conjunto necesita para
+  construir la unidad (p. ej. `ID_METABOLITO` en los perfiles) da un error claro al entrenar.
+- **Regenerar:** `python main.py datos --escribir-yaml` reescribe el bloque de todos los YAML a partir del codigo,
+  conservando rutas, columnas quitadas y seleccion de variables; con `--completo` vuelve a poner todas las columnas
+  admitidas (util tras actualizar el codigo).
+
+Al entrenar, la consola y `ejecucion.log` muestran el tipo de aprendizaje, el objetivo, los archivos, las columnas y
+la lista de variables; se guardan en `ejecuciones/<run_id>/datos_entrenamiento.md` y `.json`, y el informe incluye la
+seccion "Archivos y columnas de entrenamiento". `python main.py datos M05 [--variables]` lo muestra sin entrenar.
 
 Modelos disponibles: `baseline_mayoritaria`, `baseline_prior`, `baseline_estratificada`, `logistica`,
 `random_forest`, `extra_trees`, `hist_gradient_boosting`, `lightgbm`, `xgboost` (GPU), `catboost` (GPU), `knn`. Los hiperparametros se pasan tal cual
@@ -235,7 +262,8 @@ En ejecucion, `verificar_fuga` rechaza variables predictoras con m/z, RT, intens
 articulo o muestra, o el propio objetivo.
 
 ### 4.4 Crear un experimento nuevo
-Copie un YAML parecido, cambie `id` y el nombre del archivo, ajuste `conjunto.parametros` y ejecute
+Copie un YAML parecido, cambie `id` y el nombre del archivo, ajuste `conjunto.parametros` y
+`datos_entrenamiento.objetivo` (o use `python main.py datos <ID> --escribir-yaml` para generar el bloque) y ejecute
 `python main.py validar <ID>` y luego `python main.py ejecutar <ID>`.
 
 ## 5. Pruebas

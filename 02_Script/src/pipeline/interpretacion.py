@@ -112,8 +112,14 @@ def _nombrar_importancias(cfg: dict[str, Any], r: dict[str, Any], salida: dict[s
 def _seccion_datos_entrenamiento(d: dict[str, Any]) -> list[str]:
     L = ["## Archivos y columnas de entrenamiento",
          "Parametrizable en el bloque `datos_entrenamiento` del YAML; detalle en `datos_entrenamiento.md`.", ""]
+    from ..features.fuentes import ROLES
+    tipo = d.get("tipo_aprendizaje", "supervisado")
+    L.append(f"- Tipo de aprendizaje: {tipo.replace('_', ' ')}"
+             + (f"; variable objetivo `{d['objetivo_configurado']}`; grupos de validacion `{d.get('grupos_configurados')}`"
+                if d.get("objetivo_configurado") else " (sin variable objetivo)"))
     for a in d.get("archivos", []):
-        L.append(f"- `{a['ruta']}` ({a['nombre']}): " + "; ".join(f"{rol}: {', '.join(cols)}" for rol, cols in a["roles"].items()))
+        L.append(f"- `{a['ruta']}` ({a['nombre']}): "
+                 + "; ".join(f"{ROLES.get(rol, rol)}: {', '.join(cols)}" for rol, cols in a["roles"].items()))
     if d.get("variables"):
         origenes = list(dict.fromkeys(v["columna_origen"] for v in d["variables"]))
         L.append(f"- Variables de entrada: {len(d['variables'])} (columnas de origen: {', '.join(origenes)})")

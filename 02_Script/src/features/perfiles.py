@@ -19,6 +19,8 @@ ATRIBUTOS_MUESTRA = [
     "ID_ESPECIE", "ID_TIPO_MUESTRA", "ID_PARTE_ESTUDIADA", "ID_TIPO_CULTIVO", "ID_METODO_EXTRACCION",
     "ID_COLUMNA_CROMATOGRAFICA",
 ]
+# plataforma analitica (columnas presentes en el Dataset.csv generado por `construir-dataset`; opcionales)
+ATRIBUTOS_PLATAFORMA = ["ID_TECNICA_SEPARACION", "ID_INSTRUMENTO", "ID_ANALIZADOR"]
 NIVEL_QUIMICO = {"superclase": "ID_SUPERCLASE_QUIMICA", "clase": "ID_CLASE_QUIMICA"}
 
 
@@ -27,7 +29,8 @@ def tabla_muestras() -> pd.DataFrame:
     """Una fila por muestra (ID_MUESTRA > 0) con sus atributos, modos adquiridos y numero de senales."""
     df = vista_quimica()
     df = df[df["ID_MUESTRA"] > 0]
-    meta = df.groupby("ID_MUESTRA", sort=True)[ATRIBUTOS_MUESTRA].first()
+    cols = ATRIBUTOS_MUESTRA + [c for c in ATRIBUTOS_PLATAFORMA if c in df.columns]
+    meta = df.groupby("ID_MUESTRA", sort=True)[cols].first()
     modos = df.groupby("ID_MUESTRA")["ID_MODO_IONIZACION"].agg(lambda s: tuple(sorted(set(s) - {0})))
     meta["MODOS"] = modos.map(lambda t: "+".join(map(str, t)) if t else "0")
     meta["N_SENALES"] = df.groupby("ID_MUESTRA").size()
