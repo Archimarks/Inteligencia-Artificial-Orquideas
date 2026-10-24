@@ -111,3 +111,10 @@ def test_cola_de_dispositivos_reparte_sin_repetir():
     [h.start() for h in hilos]
     [h.join() for h in hilos]
     assert not errores
+
+
+def test_reparto_por_gpu_un_proceso_por_gpu():
+    r = supervisado.repartir_por_gpu(5, [0, 1])
+    assert r == {0: [0, 2, 4], 1: [1, 3]}
+    assert [g[0] for g in supervisado.asignar_gpus("catboost", 5, [0, 1])] == [0, 1, 0, 1, 0]
+    assert "catboost" in supervisado.GPU_POR_PROCESO

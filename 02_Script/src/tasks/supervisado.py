@@ -77,6 +77,21 @@ def _ajustar_particion(nombre: str, semilla: int, multi: bool, seleccion: dict |
     return te, p
 
 
+# modelos cuya libreria no permite entrenar en varias GPU a la vez dentro de un proceso (se usan procesos)
+GPU_POR_PROCESO = {"catboost"}
+
+
+def repartir_por_gpu(n: int, gpus: list[int]) -> dict[int, list[int]]:
+    """Indices 0..n-1 repartidos en turno entre las GPU (el mismo reparto que asignar_gpus)."""
+    return {g: [i for i in range(n) if i % len(gpus) == k] for k, g in enumerate(gpus)}
+
+
+def _lote_particiones(fijos: tuple, nj: int, gpu: int, X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
+                      lote: list) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Varias particiones en serie en una GPU (se ejecuta en un proceso propio)."""
+    return [_ajustar_particion(*fijos, nj, [gpu], X, y, w, tr, te) for tr, te in lote]
+
+
 def validar_cruzado(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
                     splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
                     columnas: list[str], gpus: list[int] | None = None,
@@ -95,8 +110,19 @@ def validar_cruzado(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: n
     total = nucleos(n_jobs)
     fijos = (nombre, semilla, multi, seleccion, cfg_modelo.get("hiperparametros"), len(columnas), n_clases)
     con_gpu = asignacion[0] is not None
-    if paralelo and len(splits) > 1 and con_gpu and len(gpus) > 1:
-        # una particion por GPU al mismo tiempo (hilos: XGBoost y CatBoost liberan el GIL mientras entrenan)
+    if paralelo and len(splits) > 1 and con_gpu and len(gpus) > 1 and nombre in GPU_POR_PROCESO:
+        # CatBoost no admite dos entrenamientos en GPU a la vez en un mismo proceso: un proceso por GPU, cada uno
+        # con sus particiones en serie
+        nj = max(1, total // len(gpus))
+        lotes = repartir_por_gpu(len(splits), gpus)
+        res = Parallel(n_jobs=len(gpus), backend="loky")(
+            delayed(_lote_particiones)(fijos, nj, g, X, y, w, [splits[i] for i in lotes[g]]) for g in gpus)
+        resultados = [None] * len(splits)
+        for g, r in zip(gpus, res):
+            for i, v in zip(lotes[g], r):
+                resultados[i] = v
+    elif paralelo and len(splits) > 1 and con_gpu and len(gpus) > 1:
+        # una particion por GPU al mismo tiempo (hilos: XGBoost libera el GIL mientras entrena)
         nj = max(1, total // len(gpus))
         resultados = Parallel(n_jobs=len(gpus), backend="threading")(
             delayed(_ajustar_particion)(*fijos, nj, asignacion[i], X, y, w, tr, te) for i, (tr, te) in enumerate(splits))
@@ -133,6 +159,13 @@ def _valor_permutacion(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y
     return _metricas_globales(tipo, yp, pr, p, n_clases).get(principal, np.nan)
 
 
+def _lote_permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, ys: list[np.ndarray],
+                        w: np.ndarray | None, splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int,
+                        seleccion: dict | None, columnas: list[str], gpus: list[int], principal: str) -> list[float]:
+    return [_valor_permutacion(nombre, cfg_modelo, X, yp, w, splits, tipo, n_clases, semilla, n_jobs, seleccion,
+                               columnas, gpus, principal) for yp in ys]
+
+
 def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
                   splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
                   columnas: list[str], n_perm: int, principal: str) -> np.ndarray:
@@ -149,6 +182,17 @@ def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.
     sel_cols = (seleccion, columnas)
     if not paralelo_interno() or n_perm < 2:
         nulos = [_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, gpus, principal) for pi in perms]
+    elif nombre in GPU_POR_PROCESO and gpus:
+        # un proceso por GPU con sus permutaciones en serie (CatBoost: una GPU por proceso)
+        nj = max(1, total // len(gpus))
+        lotes = repartir_por_gpu(n_perm, gpus)
+        res = Parallel(n_jobs=len(gpus), backend="loky")(
+            delayed(_lote_permutaciones)(*args, [y[perms[i]] for i in lotes[g]], *resto, nj, *sel_cols, [g], principal)
+            for g in gpus)
+        nulos = [0.0] * n_perm
+        for g, r in zip(gpus, res):
+            for i, v in zip(lotes[g], r):
+                nulos[i] = v
     elif nombre in MODELOS_GPU and gpus:
         dispositivos = [[g] for g in gpus] + ([[]] if cpu_ayuda_gpu() and total > len(gpus) else [])
         cola = ColaDispositivos(dispositivos)

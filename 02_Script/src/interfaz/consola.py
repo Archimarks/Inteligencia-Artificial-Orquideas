@@ -164,9 +164,9 @@ def paso_maquina() -> list[int] | None:
         _cabecera("Paso 1 de 4 - Maquina con la que se va a entrenar")
     _tabla_equipo(eq, pruebas if eq["gpus"] else None)
     ok = [i for i, (bien, _) in pruebas.items() if bien]
-    consola.print("\n[bold]Uso de la GPU:[/] XGBoost reparte las particiones entre las GPU elegidas (una por GPU, en "
-                  "paralelo) y CatBoost entrena cada modelo con todas a la vez. LightGBM, Random Forest, regresion "
-                  "logistica y KNN usan la CPU.\n")
+    consola.print("\n[bold]Uso de la GPU:[/] XGBoost y CatBoost reparten las particiones y permutaciones entre las GPU "
+                  "elegidas (una por GPU, en paralelo). LightGBM, Random Forest, regresion logistica y KNN usan la CPU "
+                  "al mismo tiempo.\n")
     opciones = []
     if ok:
         opciones.append(("1", f"Todas las GPU que pasaron la prueba: {ok}  [green](recomendado)[/]", ok))
