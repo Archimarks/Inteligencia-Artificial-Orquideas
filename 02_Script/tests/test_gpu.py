@@ -26,7 +26,7 @@ def test_exigir_gpu_sin_gpu_falla():
 
 def test_reparto_de_particiones():
     assert asignar_gpus("xgboost", 5, [0, 1]) == [[0], [1], [0], [1], [0]]
-    assert asignar_gpus("catboost", 3, [0, 1]) == [[0, 1]] * 3
+    assert asignar_gpus("catboost", 3, [0, 1]) == [[0], [1], [0]]
     assert asignar_gpus("random_forest", 2, [0, 1]) == [None, None]
     assert asignar_gpus("xgboost", 2, []) == [None, None]
 

@@ -7,6 +7,7 @@ UNIDAD_ACTIVIDAD). `vista_quimica()` elimina esa replicacion para los analisis q
 """
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 
 import numpy as np
@@ -54,7 +55,10 @@ def cargar_dataset() -> pd.DataFrame:
     df = pd.read_csv(p, sep=";", dtype=_dtypes(), keep_default_na=False, na_values={c: [""] for c in _NUM})
     for c in _TXT:
         df[c] = df[c].fillna("").astype("string")
-    df.to_parquet(cache, index=False)
+    # escritura atomica: varios experimentos en paralelo pueden crear la cache a la vez
+    tmp = cache.with_name(f"{cache.stem}.{os.getpid()}.tmp")
+    df.to_parquet(tmp, index=False)
+    os.replace(tmp, cache)
     return df
 
 

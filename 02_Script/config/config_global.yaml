@@ -36,11 +36,20 @@ graficas:
   dpi: 200
   estilo: whitegrid
 
-# Aceleracion por GPU (NVIDIA). Se detectan todas las GPU con nvidia-smi.
+# Aceleracion por GPU (NVIDIA) y uso de todo el hardware. Se detectan todas las GPU con nvidia-smi.
 #   usar_gpu: auto -> usa todas las GPU detectadas; si no hay, CPU | si -> exige GPU | no -> solo CPU
 #   gpus: todas | [0, 1]  (indices a usar)
-# XGBoost reparte las particiones de la validacion cruzada entre las GPU (una por GPU, en paralelo);
-# CatBoost entrena cada modelo con todas las GPU a la vez. Ver `python main.py hardware`.
+#   experimentos_paralelos: experimentos que se entrenan al mismo tiempo, cada uno en su proceso
+#     auto -> uno por GPU + uno solo en CPU (con 2 GPU: 3 a la vez); sin GPU, uno (que ya usa todos los nucleos)
+#     1    -> uno tras otro  |  N -> N a la vez (se reparten GPU y nucleos)
+#     (por comando: python main.py ejecutar-todos --paralelo 3  |  --secuencial)
+#   paralelo_interno: dentro de cada experimento, particiones y permutaciones en paralelo y los modelos de CPU
+#     entrenando mientras XGBoost/CatBoost usan las GPU
+#   cpu_ayuda_gpu: en las permutaciones de XGBoost/CatBoost la CPU entrena tambien (ademas de las GPU)
+# Los resultados no cambian (mismas semillas, particiones y permutaciones). Ver `python main.py hardware`.
 hardware:
   usar_gpu: auto
   gpus: todas
+  experimentos_paralelos: auto
+  paralelo_interno: true
+  cpu_ayuda_gpu: true

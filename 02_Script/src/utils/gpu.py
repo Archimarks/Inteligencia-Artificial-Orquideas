@@ -8,10 +8,11 @@ librerias adicionales). La configuracion `hardware` de config_global.yaml decide
       gpus: todas         # todas | lista de indices, p. ej. [0, 1]
 
 Uso por modelo:
-- CatBoost entrena cada modelo con todas las GPU seleccionadas a la vez (devices="0:1").
-- XGBoost usa una GPU por modelo; las particiones de la validacion cruzada (y las permutaciones) se reparten entre
-  todas las GPU y se entrenan en paralelo, una por GPU.
-- LightGBM (wheel de pip), Random Forest, regresion logistica y KNN se entrenan en CPU con todos los nucleos.
+- XGBoost y CatBoost usan una GPU por modelo; las particiones de la validacion cruzada y las permutaciones se
+  reparten entre todas las GPU y se entrenan en paralelo, una por GPU (las permutaciones tambien en la CPU si
+  hardware.cpu_ayuda_gpu es true).
+- LightGBM (wheel de pip), Random Forest, regresion logistica y KNN se entrenan en CPU repartiendo los nucleos,
+  al mismo tiempo que los modelos de GPU. Ver utils/paralelo.py (tambien varios experimentos a la vez).
 `CUDA_VISIBLE_DEVICES` se respeta si esta definida.
 """
 from __future__ import annotations
@@ -96,7 +97,9 @@ def seleccionar_gpus(hardware: dict[str, Any] | None = None, detectadas: list[di
 
 
 def resumen_hardware() -> dict[str, Any]:
-    return {"cpu_nucleos": os.cpu_count(), "gpus": detectar_gpus(), "gpus_usadas": seleccionar_gpus()}
+    from .paralelo import nucleos
+    return {"cpu_nucleos": os.cpu_count(), "nucleos_usados": nucleos(config_global().get("n_jobs", -1)),
+            "gpus": detectar_gpus(), "gpus_usadas": seleccionar_gpus()}
 
 
 

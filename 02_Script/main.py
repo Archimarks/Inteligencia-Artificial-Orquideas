@@ -11,7 +11,9 @@ Uso por comandos (desde la carpeta 02_Script):
     python main.py datos [ID ...]            # archivos y columnas que usa cada experimento para entrenar
     python main.py datos M05 --variables     # ademas construye el conjunto y lista las variables de entrada
     python main.py ejecutar M12 [M13 ...]    # ejecuta uno o varios experimentos
-    python main.py ejecutar-todos            # ejecuta todos (M01..M18)
+    python main.py ejecutar-todos            # ejecuta todos (M01..M18), varios a la vez segun el hardware
+    python main.py ejecutar-todos --paralelo 3   # 3 experimentos a la vez (p. ej. GPU 0, GPU 1 y CPU)
+    python main.py ejecutar-todos --secuencial   # uno tras otro
     python main.py resumen                   # tabla ejecutiva con la ultima ejecucion de cada experimento
     python main.py reinformar                # regenera los informes de todas las ejecuciones sin reentrenar
     python main.py predecir RUN_ID datos.csv # aplica un modelo guardado a un CSV con las mismas variables
@@ -85,6 +87,11 @@ def cmd_hardware(_: argparse.Namespace) -> None:
         print(f"  GPU {g['indice']}: {g['nombre']} | {g['memoria_mb']} MB | compute {g.get('compute_capability')} | "
               f"driver {g.get('driver')}")
     print(f"GPU que se usaran para entrenar (XGBoost/CatBoost): {hw['gpus_usadas'] or 'ninguna (CPU)'}")
+    from src.utils.paralelo import describir_ranuras, hardware, plan_ranuras
+    ranuras = plan_ranuras()
+    print(f"Experimentos a la vez (hardware.experimentos_paralelos = {hardware().get('experimentos_paralelos', 'auto')}): "
+          f"{len(ranuras)} -> {describir_ranuras(ranuras)}")
+    print(f"Paralelo dentro de cada experimento: {'si' if hardware().get('paralelo_interno', True) else 'no'}")
 
 
 def cmd_listar(_: argparse.Namespace) -> None:
@@ -127,10 +134,24 @@ def cmd_datos(a: argparse.Namespace) -> None:
 
 
 def cmd_ejecutar(a: argparse.Namespace) -> None:
-    from src.pipeline.ejecutor import ejecutar_experimento
-    for i in a.ids:
-        r = ejecutar_experimento(i, a.etiqueta)
-        print(f"{r['id_experimento']}: {r.get('estado')} | {r.get('veredicto', '')} | {r['run_id']}")
+    from src.config.esquema import buscar_config
+    from src.utils.paralelo import describir_ranuras, ejecutar_experimentos, plan_ranuras
+    for i in a.ids:   # valida todo antes de lanzar procesos
+        cargar_config(buscar_config(i))
+    pedido = 1 if getattr(a, "secuencial", False) else getattr(a, "paralelo", None)
+    ranuras = plan_ranuras(pedido)
+    if len(ranuras) > 1 and len(a.ids) > 1:
+        print(f"Entrenando hasta {len(ranuras)} experimentos a la vez: {describir_ranuras(ranuras)}")
+
+    def inicio(i: str, r) -> None:
+        if len(ranuras) > 1 and len(a.ids) > 1:
+            print(f"-> {i} en {r.nombre}", flush=True)
+
+    def fin(r: dict) -> None:
+        print(f"{r['id_experimento']}: {r.get('estado')} | {r.get('veredicto', '')} | {r.get('run_id', '-')}"
+              + (f" | {r['_ranura']}" if len(ranuras) > 1 and len(a.ids) > 1 else "")
+              + (f" | {r['motivo']}" if r.get("estado") == "error" and r.get("motivo") else ""), flush=True)
+    ejecutar_experimentos(a.ids, a.etiqueta, ranuras, al_iniciar=inicio, al_terminar=fin)
 
 
 def cmd_ejecutar_todos(a: argparse.Namespace) -> None:
@@ -210,6 +231,13 @@ def cmd_construir_dataset(a: argparse.Namespace) -> None:
     print(f"\nListo en {r['segundos']} s. Avisos: {len(r['avisos'])}. Informe: {salida / 'INFORME_CONSTRUCCION.md'}")
 
 
+def _opciones_paralelo(s: argparse.ArgumentParser) -> None:
+    g = s.add_mutually_exclusive_group()
+    g.add_argument("--paralelo", metavar="N", help="experimentos a la vez: auto (uno por GPU + uno en CPU) o un numero "
+                                                   "(por defecto hardware.experimentos_paralelos)")
+    g.add_argument("--secuencial", action="store_true", help="un experimento tras otro (cada uno usa todo el equipo)")
+
+
 def construir_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="IA para el descubrimiento de patrones quimicos en orquideas. "
                                              "Sin argumentos abre un menu.")
@@ -225,9 +253,9 @@ def construir_parser() -> argparse.ArgumentParser:
     s.add_argument("--variables", action="store_true", help="construye el conjunto y lista las variables de entrada")
     s.set_defaults(f=cmd_datos)
     s = sub.add_parser("ejecutar", help="entrena uno o varios experimentos"); s.add_argument("ids", nargs="+")
-    s.add_argument("--etiqueta"); s.set_defaults(f=cmd_ejecutar)
+    s.add_argument("--etiqueta"); _opciones_paralelo(s); s.set_defaults(f=cmd_ejecutar)
     s = sub.add_parser("ejecutar-todos", help="entrena todos los experimentos"); s.add_argument("--etiqueta")
-    s.set_defaults(f=cmd_ejecutar_todos)
+    _opciones_paralelo(s); s.set_defaults(f=cmd_ejecutar_todos)
     s = sub.add_parser("resumen", help="resumen ejecutivo y guia de modelos"); s.set_defaults(f=cmd_resumen)
     s = sub.add_parser("reinformar", help="regenera informes sin reentrenar"); s.set_defaults(f=cmd_reinformar)
     s = sub.add_parser("predecir", help="aplica un modelo guardado a un CSV"); s.add_argument("run_id")

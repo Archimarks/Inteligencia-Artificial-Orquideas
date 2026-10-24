@@ -350,9 +350,30 @@ def _confirmar(sel: list[dict[str, Any]], gpus: list[int], op: dict[str, Any]) -
 def entrenar(sel: list[dict[str, Any]], op: dict[str, Any]) -> None:
     from ..pipeline.ejecutor import ejecutar_experimento, ultimas_ejecuciones
     from ..pipeline.interpretacion import guia_modelos, resumen_ejecutivo
+    from ..utils.paralelo import describir_ranuras, ejecutar_experimentos, plan_ranuras
     _cabecera("Entrenamiento")
     resultados = []
     t0 = time.time()
+    ranuras = plan_ranuras() if len(sel) > 1 else []
+    if len(ranuras) > 1 and Confirm.ask(f"¿Entrenar {len(ranuras)} modelos a la vez para aprovechar todo el equipo? "
+                                        f"[dim]({describir_ranuras(ranuras)})[/]", default=True):
+        def inicio(i: str, r) -> None:
+            consola.print(f"[cyan]-> {i}[/] en {r.nombre}  [dim](transcurrido {timedelta(seconds=int(time.time() - t0))})[/]")
+
+        def fin(r: dict[str, Any]) -> None:
+            v = r.get("veredicto") or r.get("estado")
+            valor = f"{r['metrica_principal']} = {r['valor_mejor']:.3f} ({r.get('mejor_modelo')})" if r.get("valor_mejor") is not None else ""
+            consola.print(f"[bold]=> {r['id_experimento']}:[/] {_fmt_veredicto(v)}  {valor}  "
+                          f"[dim]{r.get('_segundos', 0):.0f} s en {r.get('_ranura')}[/]")
+            if r.get("estado") == "error":
+                consola.print(f"[red]{r.get('motivo')}[/]")
+        try:
+            resultados = ejecutar_experimentos([c["id"] for c in sel], ranuras=ranuras,
+                                               ajustes={c["id"]: _ajustes(c, op) for c in sel},
+                                               al_iniciar=inicio, al_terminar=fin)
+        except KeyboardInterrupt:
+            consola.print("[yellow]Entrenamiento detenido; los modelos terminados se conservan.[/]")
+        sel = []
     for i, cfg in enumerate(sel, 1):
         transcurrido = time.time() - t0
         eta = f" | restante estimado {timedelta(seconds=int(transcurrido / (i - 1) * (len(sel) - i + 1)))}" if i > 1 else ""

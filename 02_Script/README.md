@@ -71,8 +71,8 @@ Los mismos procesos sin interfaz (por ejemplo, para scripts), desde `02_Script`:
 | `python main.py listar` | Lista los experimentos configurados |
 | `python main.py validar [ID ...]` | Valida los YAML sin ejecutar (codigo de salida 1 si hay errores) |
 | `python main.py datos [ID ...] [--variables]` | Archivos y columnas que usa cada experimento para entrenar; con `--variables` construye el conjunto y lista las variables finales de entrada |
-| `python main.py ejecutar M05 [M13 ...] [--etiqueta X]` | Ejecuta experimentos (acepta `M05` o `M05_familia`) |
-| `python main.py ejecutar-todos` | Ejecuta todos y genera el resumen (unas 2-3 h con 4 nucleos, sobre todo por las permutaciones) |
+| `python main.py ejecutar M05 [M13 ...] [--etiqueta X] [--paralelo N\|auto] [--secuencial]` | Ejecuta experimentos (acepta `M05` o `M05_familia`); varios a la vez segun el hardware (ver 3.2) |
+| `python main.py ejecutar-todos [--paralelo N\|auto] [--secuencial]` | Ejecuta todos y genera el resumen. Las permutaciones (lo mas lento) se reparten entre todos los nucleos y GPU |
 | `python main.py resumen` | Escribe `03_Resultados/Global/resumen_ejecutivo.md`, la grafica comparativa global y `05_Documentacion/guia_modelos.md` |
 | `python main.py reinformar` | Regenera los informes de todas las ejecuciones sin reentrenar |
 | `python main.py predecir RUN_ID datos.csv` | Aplica un modelo guardado a un CSV con las mismas columnas que X |
@@ -113,15 +113,41 @@ La primera lectura de Dataset.csv (~550 MB) tarda alrededor de 1 minuto y crea u
 El sistema detecta todas las GPU NVIDIA con `nvidia-smi` (incluido en el controlador) y las usa segun
 `hardware` en `config/config_global.yaml`. Por defecto (`usar_gpu: auto`, `gpus: todas`) usa todas las GPU
 detectadas:
-- **XGBoost:** cada modelo usa una GPU, y las particiones de la validacion cruzada y de las permutaciones se reparten
-  entre todas las GPU y se entrenan en paralelo. Con dos GPU, dos particiones a la vez.
-- **CatBoost:** cada modelo se entrena con todas las GPU a la vez (`devices="0:1"`).
-- **LightGBM, Random Forest, regresion logistica y KNN:** CPU con todos los nucleos. LightGBM de pip es solo CPU.
+- **XGBoost y CatBoost:** cada modelo usa una GPU; las particiones de la validacion cruzada y las permutaciones se
+  reparten entre todas las GPU y se entrenan en paralelo (con dos GPU, dos a la vez). En las permutaciones la CPU
+  tambien entrena como un dispositivo mas (`cpu_ayuda_gpu: true`).
+- **LightGBM, Random Forest, Extra Trees, HistGradientBoosting, regresion logistica y KNN:** CPU, repartiendo los
+  nucleos entre particiones y permutaciones. Se entrenan al mismo tiempo que XGBoost/CatBoost usan las GPU.
 
 Sin GPU, el mismo codigo entrena en CPU. Con `usar_gpu: si`, el sistema se detiene si no hay GPU, y `gpus: [0]`
 limita las GPU usadas. `CUDA_VISIBLE_DEVICES` se respeta. Compruebe la deteccion con `python main.py hardware`.
-Cada `manifiesto.json` registra las GPU detectadas y usadas, y `metricas_por_particion.csv` la GPU de cada
-particion.
+Cada `manifiesto.json` registra las GPU detectadas y usadas y los nucleos asignados, y `metricas_por_particion.csv`
+la GPU de cada particion.
+
+## 3.2 Uso de todo el hardware (entrenamiento en paralelo)
+
+Hay dos niveles, configurables en `hardware` de `config/config_global.yaml`:
+
+1. **Varios experimentos a la vez** (`experimentos_paralelos`). Cada experimento corre en su propio proceso
+   ("ranura") con su dispositivo y su parte de los nucleos:
+   - `auto` (por defecto): una ranura por GPU y otra solo de CPU. Con 2 GPU y 1 CPU se entrenan **3 experimentos
+     a la vez**: uno en la GPU 0, otro en la GPU 1 y otro en la CPU. Los experimentos con XGBoost/CatBoost van
+     primero a las ranuras con GPU y los demas (p. ej. M18) a la de CPU; cuando una ranura termina toma el
+     siguiente pendiente. Sin GPU, `auto` ejecuta uno a la vez (cada uno ya usa todos los nucleos).
+   - `1`: uno tras otro, cada uno con todo el equipo (todas las GPU y todos los nucleos).
+   - `N`: N a la vez, repartidos en GPU 0, GPU 1, ..., CPU, GPU 0, ...
+   - Por comando: `python main.py ejecutar-todos --paralelo 3` o `--secuencial`. En la interfaz se pregunta antes
+     de entrenar.
+2. **Dentro de cada experimento** (`paralelo_interno: true`): los modelos de CPU se entrenan mientras XGBoost/
+   CatBoost usan las GPU; las particiones de la validacion cruzada se entrenan a la vez (procesos para los modelos
+   de CPU, una por GPU para XGBoost/CatBoost); y las permutaciones, que son la parte mas lenta, se reparten entre
+   todos los nucleos y GPU.
+
+**Calidad:** los resultados no cambian. Las semillas, las particiones y las permutaciones son exactamente las de la
+ejecucion en serie (las permutaciones se generan primero y despues se reparten). Lo unico que puede variar es el
+dispositivo que entrena XGBoost/CatBoost (GPU o CPU), lo que solo produce diferencias numericas minimas; queda
+registrado en `manifiesto.json` y en `resultado.json` (`hardware_entrenamiento`). Con poca RAM, reduzca
+`experimentos_paralelos` (cada ranura carga sus propios datos).
 
 ## 4. Configuracion
 

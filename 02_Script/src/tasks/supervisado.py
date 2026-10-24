@@ -19,6 +19,7 @@ from ..evaluation.validacion import filtrar_clases, filtrar_etiquetas, particion
 from ..features.conjuntos import Conjunto
 from ..models.registro_modelos import MODELOS_GPU, construir_pipeline, disponible
 from ..utils.gpu import seleccionar_gpus
+from ..utils.paralelo import ColaDispositivos, cpu_ayuda_gpu, hilo_en_segundo_plano, nucleos, paralelo_interno
 from ..utils.es import guardar_json, guardar_tabla
 from ..visualization import graficas
 
@@ -56,39 +57,57 @@ def _proba_multietiqueta(pipe, X, n_etiquetas: int) -> np.ndarray:
 
 
 def asignar_gpus(nombre: str, n_particiones: int, gpus: list[int]) -> list[list[int] | None]:
-    """GPU de cada particion: XGBoost reparte las particiones entre todas las GPU (una GPU por particion, en
-    paralelo); CatBoost usa todas las GPU en cada particion; el resto de modelos, CPU."""
+    """GPU de cada particion: XGBoost y CatBoost reparten las particiones entre las GPU (una GPU por particion,
+    entrenadas en paralelo); el resto de modelos, CPU."""
     if not gpus or nombre not in MODELOS_GPU:
         return [None] * n_particiones
-    if nombre == "xgboost":
-        return [[gpus[i % len(gpus)]] for i in range(n_particiones)]
-    return [list(gpus)] * n_particiones
+    return [[gpus[i % len(gpus)]] for i in range(n_particiones)]
+
+
+def _ajustar_particion(nombre: str, semilla: int, multi: bool, seleccion: dict | None, hiper: dict | None,
+                       n_columnas: int, n_clases: int, n_jobs: int, gpus: list[int] | None, X: np.ndarray,
+                       y: np.ndarray, w: np.ndarray | None, tr: np.ndarray, te: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Entrena una particion y devuelve (indices de prueba, probabilidades). Funcion de modulo para poder
+    ejecutarse en otro proceso."""
+    pipe = construir_pipeline(nombre, semilla, n_jobs, multi, seleccion, hiper, n_columnas, gpus=gpus)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        _ajustar(pipe, X[tr], y[tr], None if w is None else w[tr])
+        p = _proba_multietiqueta(pipe, X[te], n_clases) if multi else _proba_multiclase(pipe, X[te], n_clases)
+    return te, p
 
 
 def validar_cruzado(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
                     splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
-                    columnas: list[str]) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]]]:
-    """Predicciones fuera de particion (OOF) y metricas por particion."""
+                    columnas: list[str], gpus: list[int] | None = None,
+                    paralelo: bool | None = None) -> tuple[np.ndarray, np.ndarray, list[dict[str, float]]]:
+    """Predicciones fuera de particion (OOF) y metricas por particion.
+
+    `gpus` fija los dispositivos (None = los de la sesion; [] = solo CPU). Con `paralelo` (por defecto
+    hardware.paralelo_interno) las particiones se entrenan a la vez: XGBoost/CatBoost una por GPU (hilos) y los
+    modelos de CPU repartiendo los nucleos entre procesos. Cada particion usa la misma semilla que en serie.
+    """
+    from joblib import Parallel, delayed
     multi = tipo == "multietiqueta"
-    gpus = seleccionar_gpus()
+    gpus = seleccionar_gpus() if gpus is None else list(gpus)
     asignacion = asignar_gpus(nombre, len(splits), gpus)
-
-    def una_particion(i: int, tr: np.ndarray, te: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        pipe = construir_pipeline(nombre, semilla, n_jobs, multi, seleccion, cfg_modelo.get("hiperparametros"),
-                                  len(columnas), gpus=asignacion[i])
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            _ajustar(pipe, X[tr], y[tr], None if w is None else w[tr])
-            p = _proba_multietiqueta(pipe, X[te], n_clases) if multi else _proba_multiclase(pipe, X[te], n_clases)
-        return te, p
-
-    if nombre == "xgboost" and len(gpus) > 1:
-        # una particion por GPU al mismo tiempo (hilos: XGBoost libera el GIL mientras entrena en la GPU)
-        from joblib import Parallel, delayed
+    paralelo = paralelo_interno() if paralelo is None else paralelo
+    total = nucleos(n_jobs)
+    fijos = (nombre, semilla, multi, seleccion, cfg_modelo.get("hiperparametros"), len(columnas), n_clases)
+    con_gpu = asignacion[0] is not None
+    if paralelo and len(splits) > 1 and con_gpu and len(gpus) > 1:
+        # una particion por GPU al mismo tiempo (hilos: XGBoost y CatBoost liberan el GIL mientras entrenan)
+        nj = max(1, total // len(gpus))
         resultados = Parallel(n_jobs=len(gpus), backend="threading")(
-            delayed(una_particion)(i, tr, te) for i, (tr, te) in enumerate(splits))
+            delayed(_ajustar_particion)(*fijos, nj, asignacion[i], X, y, w, tr, te) for i, (tr, te) in enumerate(splits))
+    elif paralelo and len(splits) > 1 and not con_gpu and total > 1 and not nombre.startswith("baseline"):
+        # modelos de CPU: varias particiones a la vez, cada una con su parte de los nucleos
+        procesos = min(len(splits), total)
+        nj = max(1, total // procesos)
+        resultados = Parallel(n_jobs=procesos, backend="loky")(
+            delayed(_ajustar_particion)(*fijos, nj, None, X, y, w, tr, te) for tr, te in splits)
     else:
-        resultados = [una_particion(i, tr, te) for i, (tr, te) in enumerate(splits)]
+        resultados = [_ajustar_particion(*fijos, total, asignacion[i], X, y, w, tr, te) for i, (tr, te) in enumerate(splits)]
     proba = np.zeros((len(X), n_clases))
     por_part = []
     for i, (te, p) in enumerate(resultados):
@@ -103,6 +122,50 @@ def validar_cruzado(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: n
         por_part.append(m)
     pred = (proba >= 0.5).astype(int) if multi else proba.argmax(1)
     return proba, pred, por_part
+
+
+def _valor_permutacion(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, yp: np.ndarray, w: np.ndarray | None,
+                       splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
+                       columnas: list[str], gpus: list[int], principal: str) -> float:
+    """Metrica principal con las etiquetas permutadas `yp` (misma validacion agrupada)."""
+    p, pr, _ = validar_cruzado(nombre, cfg_modelo, X, yp, w, splits, tipo, n_clases, semilla, n_jobs, seleccion,
+                               columnas, gpus=gpus, paralelo=False)
+    return _metricas_globales(tipo, yp, pr, p, n_clases).get(principal, np.nan)
+
+
+def permutaciones(nombre: str, cfg_modelo: dict[str, Any], X: np.ndarray, y: np.ndarray, w: np.ndarray | None,
+                  splits: list, tipo: str, n_clases: int, semilla: int, n_jobs: int, seleccion: dict | None,
+                  columnas: list[str], n_perm: int, principal: str) -> np.ndarray:
+    """Distribucion nula de la metrica principal. Las permutaciones se generan primero (mismo generador y orden que
+    en serie) y luego se reparten: modelos GPU entre las GPU (y la CPU si hardware.cpu_ayuda_gpu), modelos de CPU
+    entre procesos con su parte de los nucleos."""
+    from joblib import Parallel, delayed
+    rng = np.random.default_rng(semilla)
+    perms = [rng.permutation(len(y)) for _ in range(n_perm)]
+    gpus = seleccionar_gpus()
+    total = nucleos(n_jobs)
+    args = (nombre, cfg_modelo, X)
+    resto = (w, splits, tipo, n_clases, semilla)
+    sel_cols = (seleccion, columnas)
+    if not paralelo_interno() or n_perm < 2:
+        nulos = [_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, gpus, principal) for pi in perms]
+    elif nombre in MODELOS_GPU and gpus:
+        dispositivos = [[g] for g in gpus] + ([[]] if cpu_ayuda_gpu() and total > len(gpus) else [])
+        cola = ColaDispositivos(dispositivos)
+        nj_cpu = max(1, total - len(gpus))
+
+        def una(pi: np.ndarray) -> float:
+            with cola.tomar() as d:
+                return _valor_permutacion(*args, y[pi], *resto, 1 if d else nj_cpu, *sel_cols, d, principal)
+        nulos = Parallel(n_jobs=cola.n, backend="threading")(delayed(una)(pi) for pi in perms)
+    elif total > 1:
+        procesos = min(n_perm, total)
+        nj = max(1, total // procesos)
+        nulos = Parallel(n_jobs=procesos, backend="loky")(
+            delayed(_valor_permutacion)(*args, y[pi], *resto, nj, *sel_cols, [], principal) for pi in perms)
+    else:
+        nulos = [_valor_permutacion(*args, y[pi], *resto, total, *sel_cols, [], principal) for pi in perms]
+    return np.array(nulos, dtype=float)
 
 
 def _metricas_globales(tipo: str, y, pred, proba, n_clases: int) -> dict[str, float]:
@@ -266,10 +329,11 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
         log.warning(f"Modelos omitidos porque su libreria no esta instalada: {omitidos} "
                     "(python -m pip install -r requirements.txt)")
     cfg = {**cfg, "modelos": [mc for mc in cfg["modelos"] if mc["nombre"] not in omitidos]}
-    for mc in cfg["modelos"]:
+
+    def evaluar(mc: dict[str, Any], nj: int) -> tuple[dict[str, Any], pd.DataFrame, np.ndarray, np.ndarray]:
         nombre = mc["nombre"]
         t = time.time()
-        proba, pred, pp = validar_cruzado(nombre, mc, Xn, y, w, splits, tipo, n_clases, semilla, n_jobs,
+        proba, pred, pp = validar_cruzado(nombre, mc, Xn, y, w, splits, tipo, n_clases, semilla, nj,
                                           cfg.get("seleccion_variables"), list(X.columns))
         glob = _metricas_globales(tipo, y, pred, proba, n_clases)
         dfp = pd.DataFrame(pp)
@@ -279,11 +343,28 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
             if k in dfp:
                 fila[f"{k}_media_particiones"] = dfp[k].mean()
                 fila[f"{k}_de_particiones"] = dfp[k].std(ddof=1)
-        filas.append(fila)
         dfp.insert(0, "modelo", nombre)
-        por_part_todas.append(dfp)
-        oof[nombre] = (proba, pred)
         log.info(f"  {nombre}: {principal}={glob.get(principal, np.nan):.3f} ({fila['segundos']} s)")
+        return fila, dfp, proba, pred
+
+    # Con GPU, XGBoost/CatBoost se entrenan en un hilo aparte mientras la CPU entrena los demas modelos.
+    gpus_sesion, total = seleccionar_gpus(), nucleos(n_jobs)
+    res["hardware_entrenamiento"] = {"nucleos": total, "gpus": gpus_sesion, "paralelo_interno": paralelo_interno()}
+    de_gpu = [mc for mc in cfg["modelos"] if mc["nombre"] in MODELOS_GPU] if gpus_sesion and paralelo_interno() else []
+    de_cpu = [mc for mc in cfg["modelos"] if mc not in de_gpu]
+    hechos: dict[str, tuple] = {}
+    if de_gpu and de_cpu and total > 1:
+        reservados = min(len(gpus_sesion), total - 1)   # un nucleo por GPU para alimentarla
+        esperar = hilo_en_segundo_plano(lambda: {mc["nombre"]: evaluar(mc, reservados) for mc in de_gpu})
+        hechos.update({mc["nombre"]: evaluar(mc, total - reservados) for mc in de_cpu})
+        hechos.update(esperar())
+    else:
+        hechos.update({mc["nombre"]: evaluar(mc, total) for mc in cfg["modelos"]})
+    for mc in cfg["modelos"]:
+        fila, dfp, proba, pred = hechos[mc["nombre"]]
+        filas.append(fila)
+        por_part_todas.append(dfp)
+        oof[mc["nombre"]] = (proba, pred)
     tabla = pd.DataFrame(filas)
     guardar_tabla(tabla, salida["metricas"] / "metricas_modelos.csv")
     guardar_tabla(pd.concat(por_part_todas), salida["metricas"] / "metricas_por_particion.csv")
@@ -361,14 +442,10 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
     # 7. Prueba de permutacion -----------------------------------------------------------------------------------------
     n_perm = int(ev.get("n_permutations", 0)) if ev.get("permutation_test", True) else 0
     if n_perm > 0:
-        rng = np.random.default_rng(semilla)
-        nulos = []
-        for _ in range(n_perm):
-            yp = y[rng.permutation(len(y))]
-            pp_, prp_, _ = validar_cruzado(mejor, cfg_mejor, Xn, yp, w, splits, tipo, n_clases, semilla, n_jobs,
-                                           cfg.get("seleccion_variables"), list(X.columns))
-            nulos.append(_metricas_globales(tipo, yp, prp_, pp_, n_clases).get(principal, np.nan))
-        nulos = np.array(nulos, dtype=float)
+        t = time.time()
+        nulos = permutaciones(mejor, cfg_mejor, Xn, y, w, splits, tipo, n_clases, semilla, n_jobs,
+                              cfg.get("seleccion_variables"), list(X.columns), n_perm, principal)
+        log.info(f"  {n_perm} permutaciones en {time.time() - t:.0f} s")
         obs = res["valor_mejor"]
         res["permutacion"] = {"n": n_perm, "media_nula": float(np.nanmean(nulos)), "p95_nula": float(np.nanpercentile(nulos, 95)),
                               "p_valor": float((1 + np.sum(nulos >= obs)) / (1 + n_perm))}
@@ -386,7 +463,7 @@ def ejecutar(conj: Conjunto, cfg: dict[str, Any], salida: dict[str, Path], log: 
         log.info(f"  Permutacion: p={res['permutacion']['p_valor']:.3f}")
 
     # 8. Modelo final con todos los datos -------------------------------------------------------------------------------
-    final = construir_pipeline(mejor, semilla, n_jobs, multi, cfg.get("seleccion_variables"), cfg_mejor.get("hiperparametros"),
+    final = construir_pipeline(mejor, semilla, nucleos(n_jobs), multi, cfg.get("seleccion_variables"), cfg_mejor.get("hiperparametros"),
                                X.shape[1], gpus=asignar_gpus(mejor, 1, seleccionar_gpus())[0])
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
